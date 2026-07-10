@@ -32,6 +32,8 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+.dev.vars*
 
 # typescript
 *.tsbuildinfo
@@ -39,3 +41,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+/.vscode
+/supabase
+
+# google services file
+google-services.json
