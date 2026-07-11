@@ -2,7 +2,7 @@
 This file is included to show copies of licenses which are included due to the usage with or without modifications of codes taken from sources with licenses that require a copy to be included. 
 These codes that are adapted or taken from these sources are indicated by comments that explain the usage and reference this file (THIRD-PARTY-LICENSES-MANUAL-ADDITION.MD) for a copy of the license. 
 
-<br><br>
+<br>
 
 **For licenses of third-party dependencies used in this project, please refer to THIRD-PARTY-LICENSES.txt at the root directory of this project instead.** 
 

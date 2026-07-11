@@ -136,14 +136,14 @@ export function SignInScreen({navigation}){
       if (!projectId) {
         throw new Error('Project ID was not found');
       }
-
+      
       // get the Expo push token
       token = (
         await Notifications.getExpoPushTokenAsync({
           projectId,
         })
       ).data;
-      
+    
       console.log("Expo push token: " + token);
     } 
     catch(error) {
@@ -162,23 +162,27 @@ export function SignInScreen({navigation}){
     const handleSignIn = async (userId) => {
       try{
         setIsLoading(true);
+
         // get expo push token
         const pushToken = await registerForPushNotificationsAsync();
 
         /* if there is a token upsert to profiles table with the token, 
            otherwise upsert with null push token */
         if(pushToken){
+          console.log('Push token available')
           await upsertExpoPushToken(userId, pushToken);
         }
         else{
+          console.log('No push token')
           await upsertExpoPushToken(userId, null);
         }
 
-        navigation.navigate('Home');
+        console.log('test')
+        navigation.popTo('Home');
         setIsLoading(false);
       }
       catch(error){
-        alert(error)
+        alert(error);
       }
     }
       

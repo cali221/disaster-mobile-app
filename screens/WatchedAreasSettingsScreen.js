@@ -9,7 +9,7 @@ import { Text,
 import { supabase } from '../lib/supabase'
 import { useRoute } from '@react-navigation/native';
 
-export function AccountSettingsScreen() {
+export function WatchedAreasSettingsScreen({navigation}) {
     const attrDefaultStr = `Indonesian subnational administrative boundaries data source: \
 Badan Pusat Statistik (BPS - Statistics Indonesia). Contributed by: \
 OCHA Field Information Services Section (FISS). \
@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
     },
     accountSettingsScreenContentContainer:{
         padding: 30,
-        height: '100%'
+        height: '100%',
+        marginBottom: '30%'
     },
     // the text input field for searching for locations
     searchTextInput: {

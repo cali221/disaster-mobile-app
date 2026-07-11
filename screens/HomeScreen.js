@@ -1,8 +1,12 @@
 import { Text, TouchableOpacity, View, StyleSheet} from 'react-native';
 import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function HomeScreen({ navigation }) {
+  const insets = useSafeAreaInsets()
+
   // state for user session
   const [session, setSession] = useState(null);
     
@@ -19,7 +23,7 @@ export function HomeScreen({ navigation }) {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if(!session?.user || event === 'SIGNED_OUT'){
         setSession(null);
-        navigation.navigate('Sign In')
+        navigation.popTo('Sign In')
       }
       else if(session?.user){
         setSession(session);
@@ -28,7 +32,10 @@ export function HomeScreen({ navigation }) {
   }, []);
 
   return(
-    <View style={styles.homescreenContainer}>
+    <View style={[styles.homescreenContainer, { paddingTop: insets.top,
+                                                paddingBottom: insets.bottom,
+                                                paddingLeft: insets.left,
+                                                paddingRight: insets.right }]}>
       {session == null ? 
       // the components below are shown when user is not signed in
       <View>
@@ -46,11 +53,11 @@ export function HomeScreen({ navigation }) {
             <Text>Sign out</Text>
           </TouchableOpacity>
 
-          {/* button to go to account settings, currently for adding watched areas */}
+          {/* button to go to watched areas settings, currently for adding watched areas */}
           <TouchableOpacity style={styles.accountSettingsBtn}
-                            onPress={()=>{navigation.navigate('Account Settings', 
+                            onPress={()=>{navigation.navigate('Watched Areas Settings', 
                                                               {'session': session})}}>
-            <Text>Go to account settings</Text>
+            <Text>Go to Watched areas settings</Text>
           </TouchableOpacity>
         </View>
       </View>   
@@ -78,7 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     rowGap: 20
   },
-  // button to go to account settings screen
+  // button to go to watched areas settings screen
   accountSettingsBtn: {
     width: 170,
     backgroundColor: 'pink',
