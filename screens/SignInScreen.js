@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase'
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { showInfoToast } from '../utils/showToast';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -20,7 +21,7 @@ export function SignInScreen({navigation}){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // function to handle signing in 
+  // function to sign in to supabase
   const signIn = async () => {
     setIsLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -29,7 +30,7 @@ export function SignInScreen({navigation}){
     });
     
     if (error){
-      alert(`${error.message}`)
+      throw new Error(error.message);
     }
     setIsLoading(false);
   }
@@ -37,10 +38,10 @@ export function SignInScreen({navigation}){
   // function to upsert the expo push token 
   const upsertExpoPushToken = async (userId, pushToken) => {
     const { data, error } = await supabase.schema('users')
-                                          .from('profiles')
+                                          .from('profiles_private_data')
                                           .upsert({user_id: userId, 
                                                    expo_push_token: pushToken}, 
-                                                   {onConflict: 'user_id'});
+                                                  {onConflict: 'user_id'});
 
     if(error){
       throw new Error(`${error.message}`);
@@ -147,53 +148,40 @@ export function SignInScreen({navigation}){
       console.log("Expo push token: " + token);
     } 
     catch(error) {
-      throw new Error('Failed to obtain token for push notification.');
+      throw new Error(`Failed to obtain token for push notification: ${error}`);
     }
 
     return token;
   }
   // End of code I did not write myself
 
+  // function to handle the sign in process (sign in -> get expo push token -> upsert expo push token)
+  const handleSignIn = async (userId) => {
+    try{
+      setIsLoading(true);
+      await signIn();
 
-  useEffect(() => {
-    /* function to handle what happens after sign in
-       Expo push token should be obtained and upserted, 
-       then user should be redirected to home screen */
-    const handleSignIn = async (userId) => {
-      try{
-        setIsLoading(true);
+      // get expo push token
+      const pushToken = await registerForPushNotificationsAsync();
 
-        // get expo push token
-        const pushToken = await registerForPushNotificationsAsync();
-
-        /* if there is a token upsert to profiles table with the token, 
-           otherwise upsert with null push token */
-        if(pushToken){
-          console.log('Push token available')
-          await upsertExpoPushToken(userId, pushToken);
-        }
-        else{
-          console.log('No push token')
-          await upsertExpoPushToken(userId, null);
-        }
-
-        console.log('test')
-        navigation.popTo('Home');
-        setIsLoading(false);
+      /* if there is a token upsert to profiles table with the token, 
+          otherwise upsert with null push token */
+      if(pushToken){
+        await upsertExpoPushToken(userId, pushToken);
       }
-      catch(error){
-        alert(error);
+      else{
+        await upsertExpoPushToken(userId, null);
       }
+
+      navigation.popTo('Home');
+
     }
-      
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN')) {
-        /* NOTE: currently Expo push token is stored per user and can only 
-           receive notifications on the device where they are last logged in */
-        handleSignIn(session.user.user_id);
-      }
-    })
-  }, []);
+    catch(error){
+      console.error(error);
+      showInfoToast('Login handling failed', error.message);
+    }
+    setIsLoading(false);
+  }
 
   return(
     <View style={styles.signInScreenContainer}>
@@ -216,7 +204,7 @@ export function SignInScreen({navigation}){
         </View>
 
         {/* button to sign in */}
-        <TouchableOpacity onPress={() => {signIn()}}
+        <TouchableOpacity onPress={() => {handleSignIn()}}
                           style={styles.signInBtn}>
           <Text>
             Sign In
@@ -272,7 +260,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'grey',
     borderRadius: 20,
-    marginTop: 50
+    marginTop: 50,
+    maxWidth: 350
   },
   // text input field for both password and email
   signInTextInputPasswordEmail: {

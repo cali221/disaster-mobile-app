@@ -12,20 +12,26 @@ export function SignUpScreen({navigation}){
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
 
   // function for handling signing up
   const signUp = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const {data, error} = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          username: username
+        },
+      },
     });
 
     if(error){
-      alert(error.message);
+      alert('error: ' + error.message);
     }
     else{
-     navigation.navigate('Sign In');
+      alert('Account has been created.')
     }
     setIsLoading(false);
   } 
@@ -39,7 +45,15 @@ export function SignUpScreen({navigation}){
           <Text>Email</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
-                     style={styles.signUpTextInputPasswordEmail} />
+                     style={styles.signUpTextInput} />
+        </View>
+
+        <View style={styles.signUpInputFormFields}>
+          {/* username input field */}
+          <Text>Username</Text>
+          <TextInput onChangeText={setUsername}
+                     value={username}
+                     style={styles.signUpTextInput} />
         </View>
 
         <View style={styles.signUpInputFormFields}>
@@ -47,7 +61,7 @@ export function SignUpScreen({navigation}){
           <Text>Password</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
-                     style={styles.signUpTextInputPasswordEmail} />
+                     style={styles.signUpTextInput} />
         </View>
 
         {/* button to sign up */}
@@ -93,10 +107,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'grey',
     borderRadius: 20,
-    marginTop: 50
+    marginTop: 50,
+    maxWidth: 350
   },
   // text input fields for password and email
-  signUpTextInputPasswordEmail: {
+  signUpTextInput: {
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 20,

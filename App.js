@@ -10,8 +10,9 @@ import { PanicButtonScreen } from './screens/PanicButtonScreen';
 import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Text } from 'react-native';
-import { House, UserRound, Bell, FileText, Siren, FileX } from 'lucide-react-native';
+import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 const Stack = createStackNavigator();
 
@@ -174,6 +175,7 @@ export default function App() {
   return(
     <SafeAreaProvider>
       <Navigation />
+      <Toast />
     </SafeAreaProvider>
   )
 }
@@ -200,6 +202,6 @@ const styles = StyleSheet.create({
   bottomTabNavLabelTxts:{
     color: '#E0E0E0',
     textAlign: 'center',
-    fontSize: 11
+    fontSize: 10
   }
 })
