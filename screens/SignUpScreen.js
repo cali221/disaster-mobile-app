@@ -6,6 +6,7 @@ import { StyleSheet,
          ActivityIndicator } from 'react-native';
 import { supabase } from '../lib/supabase'
 import { useState } from 'react'
+import { showErrorToast, showSuccessToast } from '../utils/showToast';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
@@ -28,10 +29,10 @@ export function SignUpScreen({navigation}){
     });
 
     if(error){
-      alert('error: ' + error.message);
+      showErrorToast('Failed to sign up', error.message);
     }
     else{
-      alert('Account has been created.')
+      showSuccessToast('Account has been created', 'You can sign in now');
     }
     setIsLoading(false);
   } 

@@ -12,9 +12,53 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Text } from 'react-native';
 import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import Toast, { customToastView } from 'react-native-toast-message';
 
 const Stack = createStackNavigator();
+
+// custom toast styling 
+// styling should be applied directly without StyleSheet or it doesn't work
+const toastConfig = {
+  customErrorToast: ({ text1, text2, props }) => (
+    <View style={{ maxHeight: 350,
+                   width: '100%', 
+                   backgroundColor: 'white',
+                   paddingHorizontal: 20,
+                   paddingVertical: 10,
+                   left: 0,
+                   borderLeftColor: 'tomato',
+                   borderLeftWidth: 20 }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{text1}</Text>
+      <Text style={{ fontSize: 15 }}>{text2}</Text>
+    </View>
+  ),
+  customInfoToast: ({ text1, text2, props }) => (
+    <View style={{ maxHeight: 350,
+                   width: '100%', 
+                   backgroundColor: 'white',
+                   paddingHorizontal: 20,
+                   paddingVertical: 10,
+                   left: 0,
+                   borderLeftColor: 'cornflowerblue',
+                   borderLeftWidth: 20 }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{text1}</Text>
+      <Text style={{ fontSize: 15 }}>{text2}</Text>
+    </View>
+  ),
+  customSuccessToast: ({ text1, text2, props }) => (
+    <View style={{ maxHeight: 350,
+                   width: '100%', 
+                   backgroundColor: 'white',
+                   paddingHorizontal: 20,
+                   paddingVertical: 10,
+                   left: 0,
+                   borderLeftColor: 'limegreen',
+                   borderLeftWidth: 20 }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{text1}</Text>
+      <Text style={{ fontSize: 15 }}>{text2}</Text>
+    </View>
+  )
+};
 
 // stack of screens for home screen
 function homeScreenStack(){
@@ -74,7 +118,8 @@ const bottomNavigationTabs = createBottomTabNavigator({
     tabBarActiveTintColor: '#9ec110',
     tabBarInactiveTintColor: '#E0E0E0',
     tabBarStyle: {
-      backgroundColor: '#2D3782'
+      backgroundColor: '#2D3782',
+      height: 120
     },
     /* to avoid warning about nested screens with same names, 
        use stack name and override labels on bottom tab */
@@ -91,7 +136,7 @@ const bottomNavigationTabs = createBottomTabNavigator({
       }
       else if (route.name === 'Resource Hub Stack') {
         return(
-          <Text style={styles.bottomTabNavLabelTxts}>Resource Hub</Text>
+          <Text style={styles.bottomTabNavLabelTxts}>Resources</Text>
         )
       }
       else if (route.name === 'Notifications Stack') {
@@ -175,7 +220,7 @@ export default function App() {
   return(
     <SafeAreaProvider>
       <Navigation />
-      <Toast />
+      <Toast config={toastConfig} />
     </SafeAreaProvider>
   )
 }
@@ -203,5 +248,27 @@ const styles = StyleSheet.create({
     color: '#E0E0E0',
     textAlign: 'center',
     fontSize: 10
+  },
+  customToastView: {
+     maxHeight: 350,
+     width: '100%', 
+     backgroundColor: 'white',
+     paddingHorizontal: 20,
+     paddingVertical: 10,
+     left: 0,
+     borderLeftColor: 'tomato',
+     borderLeftWidth: 20
+  },
+  errorToastRedLeftBorder: {
+    borderLeftColor: 'tomato',
+    borderLeftWidth: 2
+  },
+  infoToastBlueLeftBorder: {
+    borderLeftColor: 'cornflowerblue',
+    borderLeftWidth: 2
+  },
+  successToastGreenLeftBorder: {
+    borderLeftColor: 'limegreen',
+    borderLeftWidth: 2
   }
 })

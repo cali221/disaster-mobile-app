@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useState, useEffect } from 'react';
-import { showInfoToast } from '../utils/showToast';
+import { showErrorToast, showInfoToast, showSuccessToast } from '../utils/showToast';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -38,10 +38,16 @@ export function SignInScreen({navigation}){
   // function to upsert the expo push token 
   const upsertExpoPushToken = async (userId, pushToken) => {
     const { data, error } = await supabase.schema('users')
-                                          .from('profiles_private_data')
-                                          .upsert({user_id: userId, 
-                                                   expo_push_token: pushToken}, 
-                                                  {onConflict: 'user_id'});
+                                          .from('users_push_tokens')
+                                          .upsert(
+                                            {
+                                              user_id: userId, 
+                                              expo_push_token: pushToken
+                                            }, 
+                                            {
+                                              onConflict: 'user_id, expo_push_token',
+                                              ignoreDuplicates: true
+                                            });
 
     if(error){
       throw new Error(`${error.message}`);
@@ -125,7 +131,7 @@ export function SignInScreen({navigation}){
 
     // if final status is stil not granted, alert the user that it's needed to get notifications
     if (finalStatus !== 'granted') {
-      alert('Permission is needed to send push notifications.');
+      showInfoToast('Permission is needed to send push notifications.');
       return;
     }
 
@@ -148,7 +154,7 @@ export function SignInScreen({navigation}){
       console.log("Expo push token: " + token);
     } 
     catch(error) {
-      throw new Error(`Failed to obtain token for push notification: ${error}`);
+      throw new Error(`Failed to obtain token for push notification. ${error}`);
     }
 
     return token;
@@ -177,8 +183,8 @@ export function SignInScreen({navigation}){
 
     }
     catch(error){
-      console.error(error);
-      showInfoToast('Login handling failed', error.message);
+      console.log(error);
+      showErrorToast('Login failed', error.message);
     }
     setIsLoading(false);
   }

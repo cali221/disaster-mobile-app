@@ -46,7 +46,7 @@ Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
                                               .ilike('adm2_name', `%${query}%`);
 
         if(error){
-            alert(error.message);
+            console.error(error.message);
         }
         else{
             // set search results using the results obtained
@@ -65,7 +65,7 @@ Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
                                         .insert({user_id: route.params.session.user.id, 
                                                  watched_area_id: selectedArea.ogc_fid});
         if(error){
-            throw new Error(error.message);
+            console.error(error.message)
         }
         else{
             // if successful, update state

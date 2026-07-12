@@ -3,9 +3,22 @@ import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showErrorToast, showInfoToast } from '../utils/showToast';
+import * as Notifications from 'expo-notifications';
+
+// set how the notification should be shown if it happens while the app is running
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  })
+});
+
 
 export function HomeScreen({ navigation }) {
-  const insets = useSafeAreaInsets()
+  const insets = useSafeAreaInsets();
 
   // state for user session
   const [session, setSession] = useState(null);
@@ -15,7 +28,7 @@ export function HomeScreen({ navigation }) {
     const { error } = await supabase.auth.signOut();
 
     if(error){
-      alert(error.message);
+      showErrorToast('Failed to sign out', error.message);
     }
   }
   
@@ -29,6 +42,19 @@ export function HomeScreen({ navigation }) {
         setSession(session);
       }
     });
+
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      showInfoToast('Notification detected', '');
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
   }, []);
 
   return(
