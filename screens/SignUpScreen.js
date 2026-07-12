@@ -10,7 +10,7 @@ import { showErrorToast, showSuccessToast } from '../utils/showToast';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -29,7 +29,15 @@ export function SignUpScreen({navigation}){
     });
 
     if(error){
-      showErrorToast('Failed to sign up', error.message);
+      /* supabase doesn't seem to currently allow failed trigger error in the result
+         error code 500 might mean the trigger for handling inserting data to
+         profiles_public_data table failed possibly due to taken username or invalid username  */
+      if(error.status == 500){
+        showErrorToast('Failed to sign up', 'Username might be invalid or taken. Please try another username.');
+      }
+      else{
+        showErrorToast('Failed to sign up', error.message);
+      }
     }
     else{
       showSuccessToast('Account has been created', 'You can sign in now');

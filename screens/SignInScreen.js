@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useState, useEffect } from 'react';
 import { showErrorToast, showInfoToast, showSuccessToast } from '../utils/showToast';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -169,6 +170,11 @@ export function SignInScreen({navigation}){
 
       // get expo push token
       const pushToken = await registerForPushNotificationsAsync();
+
+      await AsyncStorage.setItem('activePushToken', pushToken);
+
+      const value = await AsyncStorage.getItem('activePushToken');
+      console.log('Active push token: ' + value) ;
 
       /* if there is a token upsert to profiles table with the token, 
           otherwise upsert with null push token */

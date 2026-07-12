@@ -1,10 +1,11 @@
-import { Text, TouchableOpacity, View, StyleSheet} from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '../lib/supabase'
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -22,14 +23,40 @@ export function HomeScreen({ navigation }) {
 
   // state for user session
   const [session, setSession] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(false);
     
   // handle signing out user
   const signOut = async() => {
+    const activePushToken = await AsyncStorage.getItem('activePushToken');
+    if(activePushToken){
+      setIsLoading(true);
+      console.log('Push token in local storage : ' + activePushToken);
+      const { error } = await supabase.schema('users')
+                                      .from('users_push_tokens')
+                                      .delete()
+                                      .eq('expo_push_token', activePushToken);
+
+      await AsyncStorage.removeItem('activePushToken');
+      Notifications.unregisterForNotificationsAsync();
+
+      /* if error just console.error because it's unwanted that 
+         user fails to log out due to failed process for token managament
+         or being shown error for it */
+      if(error){
+        console.error(error.message);
+      }
+    }
+    else{
+      console.log('No active push token in async storage');
+    }
+
     const { error } = await supabase.auth.signOut();
 
     if(error){
       showErrorToast('Failed to sign out', error.message);
     }
+    setIsLoading(false);
   }
   
   useEffect(() => { 
@@ -87,6 +114,11 @@ export function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>   
+    }
+    {
+      isLoading == true && (
+        <ActivityIndicator size="large" color='pink' />
+      )
     }
     </View>
   )

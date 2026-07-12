@@ -1,5 +1,6 @@
 import Toast from 'react-native-toast-message';
 
+// function for showing success toast
 export function showSuccessToast(text1, text2) {
     Toast.show({
         type: 'customSuccessToast',
@@ -8,6 +9,7 @@ export function showSuccessToast(text1, text2) {
     });
 }
 
+// function for showing info toast
 export function showInfoToast(text1, text2) {
     Toast.show({
         type: 'customInfoToast',
@@ -16,6 +18,7 @@ export function showInfoToast(text1, text2) {
     });
 }
 
+// function for showing error toast
 export function showErrorToast(text1, text2) {
     Toast.show({
         type: 'customErrorToast',
