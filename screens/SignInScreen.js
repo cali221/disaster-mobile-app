@@ -192,7 +192,7 @@ export function SignInScreen({navigation}){
     }
     catch(error){
       console.log(error);
-      showErrorToast('Login failed', error.message);
+      showErrorToast(t('signInScreen.signInFailed'), error.message);
     }
     setIsLoading(false);
   }

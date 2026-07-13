@@ -7,6 +7,7 @@ import { StyleSheet,
 import { supabase } from '../lib/supabase'
 import { useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../utils/showToast';
+import { useTranslation } from 'react-i18next';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
@@ -14,6 +15,7 @@ export function SignUpScreen({navigation}){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+   const { t, i18n } = useTranslation();
 
   // function for handling signing up
   const signUp = async () => {
@@ -33,14 +35,14 @@ export function SignUpScreen({navigation}){
          error code 500 might mean the trigger for handling inserting data to
          profiles_public_data table failed possibly due to taken username or invalid username  */
       if(error.status == 500){
-        showErrorToast('Failed to sign up', 'Username might be invalid or taken. Please try another username.');
+        showErrorToast(t('signUpScreen.signUpFailed'), t('signUpScreen.usernameMightBeInvalidOrTaken'));
       }
       else{
-        showErrorToast('Failed to sign up', error.message);
+        showErrorToast(t('signUpScreen.signUpFailed'), error.message);
       }
     }
     else{
-      showSuccessToast('Account has been created', 'You can sign in now');
+      showSuccessToast(t('signUpScreen.accountCreated'), t('signUpScreen.youCanSignInNow'));
     }
     setIsLoading(false);
   } 
@@ -51,7 +53,7 @@ export function SignUpScreen({navigation}){
       <View style={styles.signUpInputForm}>
         <View style={styles.signUpInputFormFields}>
           {/* email input field */}
-          <Text>Email</Text>
+          <Text>{t('authWords.email')}</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
                      style={styles.signUpTextInput} />
@@ -67,7 +69,7 @@ export function SignUpScreen({navigation}){
 
         <View style={styles.signUpInputFormFields}>
           {/* password input field */}
-          <Text>Password</Text>
+          <Text>{t('authWords.password')}</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
                      style={styles.signUpTextInput} />
@@ -77,7 +79,7 @@ export function SignUpScreen({navigation}){
         <TouchableOpacity onPress={() => {signUp()}}
                           style={styles.signUpBtn}>
           <Text>
-            Sign Up
+            {t('signUpScreen.signUp')}
           </Text>
         </TouchableOpacity>
       </View>
