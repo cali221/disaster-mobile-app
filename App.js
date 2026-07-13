@@ -12,7 +12,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Text } from 'react-native';
 import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast, { customToastView } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 
 const Stack = createStackNavigator();
 

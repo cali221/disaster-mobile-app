@@ -3,9 +3,10 @@ import { supabase } from '../lib/supabase'
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { useState, useEffect } from 'react';
-import { showErrorToast, showInfoToast, showSuccessToast } from '../utils/showToast';
+import { useState } from 'react';
+import { showErrorToast, showInfoToast } from '../utils/showToast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from 'react-i18next';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -21,6 +22,7 @@ export function SignInScreen({navigation}){
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { t, i18n } = useTranslation();
 
   // function to sign in to supabase
   const signIn = async () => {
@@ -201,7 +203,7 @@ export function SignInScreen({navigation}){
       <View style={styles.signInInputForm}>
         {/* email input area */}
         <View style={styles.signInInputFormFields}>
-          <Text>Email</Text>
+          <Text>{t('authWords.email')}</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
                      style={styles.signInTextInputPasswordEmail} />
@@ -209,7 +211,7 @@ export function SignInScreen({navigation}){
 
         {/* password input area */}
         <View style={styles.signInInputFormFields}>
-          <Text>Password</Text>
+          <Text>{t('authWords.password')}</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
                      style={styles.signInTextInputPasswordEmail} />
@@ -219,20 +221,20 @@ export function SignInScreen({navigation}){
         <TouchableOpacity onPress={() => {handleSignIn()}}
                           style={styles.signInBtn}>
           <Text>
-            Sign In
+            {t('signInScreen.signIn')}
           </Text>
         </TouchableOpacity>
 
         {/* area for showing sign up text and link */}
         <View style={styles.signUpArea}>
             <Text style={styles.signUpAreaTxts}>
-                Don't have an account yet?
+                {t('signInScreen.dontHaveAccountYet')}
             </Text>
 
             {/* link to go to sign up screen */}
             <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
                 <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
-                    Sign up here
+                {t('signInScreen.signUpHere')}
                 </Text>
             </TouchableOpacity>
           </View>
