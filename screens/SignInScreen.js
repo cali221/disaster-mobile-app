@@ -68,7 +68,7 @@ export function SignInScreen({navigation}){
       <View style={styles.signInInputForm}>
         {/* email input area */}
         <View style={styles.signInInputFormFields}>
-          <Text>{t('authWords.email')}</Text>
+          <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
                      style={styles.signInTextInputPasswordEmail} />
@@ -76,7 +76,7 @@ export function SignInScreen({navigation}){
 
         {/* password input area */}
         <View style={styles.signInInputFormFields}>
-          <Text>{t('authWords.password')}</Text>
+          <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
                      style={styles.signInTextInputPasswordEmail} />
@@ -85,7 +85,7 @@ export function SignInScreen({navigation}){
         {/* button to sign in */}
         <TouchableOpacity onPress={() => {handleSignIn(email, password)}}
                           style={styles.signInBtn}>
-          <Text>
+          <Text style={styles.signInBtnTxt}>
             {t('authWords.signIn')}
           </Text>
         </TouchableOpacity>
@@ -136,9 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     width: '80%',
-    borderWidth: 2,
-    borderColor: 'grey',
-    borderRadius: 20,
     marginTop: 50,
     maxWidth: 350
   },
@@ -148,19 +145,33 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
+    height: 35,
     paddingHorizontal: 15
+  },
+  // label texts in input form
+  inputFormLabelTxt: {
+    color: '#2D3782',
+    fontSize: 17,
+    fontWeight: '500',
+    marginBottom: 10
   },
   // button to sign in
   signInBtn: {
     width: '100%',
-    backgroundColor: 'pink',
+    backgroundColor: '#2D3782',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 30,
+    height: 40,
     borderRadius: 20,
     marginBottom: 20
+  },
+  // text inside button to sign in
+  signInBtnTxt: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 18,
   },
   /* container of area for showing 'Don't have an account yet?' text 
      and touchable opacity to sign up */
@@ -172,7 +183,8 @@ const styles = StyleSheet.create({
   },
   // texts inside the sign up area
   signUpAreaTxts: {
-    fontSize: 15
+    fontSize: 17,
+    fontWeight: '500'
   },
   // the "Sign up here" text, should be underline so it looks like a link
   signUpTxt: {
