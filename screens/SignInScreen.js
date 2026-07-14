@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { supabase } from '../lib/supabase'
-import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import { useState } from 'react';
-import { showErrorToast, showInfoToast } from '../utils/showToast';
+import { useState, useContext, useEffect } from 'react';
+import { showErrorToast } from '../utils/showToast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
+import { useRoute } from '@react-navigation/native';
+import { AuthContext } from '../contexts/AuthContext';
+import { registerForPushNotificationsAsync } from '../utils/registerForNotifications';
+import { useIsFocused } from '@react-navigation/native';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -19,183 +20,74 @@ Notifications.setNotificationHandler({
 });
 
 export function SignInScreen({navigation}){
+  const { user, signIn, upsertExpoPushToken } = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t, i18n } = useTranslation();
+  const route = useRoute();
+  const isFocused = useIsFocused();
 
-  // function to sign in to supabase
-  const signIn = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-    
-    if (error){
-      throw new Error(error.message);
+  const handleNavigation = () => {
+    // if there is a referrer screen, go back to that screen
+    if(route.params?.originalScreen){
+      navigation.popTo(route.params.originalScreen);
     }
-    setIsLoading(false);
-  }
-
-  // function to upsert the expo push token 
-  const upsertExpoPushToken = async (userId, pushToken) => {
-    const { data, error } = await supabase.schema('users')
-                                          .from('users_push_tokens')
-                                          .upsert(
-                                            {
-                                              user_id: userId, 
-                                              expo_push_token: pushToken
-                                            }, 
-                                            {
-                                              onConflict: 'user_id, expo_push_token',
-                                              ignoreDuplicates: true
-                                            });
-
-    if(error){
-      throw new Error(`${error.message}`);
-    }
-  }
-
-  // function to register for push notification using Expo
-  // Start of code I did not write myself
-  // Taken and slightly modified from:
-
-  // Title: notifications.mdx
-
-  // Author: commit authored by Aman Mittal (https://github.com/amandeepmittal) in a repository by Expo (https://github.com/expo)
-
-  // Date: May 26, 2026
-
-  // Code version: commit be06320
-
-  // Availability: https://github.com/expo/expo/blob/main/docs/pages/versions/unversioned/sdk/notifications.mdx
-  
-  // The repository the original code is in is licensed under the MIT License.
-  // A copy of the license can be found on THIRD-PARTY-LICENSES-MANUAL-ADDITION.MD file at the root directory of this project 
-  // under the section "Expo (https://github.com/expo/expo)" and also shown below:
-  /*
-  The MIT License (MIT)
-
-  Copyright (c) 2015-present 650 Industries, Inc. (aka Expo)
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-  */
-
-  // Copyright (c) 2015-present 650 Industries, Inc. (aka Expo)
-  // Modified by me. Changes I made:
-  // - I added comments
-  // - I changed some setNotificationChannelAsync parameter values
-  // - I changed the alert message if notification permission is not granted
-  // - I changed console.log for showing generated push token message slightly
-  // - I changed the functionn into an arrow function for consistency with the rest of the codebase
-  // - I throw an error if the token wasn't successfully generated instead of setting token to the error string
-  const registerForPushNotificationsAsync = async() => {
-    // the Expo push notification token
-    let token;
-
-    // set notification channel (needed to make permissions prompt appear)
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('finalProjectAppNotificationChannel', {
-        name: "Final project applications's push notification channel",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+    // otherwise, go to the home screen
+    else{
+      navigation.popTo('Home Stack', {
+        screen: 'Home',
+        initial: false,
+        params: {},
       });
     }
-
-    // get notification permission status
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-
-    // set final status as existing status initially
-    let finalStatus = existingStatus;
-
-    // if currently push notification permission is not grantedm request for the permission
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    // if final status is stil not granted, alert the user that it's needed to get notifications
-    if (finalStatus !== 'granted') {
-      showInfoToast('Permission is needed to send push notifications.');
-      return;
-    }
-
-    // if notification permission is granted, try to get the Expo push token
-    try {
-      // get the project ID
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-
-      if (!projectId) {
-        throw new Error('Project ID was not found');
-      }
-      
-      // get the Expo push token
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-    
-      console.log("Expo push token: " + token);
-    } 
-    catch(error) {
-      throw new Error(`Failed to obtain token for push notification. ${error}`);
-    }
-
-    return token;
   }
-  // End of code I did not write myself
 
   // function to handle the sign in process (sign in -> get expo push token -> upsert expo push token)
-  const handleSignIn = async (userId) => {
+  const handleSignIn = async (email, password) => {
     try{
       setIsLoading(true);
-      await signIn();
+
+      // sign in to supabase 
+      // user state in AuthContext will be updated and user.id will be obtained if successful
+      const userData = await signIn(email, password);
+
+      if(!userData?.id){
+        throw new Error('Unable to obtain user ID');
+      }
 
       // get expo push token
       const pushToken = await registerForPushNotificationsAsync();
 
-      await AsyncStorage.setItem('activePushToken', pushToken);
-
-      const value = await AsyncStorage.getItem('activePushToken');
-      console.log('Active push token: ' + value) ;
-
       /* if there is a token upsert to profiles table with the token, 
           otherwise upsert with null push token */
-      if(pushToken){
-        await upsertExpoPushToken(userId, pushToken);
-      }
-      else{
-        await upsertExpoPushToken(userId, null);
+      if(pushToken && userData.id){
+        // store push token in async storage to delete later when signing out
+        await AsyncStorage.setItem('activePushToken', pushToken);
+
+        // check the push token in async storage
+        const value = await AsyncStorage.getItem('activePushToken');
+        console.log('Active push token in async storage: ' + value);
+
+        await upsertExpoPushToken(pushToken, userData.id);
       }
 
-      navigation.popTo('Home');
-
+      handleNavigation();
     }
     catch(error){
       console.log(error);
-      showErrorToast(t('signInScreen.signInFailed'), error.message);
+      showErrorToast(t('signInScreen.signInFailed'), error.message ?? error);
     }
     setIsLoading(false);
   }
+
+  /* when screen loads, check if user is already available, 
+     handle navigation if there's user */
+  useEffect(()=>{
+    if(user){
+      handleNavigation();
+    }
+  }, [isFocused]);
 
   return(
     <View style={styles.signInScreenContainer}>
@@ -218,10 +110,10 @@ export function SignInScreen({navigation}){
         </View>
 
         {/* button to sign in */}
-        <TouchableOpacity onPress={() => {handleSignIn()}}
+        <TouchableOpacity onPress={() => {handleSignIn(email, password)}}
                           style={styles.signInBtn}>
           <Text>
-            {t('signInScreen.signIn')}
+            {t('authWords.signIn')}
           </Text>
         </TouchableOpacity>
 
@@ -232,7 +124,8 @@ export function SignInScreen({navigation}){
             </Text>
 
             {/* link to go to sign up screen */}
-            <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
+            <TouchableOpacity onPress={() => {navigation.navigate('Sign Up', 
+                                                                  {originalScreen: route.params.originalScreen})}}>
                 <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
                 {t('signInScreen.signUpHere')}
                 </Text>

@@ -1,11 +1,11 @@
 import { Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
-import { supabase } from '../lib/supabase'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SignedOutContent } from '../components/SignedOutContent';
+import { AuthContext } from '../contexts/AuthContext';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -19,57 +19,11 @@ Notifications.setNotificationHandler({
 
 
 export function HomeScreen({ navigation }) {
+  const { user, signOut } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
-
-  // state for user session
-  const [session, setSession] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
-    
-  // handle signing out user
-  const signOut = async() => {
-    const activePushToken = await AsyncStorage.getItem('activePushToken');
-    if(activePushToken){
-      setIsLoading(true);
-      console.log('Push token in local storage : ' + activePushToken);
-      const { error } = await supabase.schema('users')
-                                      .from('users_push_tokens')
-                                      .delete()
-                                      .eq('expo_push_token', activePushToken);
-
-      await AsyncStorage.removeItem('activePushToken');
-      Notifications.unregisterForNotificationsAsync();
-
-      /* if error just console.error because it's unwanted that 
-         user fails to log out due to failed process for token managament
-         or being shown error for it */
-      if(error){
-        console.error(error.message);
-      }
-    }
-    else{
-      console.log('No active push token in async storage');
-    }
-
-    const { error } = await supabase.auth.signOut();
-
-    if(error){
-      showErrorToast('Failed to sign out', error.message);
-    }
-    setIsLoading(false);
-  }
   
   useEffect(() => { 
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if(!session?.user || event === 'SIGNED_OUT'){
-        setSession(null);
-        navigation.popTo('Sign In')
-      }
-      else if(session?.user){
-        setSession(session);
-      }
-    });
-
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       showInfoToast('Notification detected', '');
     });
@@ -89,22 +43,14 @@ export function HomeScreen({ navigation }) {
                                                 paddingBottom: insets.bottom,
                                                 paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
-      {session == null ? 
+      {!user ? 
       // the components below are shown when user is not signed in
-      <View>
-        <Text>You are not logged in</Text>
-        <TouchableOpacity onPress={()=>{navigation.navigate('Sign In')}}>
-          <Text style={styles.signInLink}>Sign In Here</Text>
-        </TouchableOpacity>
-      </View> : 
+      <SignedOutContent navigation={navigation} originalScreen={'Home'} />
+      : 
       // the components below are shown when the user is signed in
       <View>
         <View style={styles.temporaryContent}>
-          <Text>Welcome back</Text>
-          <TouchableOpacity onPress={()=>{signOut()}}
-                            style={styles.signOutBtn}>
-            <Text>Sign out</Text>
-          </TouchableOpacity>
+          <Text>Hi {user.user_metadata.username}</Text>
 
           {/* button to go to watched areas settings, currently for adding watched areas */}
           <TouchableOpacity style={styles.accountSettingsBtn}

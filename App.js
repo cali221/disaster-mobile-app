@@ -1,5 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { createStaticNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SignUpScreen } from './screens/SignUpScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { ProfileScreen} from './screens/ProfileScreen';
@@ -7,17 +8,18 @@ import { HomeScreen } from './screens/HomeScreen';
 import { ResourceHubScreen } from './screens/ResourceHubScreen';
 import { NotificationsScreen } from './screens/NotificationsScreen';
 import { PanicButtonScreen } from './screens/PanicButtonScreen';
-import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen';
 import { View, StyleSheet, Text } from 'react-native';
 import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AuthProvider from './contexts/AuthContext';
 
 const Stack = createStackNavigator();
 
 // custom toast styling 
-// styling should be applied directly without StyleSheet or it doesn't work
+// styling should be applied directly without StyleSheet otherwise it doesn't work
 const toastConfig = {
   customErrorToast: ({ text1, text2, props }) => (
     <View style={{ maxHeight: 350,
@@ -60,15 +62,38 @@ const toastConfig = {
   )
 };
 
+// NOTE: translation in screen titles is intentionally only given for some screens 
+// for now since English words are anticipated to be more familiar digitally
+// for the features compared to the Indonesian translation
+
 // stack of screens for home screen
 function homeScreenStack(){
+  const { t, i18n } = useTranslation();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen name='Home'component={HomeScreen} />
-      <Stack.Screen name="Sign In" component={SignInScreen}></Stack.Screen>
-      <Stack.Screen name="Sign Up" component={SignUpScreen}></Stack.Screen>
-      {/* move to Profile screen stack later, possibly remove & replace with modal*/}
-      <Stack.Screen name="Watched Areas Settings" component={WatchedAreasSettingsScreen}></Stack.Screen>
+    <Stack.Navigator screenOptions={{ headerShown: true,     
+                                      headerStyle: {
+                                        backgroundColor: '#2D3782',
+                                      },
+                                      headerTintColor: '#ffffff',
+                                      headerTitleStyle: {
+                                          fontWeight: 'bold',
+                                      } 
+                                      }}>
+      <Stack.Screen name='Home' 
+                    component={HomeScreen} />
+                    
+      <Stack.Screen name="Sign In" 
+                    component={SignInScreen} 
+                    options={{title: t('authWords.signIn')}} />
+
+      <Stack.Screen name="Sign Up" 
+                    component={SignUpScreen} 
+                    options={{title: t('authWords.signUp')}} />
+
+      {/* TODO: move to Profile screen stack later, possibly remove & replace with modal*/}
+      <Stack.Screen name="Watched Areas Settings" 
+                    component={WatchedAreasSettingsScreen}
+                    options={{title: t('screenTitles.watchedAreasSettingsScreenTitle')}} />
 
       {/* TODO: add gamification and other related screens here  */}
     </Stack.Navigator>
@@ -77,9 +102,26 @@ function homeScreenStack(){
 
 // stack of screens for profile screens
 function profileScreenStack(){
+  const { t, i18n } = useTranslation();
   return(
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={{ headerShown: true,
+                                      headerStyle: {
+                                        backgroundColor: '#2D3782',
+                                      },
+                                      headerTintColor: '#ffffff',
+                                      headerTitleStyle: {
+                                          fontWeight: 'bold',
+                                      } 
+                                    }}>
         <Stack.Screen name='Profile' component={ProfileScreen} />
+
+        <Stack.Screen name="Sign In" 
+              component={SignInScreen} 
+              options={{title: t('authWords.signIn')}} />
+
+        <Stack.Screen name="Sign Up" 
+                      component={SignUpScreen} 
+                      options={{title: t('authWords.signUp')}} />
     </Stack.Navigator>
   )
 }
@@ -87,7 +129,15 @@ function profileScreenStack(){
 // stack of screens for panic button screens (currently planed to be just one screen)
 function panicButtonScreenStack(){
   return(
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={{ headerShown: true,
+                                      headerStyle: {
+                                        backgroundColor: '#2D3782',
+                                      },
+                                      headerTintColor: '#ffffff',
+                                      headerTitleStyle: {
+                                          fontWeight: 'bold',
+                                      } 
+                                    }}>
         <Stack.Screen name='Panic Button' component={PanicButtonScreen} />
     </Stack.Navigator>
   )
@@ -95,9 +145,26 @@ function panicButtonScreenStack(){
 
 // stack of screens for notifications screen
 function notificationScreenStack(){
+  const { t, i18n } = useTranslation();
   return(
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={{ headerShown: true,
+                                      headerStyle: {
+                                        backgroundColor: '#2D3782',
+                                      },
+                                      headerTintColor: '#ffffff',
+                                      headerTitleStyle: {
+                                          fontWeight: 'bold',
+                                      } 
+                                   }}>
         <Stack.Screen name='Notifications' component={NotificationsScreen} />
+
+        <Stack.Screen name="Sign In" 
+                      component={SignInScreen} 
+                      options={{title: t('authWords.signIn')}} />
+
+        <Stack.Screen name="Sign Up" 
+                      component={SignUpScreen} 
+                      options={{title: t('authWords.signUp')}} />
     </Stack.Navigator>
   )
 }
@@ -105,7 +172,15 @@ function notificationScreenStack(){
 // stack of screens for resource hub screen
 function resourceHubScreenStack(){
   return(
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={{ headerShown: true,
+                                      headerStyle: {
+                                        backgroundColor: '#2D3782',
+                                      },
+                                      headerTintColor: '#ffffff',
+                                      headerTitleStyle: {
+                                          fontWeight: 'bold',
+                                      } 
+                                   }}>
         <Stack.Screen name='Resource Hub' component={ResourceHubScreen} />
     </Stack.Navigator>
   )
@@ -219,8 +294,10 @@ const Navigation = createStaticNavigation(bottomNavigationTabs);
 export default function App() {
   return(
     <SafeAreaProvider>
-      <Navigation />
-      <Toast config={toastConfig} />
+      <AuthProvider>
+        <Navigation />
+        <Toast config={toastConfig} />
+      </AuthProvider>
     </SafeAreaProvider>
   )
 }

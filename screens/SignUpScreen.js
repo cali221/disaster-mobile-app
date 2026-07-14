@@ -5,9 +5,11 @@ import { StyleSheet,
          TextInput, 
          ActivityIndicator } from 'react-native';
 import { supabase } from '../lib/supabase'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { showErrorToast, showSuccessToast } from '../utils/showToast';
 import { useTranslation } from 'react-i18next';
+import { useRoute } from '@react-navigation/native';
+import { AuthContext } from '../contexts/AuthContext';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
@@ -15,34 +17,24 @@ export function SignUpScreen({navigation}){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-   const { t, i18n } = useTranslation();
-
+  const { t, i18n } = useTranslation();
+  const route = useRoute();
+  const { signUp } = useContext(AuthContext);
+  
   // function for handling signing up
-  const signUp = async () => {
+  const callSignUp = async () => {
     setIsLoading(true);
-    const {data, error} = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          username: username
-        },
-      },
-    });
-
-    if(error){
-      /* supabase doesn't seem to currently allow failed trigger error in the result
-         error code 500 might mean the trigger for handling inserting data to
-         profiles_public_data table failed possibly due to taken username or invalid username  */
+    try{
+      await signUp(email, password, username);
+      showSuccessToast(t('signUpScreen.accountCreated'), t('signUpScreen.youCanSignInNow'));
+    }
+    catch(error){
       if(error.status == 500){
         showErrorToast(t('signUpScreen.signUpFailed'), t('signUpScreen.usernameMightBeInvalidOrTaken'));
       }
       else{
-        showErrorToast(t('signUpScreen.signUpFailed'), error.message);
+        showErrorToast(t('signUpScreen.signUpFailed'), error.message ?? error);
       }
-    }
-    else{
-      showSuccessToast(t('signUpScreen.accountCreated'), t('signUpScreen.youCanSignInNow'));
     }
     setIsLoading(false);
   } 
@@ -76,11 +68,17 @@ export function SignUpScreen({navigation}){
         </View>
 
         {/* button to sign up */}
-        <TouchableOpacity onPress={() => {signUp()}}
+        <TouchableOpacity onPress={() => {callSignUp()}}
                           style={styles.signUpBtn}>
           <Text>
-            {t('signUpScreen.signUp')}
+            {t('authWords.signUp')}
           </Text>
+        </TouchableOpacity>
+
+        <Text>Already have an account?</Text>
+        <TouchableOpacity onPress={() => {navigation.navigate('Sign In', 
+                                                              {originalScreen: route.params.originalScreen})}} >
+          <Text>Sign in here</Text>
         </TouchableOpacity>
       </View>
       {
