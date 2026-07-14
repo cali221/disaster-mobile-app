@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { showErrorToast } from '../utils/showToast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
@@ -141,12 +141,13 @@ const styles = StyleSheet.create({
   },
   // text input field for both password and email
   signInTextInputPasswordEmail: {
-    borderColor: 'black',
+    borderColor: 'grey',
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
     height: 35,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
+    elevation: 3
   },
   // label texts in input form
   inputFormLabelTxt: {

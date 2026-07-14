@@ -4,7 +4,6 @@ import { StyleSheet,
          TouchableOpacity, 
          TextInput, 
          ActivityIndicator } from 'react-native';
-import { supabase } from '../lib/supabase'
 import { useState, useContext } from 'react'
 import { showErrorToast, showSuccessToast } from '../utils/showToast';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +17,6 @@ export function SignUpScreen({navigation}){
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const { t, i18n } = useTranslation();
-  const route = useRoute();
   const { signUp } = useContext(AuthContext);
   
   // function for handling signing up
@@ -45,7 +43,7 @@ export function SignUpScreen({navigation}){
       <View style={styles.signUpInputForm}>
         {/* username input field */}
         <View style={styles.signUpInputFormFields}>
-          <Text>Username</Text>
+          <Text style={styles.inputFormLabelTxt}>Username</Text>
           <TextInput onChangeText={setUsername}
                       value={username}
                       style={styles.signUpTextInput} />
@@ -53,7 +51,7 @@ export function SignUpScreen({navigation}){
 
         {/* email input field */}
         <View style={styles.signUpInputFormFields}>
-          <Text>{t('authWords.email')}</Text>
+          <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
                      style={styles.signUpTextInput} />
@@ -61,7 +59,7 @@ export function SignUpScreen({navigation}){
 
         {/* password input field */}
         <View style={styles.signUpInputFormFields}>
-          <Text>{t('authWords.password')}</Text>
+          <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
                      style={styles.signUpTextInput} />
@@ -70,17 +68,22 @@ export function SignUpScreen({navigation}){
         {/* button to sign up */}
         <TouchableOpacity onPress={() => {callSignUp()}}
                           style={styles.signUpBtn}>
-          <Text>
+          <Text style={styles.signUpBtnTxt}>
             {t('authWords.signUp')}
           </Text>
         </TouchableOpacity>
 
-        <Text>
-          {t('signUpScreen.alreadyHaveAnAccount')}
-        </Text>
-        <TouchableOpacity onPress={() => {navigation.navigate('Sign In')}} >
-          <Text>{t('signUpScreen.signInHere')}</Text>
-        </TouchableOpacity>
+        <View style={styles.signInArea}>
+          <Text style={styles.signInAreaTxt}>
+            {t('signUpScreen.alreadyHaveAnAccount')}
+          </Text>
+
+          <TouchableOpacity onPress={() => {navigation.navigate('Sign In')}} >
+            <Text style={[styles.signInAreaTxt, styles.signInHereTxt]}>
+              {t('signUpScreen.signInHere')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
       {
         isLoading == true && (
@@ -114,29 +117,59 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     width: '80%',
-    borderWidth: 2,
-    borderColor: 'grey',
-    borderRadius: 20,
     marginTop: 50,
     maxWidth: 350
   },
   // text input fields for password and email
   signUpTextInput: {
-    borderColor: 'black',
+    borderColor: 'grey',
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
-    paddingHorizontal: 15
+    height: 35,
+    paddingHorizontal: 15,
+    elevation: 3
+  },
+  // label texts in input form
+  inputFormLabelTxt: {
+    color: '#2D3782',
+    fontSize: 17,
+    fontWeight: '500',
+    marginBottom: 10
   },
   // button to sign up
   signUpBtn: {
     width: '100%',
-    backgroundColor: 'pink',
+    backgroundColor: '#2D3782',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 30,
-    borderRadius: 20
-  }
+    height: 40,
+    borderRadius: 20,
+    marginBottom: 20
+  },
+  // text inside button for signing up
+  signUpBtnTxt: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 18,
+  },
+  // text inside sign in area
+  signInAreaTxt: {
+    fontSize: 17,
+    fontWeight: '500'
+  },
+  // sign in here text 
+  signInHereTxt: {
+    textDecorationLine: 'underline'
+  },
+  /* container of area for showing 'Already have an account?' text 
+     and touchable opacity to sign in*/
+  signInArea: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 })
