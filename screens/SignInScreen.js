@@ -4,10 +4,8 @@ import { useState, useContext, useEffect } from 'react';
 import { showErrorToast } from '../utils/showToast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
-import { useRoute } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
 import { registerForPushNotificationsAsync } from '../utils/registerForNotifications';
-import { useIsFocused } from '@react-navigation/native';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -20,28 +18,11 @@ Notifications.setNotificationHandler({
 });
 
 export function SignInScreen({navigation}){
-  const { user, signIn, upsertExpoPushToken } = useContext(AuthContext)
+  const { signIn, upsertExpoPushToken } = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t, i18n } = useTranslation();
-  const route = useRoute();
-  const isFocused = useIsFocused();
-
-  const handleNavigation = () => {
-    // if there is a referrer screen, go back to that screen
-    if(route.params?.originalScreen){
-      navigation.popTo(route.params.originalScreen);
-    }
-    // otherwise, go to the home screen
-    else{
-      navigation.popTo('Home Stack', {
-        screen: 'Home',
-        initial: false,
-        params: {},
-      });
-    }
-  }
 
   // function to handle the sign in process (sign in -> get expo push token -> upsert expo push token)
   const handleSignIn = async (email, password) => {
@@ -72,7 +53,7 @@ export function SignInScreen({navigation}){
         await upsertExpoPushToken(pushToken, userData.id);
       }
 
-      handleNavigation();
+      //handleNavigation();
     }
     catch(error){
       console.log(error);
@@ -80,14 +61,6 @@ export function SignInScreen({navigation}){
     }
     setIsLoading(false);
   }
-
-  /* when screen loads, check if user is already available, 
-     handle navigation if there's user */
-  useEffect(()=>{
-    if(user){
-      handleNavigation();
-    }
-  }, [isFocused]);
 
   return(
     <View style={styles.signInScreenContainer}>
@@ -124,8 +97,7 @@ export function SignInScreen({navigation}){
             </Text>
 
             {/* link to go to sign up screen */}
-            <TouchableOpacity onPress={() => {navigation.navigate('Sign Up', 
-                                                                  {originalScreen: route.params.originalScreen})}}>
+            <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
                 <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
                 {t('signInScreen.signUpHere')}
                 </Text>

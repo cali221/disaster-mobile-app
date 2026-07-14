@@ -1,6 +1,5 @@
 import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useContext, useState } from 'react';
-import { SignedOutContent } from '../components/SignedOutContent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -25,18 +24,17 @@ export function ProfileScreen({ navigation }) {
                                                             paddingBottom: insets.bottom,
                                                             paddingLeft: insets.left,
                                                             paddingRight: insets.right }]}>
-            {!user ? 
-            // the components below are shown when user is not signed in
-            <SignedOutContent navigation={navigation} originalScreen={'Profile'} />
-            : 
-            // the components below are shown when the user is signed in
-            <View>
-                <Text>Profile Screen Placeholder</Text>
-                <TouchableOpacity onPress={()=>{callSignOut()}}
-                                            style={styles.signOutBtn}>
-                    <Text>Sign out</Text>
-                </TouchableOpacity>
-            </View>
+            {
+                user && (
+                     <View>
+                        <Text>Profile Screen Placeholder</Text>
+                        <Text>{user?.user_metadata.username}</Text>
+                        <TouchableOpacity onPress={()=>{callSignOut()}}
+                                                    style={styles.signOutBtn}>
+                            <Text>Sign out</Text>
+                        </TouchableOpacity>
+                    </View>
+                )
             }
             {
                 isLoading == true && (

@@ -26,7 +26,7 @@ export function SignUpScreen({navigation}){
     setIsLoading(true);
     try{
       await signUp(email, password, username);
-      showSuccessToast(t('signUpScreen.accountCreated'), t('signUpScreen.youCanSignInNow'));
+      showSuccessToast(t('signUpScreen.accountCreated'), t('signUpScreen.welcome'));
     }
     catch(error){
       if(error.status == 500){
@@ -43,24 +43,24 @@ export function SignUpScreen({navigation}){
     <View style={styles.signUpScreenContainer}>
       {/* sign up form */}
       <View style={styles.signUpInputForm}>
+        {/* username input field */}
         <View style={styles.signUpInputFormFields}>
-          {/* email input field */}
+          <Text>Username</Text>
+          <TextInput onChangeText={setUsername}
+                      value={username}
+                      style={styles.signUpTextInput} />
+        </View>
+
+        {/* email input field */}
+        <View style={styles.signUpInputFormFields}>
           <Text>{t('authWords.email')}</Text>
           <TextInput onChangeText={setEmail}
                      value={email}
                      style={styles.signUpTextInput} />
         </View>
 
+        {/* password input field */}
         <View style={styles.signUpInputFormFields}>
-          {/* username input field */}
-          <Text>Username</Text>
-          <TextInput onChangeText={setUsername}
-                     value={username}
-                     style={styles.signUpTextInput} />
-        </View>
-
-        <View style={styles.signUpInputFormFields}>
-          {/* password input field */}
           <Text>{t('authWords.password')}</Text>
           <TextInput onChangeText={setPassword}
                      value={password}
@@ -75,10 +75,11 @@ export function SignUpScreen({navigation}){
           </Text>
         </TouchableOpacity>
 
-        <Text>Already have an account?</Text>
-        <TouchableOpacity onPress={() => {navigation.navigate('Sign In', 
-                                                              {originalScreen: route.params.originalScreen})}} >
-          <Text>Sign in here</Text>
+        <Text>
+          {t('signUpScreen.alreadyHaveAnAccount')}
+        </Text>
+        <TouchableOpacity onPress={() => {navigation.navigate('Sign In')}} >
+          <Text>{t('signUpScreen.signInHere')}</Text>
         </TouchableOpacity>
       </View>
       {

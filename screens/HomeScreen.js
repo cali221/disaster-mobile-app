@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
-import { SignedOutContent } from '../components/SignedOutContent';
 import { AuthContext } from '../contexts/AuthContext';
 
 // set how the notification should be shown if it happens while the app is running
@@ -43,24 +42,22 @@ export function HomeScreen({ navigation }) {
                                                 paddingBottom: insets.bottom,
                                                 paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
-      {!user ? 
-      // the components below are shown when user is not signed in
-      <SignedOutContent navigation={navigation} originalScreen={'Home'} />
-      : 
-      // the components below are shown when the user is signed in
-      <View>
-        <View style={styles.temporaryContent}>
-          <Text>Hi {user.user_metadata.username}</Text>
 
-          {/* button to go to watched areas settings, currently for adding watched areas */}
-          <TouchableOpacity style={styles.accountSettingsBtn}
-                            onPress={()=>{navigation.navigate('Watched Areas Settings', 
-                                                              {'session': session})}}>
-            <Text>Go to Watched areas settings</Text>
-          </TouchableOpacity>
-        </View>
-      </View>   
-    }
+    {
+      user && (
+        <View style={styles.temporaryContent}>
+        <Text>Hi {user?.user_metadata.username}</Text>
+
+        {/* button to go to watched areas settings, currently for adding watched areas */}
+        <TouchableOpacity style={styles.accountSettingsBtn}
+                          onPress={()=>{navigation.navigate('Watched Areas Settings', 
+                                                            {'session': session})}}>
+          <Text>Go to Watched areas settings</Text>
+        </TouchableOpacity>
+      </View>
+      )
+    } 
+  
     {
       isLoading == true && (
         <ActivityIndicator size="large" color='pink' />
