@@ -3,11 +3,11 @@ import { StyleSheet,
          View, 
          TouchableOpacity, 
          TextInput, 
+         ScrollView,
          ActivityIndicator } from 'react-native';
 import { useState, useContext } from 'react'
 import { showErrorToast, showSuccessToast } from '../utils/showToast';
 import { useTranslation } from 'react-i18next';
-import { useRoute } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
 
 export function SignUpScreen({navigation}){
@@ -38,63 +38,71 @@ export function SignUpScreen({navigation}){
   } 
 
   return(
-    <View style={styles.signUpScreenContainer}>
-      {/* sign up form */}
-      <View style={styles.signUpInputForm}>
-        {/* username input field */}
-        <View style={styles.signUpInputFormFields}>
-          <Text style={styles.inputFormLabelTxt}>Username</Text>
-          <TextInput onChangeText={setUsername}
-                      value={username}
+    <ScrollView style={styles.signUpScreenScrollView}>
+      <View style={styles.signUpScreenContainer}>
+        {/* sign up form */}
+        <View style={styles.signUpInputForm}>
+          {/* username input field */}
+          <View style={styles.signUpInputFormFields}>
+            <Text style={styles.inputFormLabelTxt}>Username</Text>
+            <TextInput onChangeText={setUsername}
+                        value={username}
+                        style={styles.signUpTextInput} />
+          </View>
+
+          {/* email input field */}
+          <View style={styles.signUpInputFormFields}>
+            <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
+            <TextInput onChangeText={setEmail}
+                      value={email}
                       style={styles.signUpTextInput} />
-        </View>
+          </View>
 
-        {/* email input field */}
-        <View style={styles.signUpInputFormFields}>
-          <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
-          <TextInput onChangeText={setEmail}
-                     value={email}
-                     style={styles.signUpTextInput} />
-        </View>
+          {/* password input field */}
+          <View style={styles.signUpInputFormFields}>
+            <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
+            <TextInput onChangeText={setPassword}
+                      value={password}
+                      style={styles.signUpTextInput} />
+          </View>
 
-        {/* password input field */}
-        <View style={styles.signUpInputFormFields}>
-          <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
-          <TextInput onChangeText={setPassword}
-                     value={password}
-                     style={styles.signUpTextInput} />
-        </View>
-
-        {/* button to sign up */}
-        <TouchableOpacity onPress={() => {callSignUp()}}
-                          style={styles.signUpBtn}>
-          <Text style={styles.signUpBtnTxt}>
-            {t('authWords.signUp')}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.signInArea}>
-          <Text style={styles.signInAreaTxt}>
-            {t('signUpScreen.alreadyHaveAnAccount')}
-          </Text>
-
-          <TouchableOpacity onPress={() => {navigation.navigate('Sign In')}} >
-            <Text style={[styles.signInAreaTxt, styles.signInHereTxt]}>
-              {t('signUpScreen.signInHere')}
+          {/* button to sign up */}
+          <TouchableOpacity onPress={() => {callSignUp()}}
+                            style={styles.signUpBtn}>
+            <Text style={styles.signUpBtnTxt}>
+              {t('authWords.signUp')}
             </Text>
           </TouchableOpacity>
+
+          <View style={styles.signInArea}>
+            <Text style={styles.signInAreaTxt}>
+              {t('signUpScreen.alreadyHaveAnAccount')}
+            </Text>
+
+            <TouchableOpacity onPress={() => {navigation.navigate('Sign In')}} >
+              <Text style={[styles.signInAreaTxt, styles.signInHereTxt]}>
+                {t('signUpScreen.signInHere')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
+        {
+          isLoading == true && (
+            <ActivityIndicator size="large" color='pink' />
+          )
+        }
       </View>
-      {
-        isLoading == true && (
-          <ActivityIndicator size="large" color='pink' />
-        )
-      }
-    </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  // scroll view container of the screen
+  signUpScreenScrollView: {
+    backgroundColor:'white',
+    flex: 1,
+    width: '100%'
+  },
   // screen content container
   signUpScreenContainer: {
     display: 'flex',
@@ -102,7 +110,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     width: '100%',
-    height: '100%'
+    height: '100%',
+    marginBottom: 70
   },
   // input form field container for text input field + the field label
   signUpInputFormFields: {
@@ -117,7 +126,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     width: '80%',
-    marginTop: 50,
     maxWidth: 350
   },
   // text input fields for password and email
@@ -147,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 40,
     borderRadius: 20,
-    marginBottom: 20
+    marginVertical: 20
   },
   // text inside button for signing up
   signUpBtnTxt: {

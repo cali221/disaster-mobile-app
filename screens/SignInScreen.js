@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     width: '80%',
-    marginTop: 50,
     maxWidth: 350
   },
   // text input field for both password and email
