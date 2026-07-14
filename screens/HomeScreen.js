@@ -2,7 +2,7 @@ import { Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'rea
 import { useEffect, useState, useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showErrorToast, showInfoToast } from '../utils/showToast';
+import { showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -18,7 +18,7 @@ Notifications.setNotificationHandler({
 
 
 export function HomeScreen({ navigation }) {
-  const { user, signOut } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -43,6 +43,7 @@ export function HomeScreen({ navigation }) {
                                                 paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
 
+    <StatusBar style="auto" />
     {
       user && (
         <View style={styles.temporaryContent}>

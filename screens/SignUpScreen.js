@@ -9,6 +9,8 @@ import { useState, useContext } from 'react'
 import { showErrorToast, showSuccessToast } from '../utils/showToast';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../contexts/AuthContext';
+import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
@@ -18,7 +20,8 @@ export function SignUpScreen({navigation}){
   const [username, setUsername] = useState('');
   const { t, i18n } = useTranslation();
   const { signUp } = useContext(AuthContext);
-  
+  const insets = useSafeAreaInsets();
+
   // function for handling signing up
   const callSignUp = async () => {
     setIsLoading(true);
@@ -38,7 +41,11 @@ export function SignUpScreen({navigation}){
   } 
 
   return(
-    <ScrollView style={styles.signUpScreenScrollView}>
+    <ScrollView style={[styles.signUpScreenScrollView, { paddingTop: insets.top,
+                                                         paddingBottom: insets.bottom,
+                                                         paddingLeft: insets.left,
+                                                         paddingRight: insets.right }]}>
+      <StatusBar style="auto" />
       <View style={styles.signUpScreenContainer}>
         {/* sign up form */}
         <View style={styles.signUpInputForm}>
@@ -130,13 +137,14 @@ const styles = StyleSheet.create({
   },
   // text input fields for password and email
   signUpTextInput: {
-    borderColor: 'grey',
+    borderColor: 'lightgrey',
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
-    height: 35,
+    height: 45,
     paddingHorizontal: 15,
-    elevation: 3
+    elevation: 1,
+    backgroundColor: 'white'
   },
   // label texts in input form
   inputFormLabelTxt: {
@@ -153,7 +161,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 40,
+    height: 45,
     borderRadius: 20,
     marginVertical: 20
   },

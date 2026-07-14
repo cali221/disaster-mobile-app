@@ -1,11 +1,19 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, 
+         Text, 
+         View, 
+         TouchableOpacity, 
+         TextInput, 
+         ActivityIndicator, 
+         ScrollView } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useState, useContext } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast } from '../utils/showToast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../contexts/AuthContext';
 import { registerForPushNotificationsAsync } from '../utils/registerForNotifications';
+import { StatusBar } from 'expo-status-bar';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -18,8 +26,9 @@ Notifications.setNotificationHandler({
 });
 
 export function SignInScreen({navigation}){
-  const { signIn, upsertExpoPushToken } = useContext(AuthContext)
-  const [isLoading, setIsLoading] = useState(false)
+  const { signIn, upsertExpoPushToken } = useContext(AuthContext);
+  const insets = useSafeAreaInsets();
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t, i18n } = useTranslation();
@@ -63,57 +72,69 @@ export function SignInScreen({navigation}){
   }
 
   return(
-    <View style={styles.signInScreenContainer}>
-      {/* sign in form */}
-      <View style={styles.signInInputForm}>
-        {/* email input area */}
-        <View style={styles.signInInputFormFields}>
-          <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
-          <TextInput onChangeText={setEmail}
-                     value={email}
-                     style={styles.signInTextInputPasswordEmail} />
-        </View>
-
-        {/* password input area */}
-        <View style={styles.signInInputFormFields}>
-          <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
-          <TextInput onChangeText={setPassword}
-                     value={password}
-                     style={styles.signInTextInputPasswordEmail} />
-        </View>
-
-        {/* button to sign in */}
-        <TouchableOpacity onPress={() => {handleSignIn(email, password)}}
-                          style={styles.signInBtn}>
-          <Text style={styles.signInBtnTxt}>
-            {t('authWords.signIn')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* area for showing sign up text and link */}
-        <View style={styles.signUpArea}>
-            <Text style={styles.signUpAreaTxts}>
-                {t('signInScreen.dontHaveAccountYet')}
-            </Text>
-
-            {/* link to go to sign up screen */}
-            <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
-                <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
-                {t('signInScreen.signUpHere')}
-                </Text>
-            </TouchableOpacity>
+    <ScrollView style={[styles.signInScreenScrollView, { paddingTop: insets.top,
+                                                         paddingBottom: insets.bottom,
+                                                         paddingLeft: insets.left,
+                                                         paddingRight: insets.right }]}>
+      <View style={styles.signInScreenContainer}>
+        <StatusBar style="auto" />
+        {/* sign in form */}
+        <View style={styles.signInInputForm}>
+          {/* email input area */}
+          <View style={styles.signInInputFormFields}>
+            <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
+            <TextInput onChangeText={setEmail}
+                      value={email}
+                      style={styles.signInTextInputPasswordEmail} />
           </View>
+
+          {/* password input area */}
+          <View style={styles.signInInputFormFields}>
+            <Text style={styles.inputFormLabelTxt}>{t('authWords.password')}</Text>
+            <TextInput onChangeText={setPassword}
+                      value={password}
+                      style={styles.signInTextInputPasswordEmail} />
+          </View>
+
+          {/* button to sign in */}
+          <TouchableOpacity onPress={() => {handleSignIn(email, password)}}
+                            style={styles.signInBtn}>
+            <Text style={styles.signInBtnTxt}>
+              {t('authWords.signIn')}
+            </Text>
+          </TouchableOpacity>
+
+          {/* area for showing sign up text and link */}
+          <View style={styles.signUpArea}>
+              <Text style={styles.signUpAreaTxts}>
+                  {t('signInScreen.dontHaveAccountYet')}
+              </Text>
+
+              {/* link to go to sign up screen */}
+              <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
+                  <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
+                  {t('signInScreen.signUpHere')}
+                  </Text>
+              </TouchableOpacity>
+            </View>
+        </View>
+        {
+          isLoading == true && (
+            <ActivityIndicator size="large" color='pink' />
+          )
+        }
       </View>
-      {
-        isLoading == true && (
-          <ActivityIndicator size="large" color='pink' />
-        )
-      }
-    </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  // scroll view container of the screen
+  signInScreenScrollView: {
+    backgroundColor:'white',
+    flex: 1,
+    width: '100%'
+  },
   // screen content container
   signInScreenContainer: {
     display: 'flex',
@@ -121,7 +142,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     width: '100%',
-    height: '100%'
+    height: '100%',
+    marginBottom: 70
   },
   // container of form field with text input and label
   signInInputFormFields: {
@@ -140,13 +162,14 @@ const styles = StyleSheet.create({
   },
   // text input field for both password and email
   signInTextInputPasswordEmail: {
-    borderColor: 'grey',
+    borderColor: 'lightgrey',
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
-    height: 35,
+    height: 45,
     paddingHorizontal: 15,
-    elevation: 3
+    elevation: 1,
+    backgroundColor: 'white'
   },
   // label texts in input form
   inputFormLabelTxt: {
@@ -163,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 40,
+    height: 45,
     borderRadius: 20,
     marginBottom: 20
   },
