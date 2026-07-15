@@ -41,7 +41,8 @@ export function SignUpScreen({navigation}){
   } 
 
   return(
-    <ScrollView style={[styles.signUpScreenScrollView, { paddingTop: insets.top,
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}
+                style={[styles.signUpScreenScrollView, { paddingTop: insets.top,
                                                          paddingBottom: insets.bottom,
                                                          paddingLeft: insets.left,
                                                          paddingRight: insets.right }]}>
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: '100%',
     height: '100%',
-    marginBottom: 70
+    paddingBottom: 150
   },
   // input form field container for text input field + the field label
   signUpInputFormFields: {

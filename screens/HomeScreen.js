@@ -1,13 +1,30 @@
-import { Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useEffect, useState, useContext } from 'react';
+import { Text, 
+         TouchableOpacity, 
+         View, 
+         StyleSheet, 
+         ActivityIndicator, 
+         ScrollView,
+         Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showInfoToast } from '../utils/showToast';
+import { showErrorToast, showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native";
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; // comment out when testing on web
 import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
+import { getYesterdaysISOTimeStr } from '../utils/getTime';
+import { capitalizeFirstLetter } from '../utils/textFormatting';
+import { roundTo2DP } from '../utils/unitConversionsAndRounding';
+
+// name Map as MapIcon to differentiate from Map Libre's Map
+import { Phone, 
+         Map as MapIcon, 
+         ShieldAlert,
+         BadgeQuestionMark,
+         ScrollText,
+         Briefcase } from 'lucide-react-native'; 
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -24,6 +41,7 @@ export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
   const [disastersLast24h, setDisastersLast24h] = useState([]);
+  const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => { 
@@ -41,15 +59,21 @@ export function HomeScreen({ navigation }) {
     };
   }, []);
 
-  // TODO: fetch disaster data in last 24h before subscribing 
   useEffect(()=>{
-    if(user){
-      // yesterday's time
-      const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
+    const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
+      const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
+                                               {user_id_input: user_id});
+          
+      if(error){
+        showErrorToast('Failed to fetch disasters in the last 24 hours around your watched areas', 
+                       error.message ?? error);
+      }
+      else{
+        setDisastersSummaryFollowingWatchedAreas([...data]);
+      }
+    };
 
-      // ISO string of yesterday's time
-      const yesterdayStr = yesterday.toISOString();
-
+    const subscribeToNewDisasters = (gtTimestrFilter) => {
       // listen to new disaster inserts in the last 24 hours
       const changes = supabase
                       .channel('table-db-changes')
@@ -59,75 +83,306 @@ export function HomeScreen({ navigation }) {
                           event: 'INSERT',
                           schema: 'disasters_related_data',
                           table: 'disasters',
-                          filter: `datetime=gt.${yesterdayStr}`
+                          filter: `datetime=gt.${gtTimestrFilter}`
                         },
                         (payload) => {
-                          console.log('new disaster > yesterday detected');
-                          setDisastersLast24h([...disastersLast24h, payload.new]);
+                          console.log(`new disaster > ${gtTimestrFilter} detected`);
+                          console.log(payload);
+
+                          setDisastersLast24h(disastersLast24h => [...disastersLast24h, payload.new]);
+
+                          /* re-fetch and update the summary of disasters near 
+                             user's watched areas on disaster insert */
+                          fetchRecentDisastersNearWatchedAreaSummary(user.id);
                         }
                       ).subscribe();
 
+      return changes;
+    } 
+
+    const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
+      const { data, error } = await supabase.schema('disasters_related_data')
+                                            .from('disasters')
+                                            .select()
+                                            .gt('datetime', gtTimestrFilter);
+      
+      if(error){
+        showErrorToast('Failed to fetch disasters that happened in the last 24 hours', error.message ?? error);
+      }
+      else{
+        setDisastersLast24h([...data]);
+      }
+    }
+
+    if(user){
+      // time string of yesterday's time in ISO format
+      const yesterdaytimeStr = getYesterdaysISOTimeStr();
+
+      // fetch disasters data in the last 24 hours
+      fetchDisastersGtTimeStrFilter(yesterdaytimeStr);
+
+      // fetch disasters data in the last 24 hours that match user's watched areas
+      fetchRecentDisastersNearWatchedAreaSummary(user.id);
+
+      // subcribe to new disasters if they happen in the last 24 hours
+      const newDisastersSubscription = subscribeToNewDisasters(yesterdaytimeStr);
+
       return () => {
-        changes.unsubscribe();
+        if(newDisastersSubscription){
+          newDisastersSubscription.unsubscribe();
+        }
       };
     }
   }, [user])
 
+
   return(
     <View style={styles.homescreenContainer}>
-       <Map style={styles.disasterMap} 
-            mapStyle={mapStyle}>
-          {/* camera with bounds to Indonesia */}
-          <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
+        <StatusBar style="auto" />
+        {/* disaster map section */}
+        <View style={styles.disasterMapAreaContainer}>
+          {/* button to create a crowdsourced report */}
+          <TouchableOpacity style={styles.experiencedDisasterBtn}>
+            <Text style={styles.experiencedDisasterBtnTxt}>
+              Experienced a disaster? Report your experience and gain 50XP
+            </Text>
+          </TouchableOpacity>
 
-          {/* sample marker */}
-          <Marker lngLat={[106.827222,  -6.175288]}>
-            <View style={styles.marker}>
+          {/* map placeholder, use when testing on web */}
+          {/* <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View> */}
+    
+          {/* the disaster map component */}
+          <Map style={styles.disasterMap} 
+              mapStyle={mapStyle}
+              compassPosition={{top: 20, left: 20}}
+              onStartShouldSetResponder={()=>{return true}}>
+            <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
+
+            {
+              (disastersLast24h.map((disaster, index) => (
+                <Marker key={index} 
+                        lngLat={[disaster['longitude'], disaster['latitude']]} 
+                        onPress={()=>alert(`${disaster['disaster_type']}`)} >
+                  <View style={styles.marker}></View>
+                </Marker>
+              )))
+            }
+          </Map> 
+      </View>
+
+      {/* scroll view for content below disaster map */}
+      <ScrollView style={styles.homescreenContainer} 
+                  contentContainerStyle={styles.scrollViewContentContainer}
+                  nestedScrollEnabled={true}>
+       
+          {/* explanation text about the disaster map */}
+          <Text style={styles.mapExplanationTxt}>
+            The disaster map above shows disasters in the past 24 hours in real time
+          </Text>
+
+          {/* section for showing recent disasters near user's watched area */}
+          <View style={styles.disasterNearWatchedAreaSummaryContainer}>
+            {/* the section's heading text */}
+            <Text style={styles.sectionHeadingTxt}>
+              Recent disasters near your watched areas
+            </Text>
+            
+            {/* scroll view showing a list of the recent disaster near user's watched areas  */}
+            <ScrollView nestedScrollEnabled={true} 
+                        style={styles.disasterNearWatchedAreaSummaryScrolLView}>
+              {
+                (disastersSummaryFollowingWatchedAreas.map((summary, index) => (
+                  /* map the corresponding array state into views with disaster 
+                     description and details button */
+                  <View key={index} style={styles.disasterSummaryItemContainer}>
+                    {/* the disaster description text, showing the disaster type, 
+                        how far is it from the watched area and 
+                        the time of the disaster */}
+                    <Text style={styles.disasterSummaryTxt}>
+                      {capitalizeFirstLetter(summary.disaster_type)} {roundTo2DP(summary.dist_in_m_from_disaster/1000)} 
+                      {" "} km away from {summary.adm2_name}, {summary.adm1_name}{"\n\n"}
+                      {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
+                    </Text>
+
+                    {/* button to see the details of the disaster */}
+                    <TouchableOpacity style={styles.disasterSummaryDetailsBtn}>
+                      <Text style={styles.disasterSummaryDetailsBtnTxt}>Details</Text>
+                    </TouchableOpacity>
+                  </View>
+                )))
+              }
+            </ScrollView>
+          </View>
+
+          {/* button to edit the areas watchlist */}
+          <TouchableOpacity style={styles.editWatchlistBtn}>
+            <Text style={styles.editWatchlistBtnTxt}>Edit your watchlist</Text>
+          </TouchableOpacity>
+
+          {/* section for quick access to important screens */}
+          <View style={styles.homescreenContentSectionsNonScroll}>
+            {/* the section heading */}
+            <Text style={styles.sectionHeadingTxt}>
+              Quick Access
+            </Text>
+
+            {/* container of the buttons */}
+            <View style={styles.nonScrollSectionsButtonsContainer}>
+              {/* emergency number button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <Phone color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Emergency Numbers
+                </Text>
+              </TouchableOpacity>
+
+              {/* useful location button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <MapIcon color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Useful Location
+                </Text>
+              </TouchableOpacity>
+
+              {/* evacuation steps button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <ShieldAlert color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Evacuation Steps
+                </Text>
+              </TouchableOpacity>
             </View>
-          </Marker>
+          </View>
 
-          {/* markers showing disasters */}
-          {/* TODO: implement overlapping markers hanndling(?) */}
-          {
-            //disastersLast24h.map(x=>([x['lat'], x['lon']])))
-            (disastersLast24h.map((disaster, index) => (
-              <Marker key={index} 
-                      lngLat={[disaster['longitude'], disaster['latitude']]} 
-                      onPress={()=>alert(`${disaster['disaster_type']} index: ${index}`)} >
-                <View style={styles.marker}></View>
-              </Marker>
-            )))
-          }
-      </Map>  
+          {/* the gamification section */}
+          <View style={styles.homescreenContentSectionsNonScroll}>
+            {/* the section heading */}
+            <Text style={styles.sectionHeadingTxt}>
+              Gamification
+            </Text>
 
-      {/* TODO: temporary, move/remove later */}
-      {/* button to go to watched areas settings, currently for adding watched areas */}
-      <TouchableOpacity style={styles.accountSettingsBtn}
-                        onPress={()=>{navigation.navigate('Watched Areas Settings', 
-                                                          {'session': session})}}>
-        <Text>Go to Watched areas settings</Text>
-      </TouchableOpacity>
-     
-     {
+            {/* explanation text about the features */}
+            <Text style={styles.sectionExplanationTxt}>
+              Use the following features to prepare for disasters while gaining XP/keeping your avatar 
+              fit/earning badges
+            </Text>
+
+            {/* container of the buttons */}
+            <View style={styles.nonScrollSectionsButtonsContainer}>
+              {/* quizzes button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <BadgeQuestionMark color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Quizzes
+                </Text>
+              </TouchableOpacity>
+
+              {/* flashcards button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <ScrollText color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Flashcards
+                </Text>
+              </TouchableOpacity>
+
+              {/* emergency bag button */}
+              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+                <Briefcase color={'#FFFFFF'} size={30} />
+
+                <Text style={styles.nonScrollSectionButtonsTxt}>
+                  Emergency Bag
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* "Learn" section */}
+          <View style={styles.homescreenContentSectionsNonScroll}>
+            {/* section heading */}
+            <Text style={styles.sectionHeadingTxt}>
+              Learn
+            </Text>
+
+            {/* explanation text containing link to resource hub 
+                and link to BNPB's guide */}
+            <Text style={styles.sectionExplanationTxt}>
+              Go to the {" "}
+
+              {/* resource hub link text, 
+                  redirect to the Resource Hub screen when pressed */}
+              <Text style={[styles.sectionExplanationTxt, styles.linkText]}
+                    onPress={()=>{navigation.navigate('Resource Hub Stack', 
+                                                      { screen: 'Resource Hub',
+                                                        initial: false, 
+                                                        params: {}
+                                                      })
+                                 }}>
+                Resource Hub
+              </Text>
+
+              {" "}to read guides about different types of disasters.
+      
+              {"\n\n"}
+
+              {/* information text about BNPB pocket book */}
+              Check out this comprehensive pocket book by BNPB by clicking{" "}
+
+              {/* link to the webpage with the book download button */}
+              <Text style={[styles.sectionExplanationTxt, styles.linkText]}
+                    onPress={() => {Linking.openURL('https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020')}}>
+                here.
+              </Text>
+            </Text>
+          </View>
+
+          {/* TODO: temporary, move/remove later */}
+          {/* button to go to watched areas settings, currently for adding watched areas */}
+          <TouchableOpacity style={styles.accountSettingsBtn}
+                            onPress={()=>{navigation.navigate('Watched Areas Settings', 
+                                                              {'session': session})}}>
+            <Text>Go to Watched areas settings</Text>
+          </TouchableOpacity>
+      </ScrollView>
+
+      {/* TODO: replace with loading component and implement 
+          loading overlay during processes */}
+      {
         isLoading == true && (
           <ActivityIndicator size="large" color='pink' />
         )
-
       }
     </View>
   )
 } 
 
 const styles = StyleSheet.create({
-  // screen content container
-  homescreenContainer:{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    rowGap: 50,
-    backgroundColor: 'white',
+  // container of all of the screen's content
+  homescreenContainer: {
     width: '100%',
     height: '100%'
+  },
+  // content container of the scroll view for content below disaster map
+  scrollViewContentContainer: { 
+    paddingHorizontal: 30, 
+    paddingTop: 30, 
+    paddingBottom: 100, 
+    display: 'flex', 
+    flexDirection: 'column', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    rowGap: 30,
+    backgroundColor: 'white'
+  },
+  // container of the disaster map
+  disasterMapAreaContainer:{
+    backgroundColor: 'white',
+    height: '45%', 
+    maxHeight: 550
   },
   // button to go to watched areas settings screen
   accountSettingsBtn: {
@@ -157,12 +412,174 @@ const styles = StyleSheet.create({
  // map showing disasters 
  disasterMap: {
   width: '100%',
-  height: '35%'
+  height: '100%'
  },
+ // map markers for indicating disasters' location
  marker: {
   backgroundColor: '#df3015c4',
   width: 20, 
   height: 20, 
   borderRadius: 10
+ },
+ // button that says "Experienced a disaster (...)"
+ experiencedDisasterBtn: {
+  position: 'absolute',
+  backgroundColor: '#2D3782',
+  top: 20,
+  right: 20,
+  width: 270,
+  height: 50,
+  borderRadius: 50,
+  zIndex: 5,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center'
+ },
+ // text inside the button that says "Experienced a disaster (...)"
+ experiencedDisasterBtnTxt: {
+  color: '#FFFFFF',
+  textAlign: 'center',
+  fontWeight: '600'
+ },
+ // explanation text about the disaster map
+ mapExplanationTxt: {
+  textAlign: 'center',
+  color: '#2D3782',
+  fontWeight: '500'
+ },
+ /* scroll view for showing a list of disaster summaries 
+    of recent disasters near user's watched area */
+ disasterNearWatchedAreaSummaryScrolLView: {
+  flex: 1
+ },
+ /* container of the section with scroll view and explanation/heading text
+    for showing recent disasters near user's watched area*/
+ disasterNearWatchedAreaSummaryContainer: {
+  height: 210,
+  backgroundColor: 'white',
+  borderRadius: 20,
+  width: '100%',
+  paddingHorizontal: 30,
+  paddingVertical: 20,
+  borderColor: 'grey',
+  borderWidth: 1,
+  elevation: 2
+ },
+ /* container of each item in the list showing 
+    recent disasters near user's watched area */
+ disasterSummaryItemContainer: {
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#2D3782'
+ },
+ /* text for each item in the list showing 
+    recent disasters near user's watched area */
+ disasterSummaryTxt: {
+  width: '60%',
+  color: '#2D3782'
+ },
+ /* button to go to the details screen for 
+    the disaster shown in the list of recent 
+    disasters near user's watched area */
+ disasterSummaryDetailsBtn: {
+  backgroundColor: '#2D3782',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+  borderRadius: 30
+ },
+ /* text inside the button to go 
+    to the details screen for the disaster 
+    shown in the list of recent 
+    disasters near user's watched area  */
+ disasterSummaryDetailsBtnTxt: {
+  color: '#FFFFFF',
+  fontWeight: '600'
+ },
+ // the section heading texts 
+ sectionHeadingTxt: {
+  fontWeight: '700',
+  fontSize: 17,
+  color: '#2D3782'
+ },
+ // button for editing areas watchlist 
+ editWatchlistBtn: {
+  backgroundColor: '#2D3782',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  borderRadius: 30
+ },
+ // text inside button to edit areas watchlist
+ editWatchlistBtnTxt: {
+  color: '#FFFFFF',
+  fontWeight: '600',
+  fontSize: 15
+ },
+ /* non-scrollable sections on the screen */
+ homescreenContentSectionsNonScroll: {
+  backgroundColor: 'white',
+  borderRadius: 20,
+  width: '100%',
+  paddingHorizontal: 30,
+  paddingVertical: 20,
+  borderColor: 'grey',
+  borderWidth: 1,
+  elevation: 2,
+  display: 'flex',
+  flexDirection: 'column',
+  rowGap: 10,
+  columnGap: 20,
+  backgroundColor: 'white'
+ },
+ /* container of buttons in the non-scrollable 
+    sections of the screen */
+ nonScrollSectionsButtonsContainer: {
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 10,
+  flex: 1
+ },
+ /* buttons inside the non-scrollable 
+    section of the screen */
+ nonScrollSectionButtons: {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#2D3782',
+  width: '30%',
+  height: '100%',
+  padding: 5,
+  maxWidth: 100,
+  borderRadius: 20,
+  elevation:  5
+ },
+ /* text inside the buttons in the 
+    non-scrollable section of the screen */
+ nonScrollSectionButtonsTxt: {
+  color: '#FFFFFF',
+  textAlign: 'center',
+  fontWeight: '600'
+ },
+ /* explanation texts inside the 
+    sections of the screen */
+ sectionExplanationTxt: {
+  color: '#2D3782'
+ },
+ // additional styling for text links
+ linkText: {
+  color: 'dodgerblue',
+  textDecorationLine: 'underline'
  }
 })

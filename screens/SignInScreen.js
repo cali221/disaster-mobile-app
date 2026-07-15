@@ -76,8 +76,8 @@ export function SignInScreen({navigation}){
                                                          paddingBottom: insets.bottom,
                                                          paddingLeft: insets.left,
                                                          paddingRight: insets.right }]}>
+      <StatusBar style="auto" />
       <View style={styles.signInScreenContainer}>
-        <StatusBar style="auto" />
         {/* sign in form */}
         <View style={styles.signInInputForm}>
           {/* email input area */}
