@@ -17,6 +17,7 @@ import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/getTime';
 import { capitalizeFirstLetter } from '../utils/textFormatting';
 import { roundTo2DP } from '../utils/unitConversionsAndRounding';
+import { useTranslation } from 'react-i18next';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
@@ -40,6 +41,7 @@ Notifications.setNotificationHandler({
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation();
   const [disastersLast24h, setDisastersLast24h] = useState([]);
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,12 +62,13 @@ export function HomeScreen({ navigation }) {
   }, []);
 
   useEffect(()=>{
+    // function to get recent disasters (last 24 hours) around user's watched areas
     const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
       const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
                                                {user_id_input: user_id});
           
       if(error){
-        showErrorToast('Failed to fetch disasters in the last 24 hours around your watched areas', 
+        showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
                        error.message ?? error);
       }
       else{
@@ -73,6 +76,7 @@ export function HomeScreen({ navigation }) {
       }
     };
 
+    // function to subscribe to new disasters
     const subscribeToNewDisasters = (gtTimestrFilter) => {
       // listen to new disaster inserts in the last 24 hours
       const changes = supabase
@@ -100,6 +104,8 @@ export function HomeScreen({ navigation }) {
       return changes;
     } 
 
+    // function to fetch disasters greater than the time specified in parameter
+    // (for showing the initial existing disasters in the last 24 hours on map)
     const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
       const { data, error } = await supabase.schema('disasters_related_data')
                                             .from('disasters')
@@ -107,7 +113,7 @@ export function HomeScreen({ navigation }) {
                                             .gt('datetime', gtTimestrFilter);
       
       if(error){
-        showErrorToast('Failed to fetch disasters that happened in the last 24 hours', error.message ?? error);
+        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
       }
       else{
         setDisastersLast24h([...data]);
@@ -144,7 +150,7 @@ export function HomeScreen({ navigation }) {
           {/* button to create a crowdsourced report */}
           <TouchableOpacity style={styles.experiencedDisasterBtn}>
             <Text style={styles.experiencedDisasterBtnTxt}>
-              Experienced a disaster? Report your experience and gain 50XP
+              {t('homeScreen.experiencedDisasterBtnTxt')}
             </Text>
           </TouchableOpacity>
 
@@ -153,9 +159,9 @@ export function HomeScreen({ navigation }) {
     
           {/* the disaster map component */}
           <Map style={styles.disasterMap} 
-              mapStyle={mapStyle}
-              compassPosition={{top: 20, left: 20}}
-              onStartShouldSetResponder={()=>{return true}}>
+               mapStyle={mapStyle}
+               compassPosition={{top: 20, left: 20}}
+               onStartShouldSetResponder={()=>{return true}}>
             <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
 
             {
@@ -177,14 +183,14 @@ export function HomeScreen({ navigation }) {
        
           {/* explanation text about the disaster map */}
           <Text style={styles.mapExplanationTxt}>
-            The disaster map above shows disasters in the past 24 hours in real time
+            {t('homeScreen.disasterMapExplanation')}
           </Text>
 
           {/* section for showing recent disasters near user's watched area */}
           <View style={styles.disasterNearWatchedAreaSummaryContainer}>
             {/* the section's heading text */}
             <Text style={styles.sectionHeadingTxt}>
-              Recent disasters near your watched areas
+              {t('homeScreen.recentDisasterNearYourWatchedAreaHeading')}
             </Text>
             
             {/* scroll view showing a list of the recent disaster near user's watched areas  */}
@@ -199,14 +205,19 @@ export function HomeScreen({ navigation }) {
                         how far is it from the watched area and 
                         the time of the disaster */}
                     <Text style={styles.disasterSummaryTxt}>
-                      {capitalizeFirstLetter(summary.disaster_type)} {roundTo2DP(summary.dist_in_m_from_disaster/1000)} 
-                      {" "} km away from {summary.adm2_name}, {summary.adm1_name}{"\n\n"}
+                      {/* {capitalizeFirstLetter(summary.disaster_type)} {roundTo2DP(summary.dist_in_m_from_disaster/1000)} 
+                      {" "} km away from {summary.adm2_name}, {summary.adm1_name}
+                      {"\n\n"} */}
+                      {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)),
+                                                                                          distance: roundTo2DP(summary.dist_in_m_from_disaster/1000),
+                                                                                          cityOrRegency: summary.adm2_name,
+                                                                                          province: summary.adm1_name})}
                       {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
                     </Text>
 
                     {/* button to see the details of the disaster */}
                     <TouchableOpacity style={styles.disasterSummaryDetailsBtn}>
-                      <Text style={styles.disasterSummaryDetailsBtnTxt}>Details</Text>
+                      <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('homeScreen.detailsBtnTxt')}</Text>
                     </TouchableOpacity>
                   </View>
                 )))
@@ -216,14 +227,14 @@ export function HomeScreen({ navigation }) {
 
           {/* button to edit the areas watchlist */}
           <TouchableOpacity style={styles.editWatchlistBtn}>
-            <Text style={styles.editWatchlistBtnTxt}>Edit your watchlist</Text>
+            <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
           </TouchableOpacity>
 
           {/* section for quick access to important screens */}
           <View style={styles.homescreenContentSectionsNonScroll}>
             {/* the section heading */}
             <Text style={styles.sectionHeadingTxt}>
-              Quick Access
+              {t('homeScreen.quickAccessHeaderTxt')}
             </Text>
 
             {/* container of the buttons */}
@@ -233,7 +244,7 @@ export function HomeScreen({ navigation }) {
                 <Phone color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Emergency Numbers
+                  {t('homeScreen.emergencyNumberBtnTxt')}
                 </Text>
               </TouchableOpacity>
 
@@ -242,7 +253,7 @@ export function HomeScreen({ navigation }) {
                 <MapIcon color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Useful Location
+                  {t('homeScreen.usefulLocsBtnTxt')}
                 </Text>
               </TouchableOpacity>
 
@@ -251,7 +262,7 @@ export function HomeScreen({ navigation }) {
                 <ShieldAlert color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Evacuation Steps
+                  {t('homeScreen.evacuationStepsBtnTxt')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -261,13 +272,12 @@ export function HomeScreen({ navigation }) {
           <View style={styles.homescreenContentSectionsNonScroll}>
             {/* the section heading */}
             <Text style={styles.sectionHeadingTxt}>
-              Gamification
+              {t('homeScreen.gamificationHeaderTxt')}
             </Text>
 
             {/* explanation text about the features */}
             <Text style={styles.sectionExplanationTxt}>
-              Use the following features to prepare for disasters while gaining XP/keeping your avatar 
-              fit/earning badges
+             {t('homeScreen.gamificationSectionExplanationTxt')}
             </Text>
 
             {/* container of the buttons */}
@@ -277,7 +287,7 @@ export function HomeScreen({ navigation }) {
                 <BadgeQuestionMark color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Quizzes
+                  {t('homeScreen.quizzesBtnTxt')}
                 </Text>
               </TouchableOpacity>
 
@@ -286,7 +296,7 @@ export function HomeScreen({ navigation }) {
                 <ScrollText color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Flashcards
+                  {t('homeScreen.flashcardsBtnTxt')}
                 </Text>
               </TouchableOpacity>
 
@@ -295,7 +305,7 @@ export function HomeScreen({ navigation }) {
                 <Briefcase color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
-                  Emergency Bag
+                  {t('homeScreen.emergencyBagBtnTxt')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -305,13 +315,13 @@ export function HomeScreen({ navigation }) {
           <View style={styles.homescreenContentSectionsNonScroll}>
             {/* section heading */}
             <Text style={styles.sectionHeadingTxt}>
-              Learn
+              {t('homeScreen.learnHeaderTxt')}
             </Text>
 
             {/* explanation text containing link to resource hub 
                 and link to BNPB's guide */}
             <Text style={styles.sectionExplanationTxt}>
-              Go to the {" "}
+              {t('homeScreen.learnSectionResourceHubInfoGoToThe')}{" "}
 
               {/* resource hub link text, 
                   redirect to the Resource Hub screen when pressed */}
@@ -325,17 +335,17 @@ export function HomeScreen({ navigation }) {
                 Resource Hub
               </Text>
 
-              {" "}to read guides about different types of disasters.
+              {" "}{t('homeScreen.learnSectionResourceHubInfoToReadGuidesAbt')}.
       
               {"\n\n"}
 
               {/* information text about BNPB pocket book */}
-              Check out this comprehensive pocket book by BNPB by clicking{" "}
+              {t('homeScreen.learnSectionBNPBSourceInfoCheckOut')}{" "}
 
               {/* link to the webpage with the book download button */}
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
                     onPress={() => {Linking.openURL('https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020')}}>
-                here.
+                {t('homeScreen.learnSectionBNPBSourceInfoHereLink')}.
               </Text>
             </Text>
           </View>

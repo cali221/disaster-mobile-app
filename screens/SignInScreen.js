@@ -61,8 +61,6 @@ export function SignInScreen({navigation}){
 
         await upsertExpoPushToken(pushToken, userData.id);
       }
-
-      //handleNavigation();
     }
     catch(error){
       console.log(error);

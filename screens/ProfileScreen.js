@@ -24,18 +24,16 @@ export function ProfileScreen({ navigation }) {
                                                             paddingBottom: insets.bottom,
                                                             paddingLeft: insets.left,
                                                             paddingRight: insets.right }]}>
-            {
-                user && (
-                     <View>
-                        <Text>Profile Screen Placeholder</Text>
-                        <Text>{user?.user_metadata.username}</Text>
-                        <TouchableOpacity onPress={()=>{callSignOut()}}
-                                                    style={styles.signOutBtn}>
-                            <Text>Sign out</Text>
-                        </TouchableOpacity>
-                    </View>
-                )
-            }
+          
+            <View>
+                <Text>Profile Screen Placeholder</Text>
+                <Text>{user?.user_metadata.username}</Text>
+                <TouchableOpacity onPress={()=>{callSignOut()}}
+                                            style={styles.signOutBtn}>
+                    <Text>Sign out</Text>
+                </TouchableOpacity>
+            </View>
+            
             {
                 isLoading == true && (
                     <ActivityIndicator size="large" color='pink' />
