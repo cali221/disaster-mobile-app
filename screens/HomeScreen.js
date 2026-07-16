@@ -143,7 +143,8 @@ export function HomeScreen({ navigation }) {
 
 
   return(
-    <View style={styles.homescreenContainer}>
+    <View style={[styles.homescreenContainer, { paddingLeft: insets.left,
+                                                paddingRight: insets.right }]}>
         <StatusBar style="auto" />
         {/* disaster map section */}
         <View style={styles.disasterMapAreaContainer}>
@@ -205,9 +206,6 @@ export function HomeScreen({ navigation }) {
                         how far is it from the watched area and 
                         the time of the disaster */}
                     <Text style={styles.disasterSummaryTxt}>
-                      {/* {capitalizeFirstLetter(summary.disaster_type)} {roundTo2DP(summary.dist_in_m_from_disaster/1000)} 
-                      {" "} km away from {summary.adm2_name}, {summary.adm1_name}
-                      {"\n\n"} */}
                       {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)),
                                                                                           distance: roundTo2DP(summary.dist_in_m_from_disaster/1000),
                                                                                           cityOrRegency: summary.adm2_name,
@@ -374,7 +372,8 @@ const styles = StyleSheet.create({
   // container of all of the screen's content
   homescreenContainer: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    backgroundColor: 'white'
   },
   // content container of the scroll view for content below disaster map
   scrollViewContentContainer: { 

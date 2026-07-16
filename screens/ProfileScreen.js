@@ -2,11 +2,19 @@ import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { useContext, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export function ProfileScreen({ navigation }) {
     const { user, signOut } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false)
     const insets = useSafeAreaInsets();
+    const { t, i18n } = useTranslation();
+
+    // temporary function just for checking if things work as expected
+    const changeLang = () => {
+        
+        i18n.changeLanguage('id')
+    }
 
     const callSignOut = async () => {
         setIsLoading(true);
@@ -31,6 +39,11 @@ export function ProfileScreen({ navigation }) {
                 <TouchableOpacity onPress={()=>{callSignOut()}}
                                             style={styles.signOutBtn}>
                     <Text>Sign out</Text>
+                </TouchableOpacity>
+
+                {/* temporary button just for checking if things work as expected */}
+                <TouchableOpacity onPress={()=>{changeLang()}}>
+                    <Text>Try to switch language to Indonesian</Text>
                 </TouchableOpacity>
             </View>
             
