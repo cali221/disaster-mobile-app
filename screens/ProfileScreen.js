@@ -12,8 +12,7 @@ export function ProfileScreen({ navigation }) {
 
     // temporary function just for checking if things work as expected
     const changeLang = () => {
-        
-        i18n.changeLanguage('id')
+        i18n.changeLanguage('id');
     }
 
     const callSignOut = async () => {

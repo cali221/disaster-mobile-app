@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/showToast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; // comment out when testing on web
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; // comment out when testing on web
 import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/getTime';
@@ -37,7 +37,6 @@ Notifications.setNotificationHandler({
   })
 });
 
-
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
@@ -47,8 +46,10 @@ export function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => { 
+    // TODO: these are just example listeners, should be removed/changed later
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       showInfoToast('Notification detected', '');
+      console.log(notification)
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
@@ -156,10 +157,10 @@ export function HomeScreen({ navigation }) {
           </TouchableOpacity>
 
           {/* map placeholder, use when testing on web */}
-          {/* <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View> */}
+          <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View>
     
           {/* the disaster map component */}
-          <Map style={styles.disasterMap} 
+          {/* <Map style={styles.disasterMap} 
                mapStyle={mapStyle}
                compassPosition={{top: 20, left: 20}}
                onStartShouldSetResponder={()=>{return true}}>
@@ -174,7 +175,7 @@ export function HomeScreen({ navigation }) {
                 </Marker>
               )))
             }
-          </Map> 
+          </Map>  */}
       </View>
 
       {/* scroll view for content below disaster map */}
@@ -206,16 +207,18 @@ export function HomeScreen({ navigation }) {
                         how far is it from the watched area and 
                         the time of the disaster */}
                     <Text style={styles.disasterSummaryTxt}>
-                      {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)),
+                      {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: i18n.exists(`disasterNames.${summary.disaster_type}`) ?  
+                                                                                                        capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)) : capitalizeFirstLetter(summary.disaster_type),
                                                                                           distance: roundTo2DP(summary.dist_in_m_from_disaster/1000),
                                                                                           cityOrRegency: summary.adm2_name,
                                                                                           province: summary.adm1_name})}
+                      {"\n"}
                       {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
                     </Text>
 
                     {/* button to see the details of the disaster */}
                     <TouchableOpacity style={styles.disasterSummaryDetailsBtn}>
-                      <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('homeScreen.detailsBtnTxt')}</Text>
+                      <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('shared.details')}</Text>
                     </TouchableOpacity>
                   </View>
                 )))
@@ -464,7 +467,7 @@ const styles = StyleSheet.create({
  /* container of the section with scroll view and explanation/heading text
     for showing recent disasters near user's watched area*/
  disasterNearWatchedAreaSummaryContainer: {
-  height: 210,
+  height: 270,
   backgroundColor: 'white',
   borderRadius: 20,
   width: '100%',
