@@ -1,4 +1,4 @@
-import { render, screen, userEvent, act } from '@testing-library/react-native'
+import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { Navigation } from '../App';
 import { AuthContext } from '../contexts/AuthContext';
 

@@ -32,37 +32,6 @@ Notifications.setNotificationHandler({
   })
 });
 
-// function to fetch disasters greater than the time specified in parameter
-// (for showing the initial existing disasters in the last 24 hours on map)
-// export const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
-//     const { data, error } = await supabase.schema('disasters_related_data')
-//                                           .from('disasters')
-//                                           .select()
-//                                           .gt('datetime', gtTimestrFilter);
-      
-//   if(error){
-//     showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
-//   }
-//   else{
-//     return data;
-//   }
-// }
-
-// function to get recent disasters (last 24 hours) around user's watched areas
-// export const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
-//   const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
-//                                             {user_id_input: user_id});
-      
-//   if(error){
-//     showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
-//                     error.message ?? error);
-//   }
-//   else{
-//     return data;
-//   }
-// };
-
-
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
@@ -71,6 +40,7 @@ export function HomeScreen({ navigation }) {
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // TODO: add pull to refresh(?)
   useEffect(() => { 
     // TODO: these are just example listeners, should be removed/changed later
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
@@ -144,11 +114,6 @@ export function HomeScreen({ navigation }) {
 
                           /* re-fetch and update the summary of disasters near 
                              user's watched areas on disaster insert */
-                          // fetchRecentDisastersNearWatchedAreaSummary(user.id).then((data)=>{
-                          //   if(data) {
-                          //     setDisastersSummaryFollowingWatchedAreas([...data])
-                          //   }
-                          // });
                           fetchRecentDisastersNearWatchedAreaSummary(user.id);
                         }
                       ).subscribe();
@@ -162,19 +127,9 @@ export function HomeScreen({ navigation }) {
 
       // fetch disasters data in the last 24 hours
       fetchDisastersGtTimeStrFilter(yesterdaytimeStr);
-      // fetchDisastersGtTimeStrFilter(yesterdaytimeStr).then((data) => {
-      //   if(data){
-      //     setDisastersLast24h([...data]);
-      //   }
-      // });
-
+    
       // fetch disasters data in the last 24 hours that match user's watched areas
       fetchRecentDisastersNearWatchedAreaSummary(user.id);
-      // fetchRecentDisastersNearWatchedAreaSummary(user.id).then((data) => {
-      //   if(data){
-      //     setDisastersSummaryFollowingWatchedAreas([...data]);
-      //   }
-      // });
 
       // subcribe to new disasters if they happen in the last 24 hours
       const newDisastersSubscription = subscribeToNewDisasters(yesterdaytimeStr);
@@ -195,7 +150,9 @@ export function HomeScreen({ navigation }) {
         {/* disaster map section */}
         <View style={styles.disasterMapAreaContainer}>
           {/* button to create a crowdsourced report */}
-          <TouchableOpacity style={styles.experiencedDisasterBtn}>
+          <TouchableOpacity style={styles.experiencedDisasterBtn}
+                            accessibilityLabel={t('homeScreen.experiencedDisasterBtnTxt')}
+                            accessibilityRole='button'>
             <Text style={styles.experiencedDisasterBtnTxt}>
               {t('homeScreen.experiencedDisasterBtnTxt')}
             </Text>
@@ -213,9 +170,14 @@ export function HomeScreen({ navigation }) {
 
             {
               (disastersLast24h?.map((disaster, index) => (
+                // TODO: implement redirect to disaster details screen
                 <Marker key={index} 
                         lngLat={[disaster['longitude'], disaster['latitude']]} 
-                        onPress={()=>alert(`${disaster['disaster_type']}`)} >
+                        onPress={()=> alert(`${disaster['disaster_type']}`)}
+                        accessibilityRole='button'
+                        accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
+
+                  {/* TODO: change into image/icon depending on disaster type(?) */}
                   <View style={styles.marker}></View>
                 </Marker>
               )))
@@ -226,7 +188,8 @@ export function HomeScreen({ navigation }) {
       {/* scroll view for content below disaster map */}
       <ScrollView style={styles.homescreenContainer} 
                   contentContainerStyle={styles.scrollViewContentContainer}
-                  nestedScrollEnabled={true}>
+                  nestedScrollEnabled={true}
+                  accessibilityRole='scrollbar'>
        
           {/* explanation text about the disaster map */}
           <Text style={styles.mapExplanationTxt}>
@@ -242,7 +205,8 @@ export function HomeScreen({ navigation }) {
             
             {/* scroll view showing a list of the recent disaster near user's watched areas  */}
             <ScrollView nestedScrollEnabled={true} 
-                        style={styles.disasterNearWatchedAreaSummaryScrolLView}>
+                        style={styles.disasterNearWatchedAreaSummaryScrolLView}
+                        accessibilityRole='scrollbar'>
               {
                 (disastersSummaryFollowingWatchedAreas?.map((summary, index) => (
                   /* map the corresponding array state into views with disaster 
@@ -265,8 +229,11 @@ export function HomeScreen({ navigation }) {
                       </Text>
                     </View>
 
+                    {/* TODO: Implement redirect to disaster details screen */}
                     {/* button to see the details of the disaster */}
-                    <TouchableOpacity style={styles.disasterSummaryDetailsBtn}>
+                    <TouchableOpacity style={styles.disasterSummaryDetailsBtn}
+                                      accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}
+                                      accessibilityRole='button'>
                       <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('shared.details')}</Text>
                     </TouchableOpacity>
                   </View>
@@ -276,7 +243,9 @@ export function HomeScreen({ navigation }) {
           </View>
 
           {/* button to edit the areas watchlist */}
-          <TouchableOpacity style={styles.editWatchlistBtn}>
+          <TouchableOpacity style={styles.editWatchlistBtn}
+                            accessibilityLabel={t('homeScreen.editWatchlistBtnTxt')}
+                            accessibilityRole='button'>
             <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
           </TouchableOpacity>
 
@@ -290,7 +259,9 @@ export function HomeScreen({ navigation }) {
             {/* container of the buttons */}
             <View style={styles.nonScrollSectionsButtonsContainer}>
               {/* emergency number button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.emergencyNumberBtnAccLbl')}
+                                accessibilityRole='button'>
                 <Phone color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -299,7 +270,9 @@ export function HomeScreen({ navigation }) {
               </TouchableOpacity>
 
               {/* useful location button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.usefulLocBtnAccLbl')}
+                                accessibilityRole='button'>
                 <MapIcon color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -308,7 +281,9 @@ export function HomeScreen({ navigation }) {
               </TouchableOpacity>
 
               {/* evacuation steps button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.evacuationStepsBtnAccLbl')}
+                                accessibilityRole='button'>
                 <ShieldAlert color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -333,7 +308,9 @@ export function HomeScreen({ navigation }) {
             {/* container of the buttons */}
             <View style={styles.nonScrollSectionsButtonsContainer}>
               {/* quizzes button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.quizzesBtnAccLbl')}
+                                accessibilityRole='button'>
                 <BadgeQuestionMark color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -342,7 +319,9 @@ export function HomeScreen({ navigation }) {
               </TouchableOpacity>
 
               {/* flashcards button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.flashcardsBtnAccLbl')}
+                                accessibilityRole='button'>
                 <ScrollText color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -351,7 +330,9 @@ export function HomeScreen({ navigation }) {
               </TouchableOpacity>
 
               {/* emergency bag button */}
-              <TouchableOpacity style={styles.nonScrollSectionButtons}>
+              <TouchableOpacity style={styles.nonScrollSectionButtons}
+                                accessibilityLabel={t('homeScreen.emergencyBagBtnAccLbl')}
+                                accessibilityRole='button'>
                 <Briefcase color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -376,6 +357,7 @@ export function HomeScreen({ navigation }) {
               {/* resource hub link text, 
                   redirect to the Resource Hub screen when pressed */}
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
+                    accessibilityRole='link'
                     onPress={()=>{navigation.navigate('Resource Hub Stack', 
                                                       { screen: 'Resource Hub',
                                                         initial: false, 
@@ -384,16 +366,15 @@ export function HomeScreen({ navigation }) {
                                  }}>
                 Resource Hub
               </Text>
-
               {" "}{t('homeScreen.learnSectionResourceHubInfoToReadGuidesAbt')}.
-      
-              {"\n\n"}
-
+            </Text>
+            <Text style={styles.sectionExplanationTxt}>
               {/* information text about BNPB pocket book */}
               {t('homeScreen.learnSectionBNPBSourceInfoCheckOut')}{" "}
 
               {/* link to the webpage with the book download button */}
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
+                    accessibilityRole='link'
                     onPress={() => {Linking.openURL('https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020')}}>
                 {t('homeScreen.learnSectionBNPBSourceInfoHereLink')}.
               </Text>
@@ -491,7 +472,7 @@ const styles = StyleSheet.create({
   width: 270,
   height: 50,
   borderRadius: 50,
-  zIndex: 5,
+  zIndex: 10,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center'
