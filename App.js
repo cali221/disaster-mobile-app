@@ -18,6 +18,7 @@ import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
 
+
 const Stack = createStackNavigator();
 
 // custom toast styling 
