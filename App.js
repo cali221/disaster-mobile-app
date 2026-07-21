@@ -222,6 +222,7 @@ function resourceHubScreenStack(){
 const bottomNavigationTabs = createBottomTabNavigator({
   // set styling
   screenOptions: ({ route }) => ({
+    tabBarAccessibilityLabel: route.name,
     tabBarActiveTintColor: '#9ec110',
     tabBarInactiveTintColor: '#E0E0E0',
     tabBarStyle: {
@@ -231,22 +232,22 @@ const bottomNavigationTabs = createBottomTabNavigator({
     /* to avoid warning about nested screens with same names, 
        use stack name and override labels on bottom tab */
     tabBarLabel: ({ focused, color, size }) => {
-      if (route.name === 'Home Stack') {
+      if (route.name === 'Home Screen') {
         return(
           <Text style={[styles.bottomTabNavLabelTxts]}>Home</Text>
         )
       }
-      else if (route.name === 'Profile Stack') {
+      else if (route.name === 'Profile Screen') {
         return(
           <Text style={styles.bottomTabNavLabelTxts}>Profile</Text>
         )
       }
-      else if (route.name === 'Resource Hub Stack') {
+      else if (route.name === 'Resource Hub Screen') {
         return(
           <Text style={styles.bottomTabNavLabelTxts}>Resources</Text>
         )
       }
-      else if (route.name === 'Notifications Stack') {
+      else if (route.name === 'Notifications Screen') {
         return(
           <Text style={styles.bottomTabNavLabelTxts}>Notifications</Text>
         )
@@ -254,29 +255,29 @@ const bottomNavigationTabs = createBottomTabNavigator({
     },
     // set icons/button for navigation
     tabBarIcon: ({ focused, color, size }) => {
-      if (route.name === 'Home Stack') {
+      if (route.name === 'Home Screen') {
         return (
          <House fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Profile Stack'){
+      else if(route.name == 'Profile Screen'){
         return(
           <UserRound fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Notifications Stack'){
+      else if(route.name == 'Notifications Screen'){
         return(
           <Bell fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Resource Hub Stack'){
+      else if(route.name == 'Resource Hub Screen'){
         return(
           <FileText size={size} color='#2D3782' fill={color} />
         )
       }
       /* for panic button, use a view instead and hide label from tab navigator, 
          instead show the label through text inside view */
-      else if(route.name == 'Panic Button Stack'){
+      else if(route.name == 'Panic Button Screen'){
         return(
           <View style={styles.panicButton}>
             <Siren size={35} color='#2D3782' />
@@ -287,32 +288,32 @@ const bottomNavigationTabs = createBottomTabNavigator({
     }
   }),
   screens: {
-    'Home Stack': {
+    'Home Screen': {
       screen: homeScreenStack,
       options: {
         headerShown: false
       }
     },
-    'Resource Hub Stack': {
+    'Resource Hub Screen': {
       screen: resourceHubScreenStack,
       options: {
         headerShown: false
       }
     },
-    'Panic Button Stack': {
+    'Panic Button Screen': {
       screen: panicButtonScreenStack,
       options: {
         headerShown: false,
         tabBarLabel: () => null
       }
     },
-    'Notifications Stack': {
+    'Notifications Screen': {
       screen: notificationScreenStack,
       options: {
         headerShown: false
       }
     },
-    'Profile Stack': {
+    'Profile Screen': {
       screen: profileScreenStack,
       options: {
         headerShown: false
@@ -321,7 +322,7 @@ const bottomNavigationTabs = createBottomTabNavigator({
   },
 });
 
-const Navigation = createStaticNavigation(bottomNavigationTabs);
+export const Navigation = createStaticNavigation(bottomNavigationTabs);
 
 export default function App() {
   return(

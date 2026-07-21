@@ -8,9 +8,12 @@ import { useContext, useEffect, useState, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { showErrorToast } from '../utils/showToast';
+import { showErrorToast } from '../utils/show-toast';
 import { useTranslation } from 'react-i18next';
 import { RotateCw } from 'lucide-react-native';
+
+// TODO: make 'Details' and 'Follow Back' button functional
+// TODO: implement the notification for Mutuals tab
 
 export function NotificationsScreen({ navigation }) {
     const { user } = useContext(AuthContext);
@@ -34,7 +37,9 @@ export function NotificationsScreen({ navigation }) {
             throw error;
         }
         else{
-            setNotificationsToShow([...data]);
+            if(data){
+                setNotificationsToShow([...data]);
+            }
         }
     }, []);
 
@@ -51,7 +56,7 @@ export function NotificationsScreen({ navigation }) {
                 }
             }
             catch(error){
-                showErrorToast('Failed to fetch notification', error.message ?? error);
+                showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
             }
         }
         
@@ -69,7 +74,7 @@ export function NotificationsScreen({ navigation }) {
                 }
             }
             catch(error){
-                showErrorToast('Failed to fetch notification', error.message ?? error);
+                showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
             }
         }
     }, [user, notifCategoryChosen, fetchNotifications]);
@@ -141,7 +146,7 @@ export function NotificationsScreen({ navigation }) {
                 
                 {/* list of notifications */}
                 {
-                (notificationsToShow.map((item, index) => (
+                (notificationsToShow?.map((item, index) => (
                     // container of each notification
                     <View key={index} style={styles.notificationItemContainer}>
                         {/* the notification's text */}

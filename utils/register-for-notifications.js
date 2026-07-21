@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { showInfoToast } from '../utils/showToast';
+import { showInfoToast } from './show-toast';
 
 // function to register for push notification using Expo
 // Start of code I did not write myself

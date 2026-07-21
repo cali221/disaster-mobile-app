@@ -8,24 +8,19 @@ import { Text,
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showErrorToast, showInfoToast } from '../utils/showToast';
+import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; // comment out when testing on web
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
-import { getYesterdaysISOTimeStr } from '../utils/getTime';
-import { capitalizeFirstLetter } from '../utils/textFormatting';
-import { roundTo2DP } from '../utils/unitConversionsAndRounding';
+import { getYesterdaysISOTimeStr } from '../utils/get-time';
+import { capitalizeFirstLetter } from '../utils/text-formatting';
+import { roundTo2DP } from '../utils/rounding';
 import { useTranslation } from 'react-i18next';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
-import { Phone, 
-         Map as MapIcon, 
-         ShieldAlert,
-         BadgeQuestionMark,
-         ScrollText,
-         Briefcase } from 'lucide-react-native'; 
+import { Phone, MapIcon, ShieldAlert, BadgeQuestionMark, ScrollText, Briefcase } from 'lucide-react-native'; 
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -36,6 +31,37 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   })
 });
+
+// function to fetch disasters greater than the time specified in parameter
+// (for showing the initial existing disasters in the last 24 hours on map)
+// export const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
+//     const { data, error } = await supabase.schema('disasters_related_data')
+//                                           .from('disasters')
+//                                           .select()
+//                                           .gt('datetime', gtTimestrFilter);
+      
+//   if(error){
+//     showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
+//   }
+//   else{
+//     return data;
+//   }
+// }
+
+// function to get recent disasters (last 24 hours) around user's watched areas
+// export const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
+//   const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
+//                                             {user_id_input: user_id});
+      
+//   if(error){
+//     showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
+//                     error.message ?? error);
+//   }
+//   else{
+//     return data;
+//   }
+// };
+
 
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -73,9 +99,29 @@ export function HomeScreen({ navigation }) {
                        error.message ?? error);
       }
       else{
-        setDisastersSummaryFollowingWatchedAreas([...data]);
+        if(data){
+          setDisastersSummaryFollowingWatchedAreas([...data]);
+        }
       }
     };
+
+    // function to fetch disasters greater than the time specified in parameter
+    // (for showing the initial existing disasters in the last 24 hours on map)
+    const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
+      const { data, error } = await supabase.schema('disasters_related_data')
+                                            .from('disasters')
+                                            .select()
+                                            .gt('datetime', gtTimestrFilter);
+      
+      if(error){
+        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
+      }
+      else{
+        if(data){
+          setDisastersLast24h([...data]);
+        }
+      }
+    }
 
     // function to subscribe to new disasters
     const subscribeToNewDisasters = (gtTimestrFilter) => {
@@ -98,6 +144,11 @@ export function HomeScreen({ navigation }) {
 
                           /* re-fetch and update the summary of disasters near 
                              user's watched areas on disaster insert */
+                          // fetchRecentDisastersNearWatchedAreaSummary(user.id).then((data)=>{
+                          //   if(data) {
+                          //     setDisastersSummaryFollowingWatchedAreas([...data])
+                          //   }
+                          // });
                           fetchRecentDisastersNearWatchedAreaSummary(user.id);
                         }
                       ).subscribe();
@@ -105,31 +156,25 @@ export function HomeScreen({ navigation }) {
       return changes;
     } 
 
-    // function to fetch disasters greater than the time specified in parameter
-    // (for showing the initial existing disasters in the last 24 hours on map)
-    const fetchDisastersGtTimeStrFilter = async(gtTimestrFilter) => {
-      const { data, error } = await supabase.schema('disasters_related_data')
-                                            .from('disasters')
-                                            .select()
-                                            .gt('datetime', gtTimestrFilter);
-      
-      if(error){
-        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
-      }
-      else{
-        setDisastersLast24h([...data]);
-      }
-    }
-
     if(user){
       // time string of yesterday's time in ISO format
       const yesterdaytimeStr = getYesterdaysISOTimeStr();
 
       // fetch disasters data in the last 24 hours
       fetchDisastersGtTimeStrFilter(yesterdaytimeStr);
+      // fetchDisastersGtTimeStrFilter(yesterdaytimeStr).then((data) => {
+      //   if(data){
+      //     setDisastersLast24h([...data]);
+      //   }
+      // });
 
       // fetch disasters data in the last 24 hours that match user's watched areas
       fetchRecentDisastersNearWatchedAreaSummary(user.id);
+      // fetchRecentDisastersNearWatchedAreaSummary(user.id).then((data) => {
+      //   if(data){
+      //     setDisastersSummaryFollowingWatchedAreas([...data]);
+      //   }
+      // });
 
       // subcribe to new disasters if they happen in the last 24 hours
       const newDisastersSubscription = subscribeToNewDisasters(yesterdaytimeStr);
@@ -157,17 +202,17 @@ export function HomeScreen({ navigation }) {
           </TouchableOpacity>
 
           {/* map placeholder, use when testing on web */}
-          <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View>
+          {/* <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View> */}
     
           {/* the disaster map component */}
-          {/* <Map style={styles.disasterMap} 
+          <Map style={styles.disasterMap} 
                mapStyle={mapStyle}
                compassPosition={{top: 20, left: 20}}
                onStartShouldSetResponder={()=>{return true}}>
             <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
 
             {
-              (disastersLast24h.map((disaster, index) => (
+              (disastersLast24h?.map((disaster, index) => (
                 <Marker key={index} 
                         lngLat={[disaster['longitude'], disaster['latitude']]} 
                         onPress={()=>alert(`${disaster['disaster_type']}`)} >
@@ -175,7 +220,7 @@ export function HomeScreen({ navigation }) {
                 </Marker>
               )))
             }
-          </Map>  */}
+          </Map> 
       </View>
 
       {/* scroll view for content below disaster map */}
@@ -199,22 +244,26 @@ export function HomeScreen({ navigation }) {
             <ScrollView nestedScrollEnabled={true} 
                         style={styles.disasterNearWatchedAreaSummaryScrolLView}>
               {
-                (disastersSummaryFollowingWatchedAreas.map((summary, index) => (
+                (disastersSummaryFollowingWatchedAreas?.map((summary, index) => (
                   /* map the corresponding array state into views with disaster 
                      description and details button */
                   <View key={index} style={styles.disasterSummaryItemContainer}>
                     {/* the disaster description text, showing the disaster type, 
                         how far is it from the watched area and 
                         the time of the disaster */}
-                    <Text style={styles.disasterSummaryTxt}>
-                      {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: i18n.exists(`disasterNames.${summary.disaster_type}`) ?  
-                                                                                                        capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)) : capitalizeFirstLetter(summary.disaster_type),
-                                                                                          distance: roundTo2DP(summary.dist_in_m_from_disaster/1000),
-                                                                                          cityOrRegency: summary.adm2_name,
-                                                                                          province: summary.adm1_name})}
-                      {"\n"}
-                      {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
-                    </Text>
+                    <View style={styles.disasterSummaryTxtContainer}>
+                      <Text style={styles.disasterSummaryTxt}>
+                        {t('homeScreen.recentDisasterNearYourWatchedAreaItemTxtTemplate', { disasterType: i18n.exists(`disasterNames.${summary.disaster_type}`) ?  
+                                                                                                          capitalizeFirstLetter(t(`disasterNames.${summary.disaster_type}`)) : capitalizeFirstLetter(summary.disaster_type),
+                                                                                            distance: roundTo2DP(summary.dist_in_m_from_disaster/1000),
+                                                                                            cityOrRegency: summary.adm2_name,
+                                                                                            province: summary.adm1_name})}
+                      </Text>
+
+                      <Text style={styles.disasterSummaryTxt}> 
+                        {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
+                      </Text>
+                    </View>
 
                     {/* button to see the details of the disaster */}
                     <TouchableOpacity style={styles.disasterSummaryDetailsBtn}>
@@ -488,10 +537,16 @@ const styles = StyleSheet.create({
   borderBottomWidth: 1,
   borderBottomColor: '#2D3782'
  },
+ disasterSummaryTxtContainer: {
+  display: 'flex', 
+  flexDirection: 'column', 
+  width: '60%',
+  rowGap: 10
+ },
  /* text for each item in the list showing 
     recent disasters near user's watched area */
  disasterSummaryTxt: {
-  width: '60%',
+  width: '100%',
   color: '#2D3782'
  },
  /* button to go to the details screen for 
