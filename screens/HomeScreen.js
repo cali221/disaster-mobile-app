@@ -19,9 +19,15 @@ import { capitalizeFirstLetter } from '../utils/text-formatting';
 import { roundTo2DP } from '../utils/rounding';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
+import { MapDisasterLegend } from '../components/MapDisasterLegend';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
-import { Phone, MapIcon, ShieldAlert, BadgeQuestionMark, ScrollText, Briefcase } from 'lucide-react-native'; 
+import { Phone, 
+         MapIcon, 
+         ShieldAlert, 
+         BadgeQuestionMark, 
+         ScrollText, 
+         Briefcase } from 'lucide-react-native'; 
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -155,6 +161,7 @@ export function HomeScreen({ navigation }) {
         <StatusBar style="auto" />
         {/* disaster map section */}
         <View style={styles.disasterMapAreaContainer}>
+          {/* TODO: implement redirect to report creation screen when pressed */}
           {/* button to create a crowdsourced report */}
           <TouchableOpacity style={styles.experiencedDisasterBtn}
                             accessibilityLabel={t('homeScreen.experiencedDisasterBtnTxt')}
@@ -184,7 +191,7 @@ export function HomeScreen({ navigation }) {
                         accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
 
                   {/* TODO: change into image/icon depending on disaster type(?) */}
-                  <View style={styles.marker}></View>
+                  <MapDisasterLegend disasterType={disaster['disaster_type']} />
                 </Marker>
               )))
             }
@@ -447,13 +454,6 @@ const styles = StyleSheet.create({
   disasterMap: {
     width: '100%',
     height: '100%'
-  },
-  // map markers for indicating disasters' location
-  marker: {
-    backgroundColor: '#df3015c4',
-    width: 20, 
-    height: 20, 
-    borderRadius: 10
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {

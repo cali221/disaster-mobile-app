@@ -21,7 +21,16 @@ jest.mock('lucide-react-native', () => {
         ShieldAlert: 'ShieldAlert', 
         BadgeQuestionMark: 'BadgeQuestionMark', 
         ScrollText: 'ScrollText', 
-        Briefcase: 'Briefcase'
+        Briefcase: 'Briefcase',
+        // disaster legends icons:
+        Activity: 'Activity',
+        Waves: 'Waves',
+        Flame: 'Flame',
+        Mountain: 'Mountain',
+        Wind: 'Wind',
+        Tornado: 'Tornado',
+        Haze: 'Haze',
+        ShieldQuestion: 'ShieldQuestion'
     }
 });
 
