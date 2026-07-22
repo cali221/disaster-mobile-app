@@ -161,11 +161,11 @@ export function HomeScreen({ navigation }) {
         <StatusBar style="auto" />
         {/* disaster map section */}
         <View style={styles.disasterMapAreaContainer}>
-          {/* TODO: implement redirect to report creation screen when pressed */}
           {/* button to create a crowdsourced report */}
           <TouchableOpacity style={styles.experiencedDisasterBtn}
                             accessibilityLabel={t('homeScreen.experiencedDisasterBtnTxt')}
-                            accessibilityRole='button'>
+                            accessibilityRole='button'
+                            onPress={()=>{navigation.navigate('Create Report')}}>
             <Text style={styles.experiencedDisasterBtnTxt}>
               {t('homeScreen.experiencedDisasterBtnTxt')}
             </Text>
@@ -189,8 +189,6 @@ export function HomeScreen({ navigation }) {
                         onPress={()=>{navigation.navigate('Disaster Details', {disasterId: disaster['id']})}}
                         accessibilityRole='button'
                         accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
-
-                  {/* TODO: change into image/icon depending on disaster type(?) */}
                   <MapDisasterLegend disasterType={disaster['disaster_type']} />
                 </Marker>
               )))

@@ -183,4 +183,34 @@ describe('Home Screen', () => {
                             .toBeOnTheScreen();
         }
     });
+
+    it('should navigate to create report screen when create report button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get create report button
+        const createReportBtn = await screen.getByRole('button', {name: 'homeScreen.experiencedDisasterBtnTxt'})
+
+        // if button exists, press it
+        if(createReportBtn){
+            await user.press(createReportBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the disaster details screen
+            await expect(screen.getByRole('heading', 
+                                        {name: 'screenTitles.createReportScreenTitle'}))
+                            .toBeOnTheScreen();
+        }
+    })
 });

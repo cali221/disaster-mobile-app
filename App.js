@@ -18,6 +18,7 @@ import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
 import { DisasterDetailsScreen } from './screens/DisasterDetailsScreen';
+import { CreateReportScreen } from './screens/CreateReportScreen';
 
 const Stack = createStackNavigator();
 
@@ -93,6 +94,10 @@ function homeScreenStack(){
               <Stack.Screen name='Disaster Details'
                             component={DisasterDetailsScreen}
                             options={{title: t('screenTitles.disasterDetailsScreenTitle')}} /> 
+
+              <Stack.Screen name='Create Report'
+                            component={CreateReportScreen}
+                            options={{title: t('screenTitles.createReportScreenTitle')}} />
               
               <Stack.Screen name="Watched Areas Settings" 
                     component={WatchedAreasSettingsScreen}
