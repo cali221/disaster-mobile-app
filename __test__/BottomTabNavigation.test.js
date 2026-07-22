@@ -2,8 +2,10 @@
  * Tests for bottom tab navigator.
  * Tests for navigation through interactions on specific screens,
  * are on the test files of the screens.
+ * 
+ * To run: npm test -- BottomTabNavigation.test.js
  */
-// To run: npm test -- BottomTabNavigation.test.js
+
 import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { Navigation } from '../App';
 import { AuthContext } from '../contexts/AuthContext';

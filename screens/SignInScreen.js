@@ -129,7 +129,7 @@ export function SignInScreen({navigation}){
 const styles = StyleSheet.create({
   // scroll view container of the screen
   signInScreenScrollView: {
-    backgroundColor:'red',
+    backgroundColor: 'white',
     flex: 1,
     width: '100%',
   },

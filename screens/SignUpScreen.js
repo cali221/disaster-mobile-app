@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown
@@ -41,10 +42,8 @@ export function SignUpScreen({navigation}){
   } 
 
   return(
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}
-                style={[styles.signUpScreenScrollView, { paddingTop: insets.top,
-                                                         paddingBottom: insets.bottom,
-                                                         paddingLeft: insets.left,
+    <ScrollView contentContainerStyle={styles.signUpScrollViewContentContainer}
+                style={[styles.signUpScreenScrollView, { paddingLeft: insets.left,
                                                          paddingRight: insets.right }]}>
       <StatusBar style="auto" />
       <View style={styles.signUpScreenContainer}>
@@ -96,7 +95,7 @@ export function SignUpScreen({navigation}){
         </View>
         {
           isLoading == true && (
-            <ActivityIndicator size="large" color='pink' />
+            <LoadingOverlay />
           )
         }
       </View>
@@ -110,6 +109,10 @@ const styles = StyleSheet.create({
     backgroundColor:'white',
     flex: 1,
     width: '100%'
+  },
+  signUpScrollViewContentContainer:{
+    flexGrow: 1,
+    height: '100%'
   },
   // screen content container
   signUpScreenContainer: {
