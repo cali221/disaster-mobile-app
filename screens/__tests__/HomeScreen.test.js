@@ -124,19 +124,21 @@ describe('Home Screen', () => {
 
         const user = userEvent.setup();
 
+        // navigate to home screen first to be sure it's on home screen
         await user.press(screen.getByRole('button', { name: 'Home Screen' }));
         
         await act(() => jest.runAllTimers());
 
+        // get markers
         const markersOnMapArr = await screen.getAllByTestId('marker-on-map');
 
-        console.log(markersOnMapArr[0])
-
+        // if marker exists, press on one (the first one in array)
         if(markersOnMapArr.length > 0){
             await user.press(markersOnMapArr[0]);
         
             await act(() => jest.runAllTimers());
             
+            // expect to be redirected to disaster details screen
             await expect(screen.getByRole('heading', 
                                         {name: 'screenTitles.disasterDetailsScreenTitle'}))
                             .toBeOnTheScreen();
@@ -152,17 +154,21 @@ describe('Home Screen', () => {
 
         const user = userEvent.setup();
 
+        // navigate to home screen first to be sure it's on home screen
         await user.press(screen.getByRole('button', { name: 'Home Screen' }));
         
         await act(() => jest.runAllTimers());
 
+        // get details button
         const disasterSummaryItemArr = await screen.getAllByRole('button', {name: 'homeScreen.goToDisastersDetailsScreenAccLbl'})
 
+        // if button exists, try to press on one (the first one in array)
         if(disasterSummaryItemArr.length > 0){
             await user.press(disasterSummaryItemArr[0]);
         
             await act(() => jest.runAllTimers());
             
+            // expect to be redirected to the disaster details screen
             await expect(screen.getByRole('heading', 
                                         {name: 'screenTitles.disasterDetailsScreenTitle'}))
                             .toBeOnTheScreen();
