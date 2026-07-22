@@ -18,6 +18,7 @@ import { getYesterdaysISOTimeStr } from '../utils/get-time';
 import { capitalizeFirstLetter } from '../utils/text-formatting';
 import { roundTo2DP } from '../utils/rounding';
 import { useTranslation } from 'react-i18next';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, MapIcon, ShieldAlert, BadgeQuestionMark, ScrollText, Briefcase } from 'lucide-react-native'; 
@@ -125,6 +126,8 @@ export function HomeScreen({ navigation }) {
     } 
 
     if(user){
+      setIsLoading(true);
+
       // time string of yesterday's time in ISO format
       const yesterdaytimeStr = getYesterdaysISOTimeStr();
 
@@ -136,6 +139,8 @@ export function HomeScreen({ navigation }) {
 
       // subcribe to new disasters if they happen in the last 24 hours
       const newDisastersSubscription = subscribeToNewDisasters(yesterdaytimeStr);
+
+      setIsLoading(false);
 
       return () => {
         if(newDisastersSubscription){
@@ -393,11 +398,10 @@ export function HomeScreen({ navigation }) {
           </TouchableOpacity>
       </ScrollView>
 
-      {/* TODO: replace with loading component and implement 
-          loading overlay during processes */}
+      {/* loading overlay to show when isLoading is true */}
       {
         isLoading == true && (
-          <ActivityIndicator size="large" color='pink' />
+          <LoadingOverlay />
         )
       }
     </View>
@@ -441,196 +445,185 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20
   },
-  // overlay behind loading spinner
-  loadingOverlay:{
+  // map showing disasters 
+  disasterMap: {
+    width: '100%',
+    height: '100%'
+  },
+  // map markers for indicating disasters' location
+  marker: {
+    backgroundColor: '#df3015c4',
+    width: 20, 
+    height: 20, 
+    borderRadius: 10
+  },
+  // button that says "Experienced a disaster (...)"
+  experiencedDisasterBtn: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    backgroundColor: '#2D3782',
+    top: 20,
+    right: 20,
+    width: 270,
+    height: 50,
+    borderRadius: 50,
+    zIndex: 10,
     display: 'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    backgroundColor: '#0000008f',
-    zIndex: 1,
- },
- // map showing disasters 
- disasterMap: {
-  width: '100%',
-  height: '100%'
- },
- // map markers for indicating disasters' location
- marker: {
-  backgroundColor: '#df3015c4',
-  width: 20, 
-  height: 20, 
-  borderRadius: 10
- },
- // button that says "Experienced a disaster (...)"
- experiencedDisasterBtn: {
-  position: 'absolute',
-  backgroundColor: '#2D3782',
-  top: 20,
-  right: 20,
-  width: 270,
-  height: 50,
-  borderRadius: 50,
-  zIndex: 10,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center'
- },
- // text inside the button that says "Experienced a disaster (...)"
- experiencedDisasterBtnTxt: {
-  color: '#FFFFFF',
-  textAlign: 'center',
-  fontWeight: '600'
- },
- // explanation text about the disaster map
- mapExplanationTxt: {
-  textAlign: 'center',
-  color: '#2D3782',
-  fontWeight: '500'
- },
- /* scroll view for showing a list of disaster summaries 
-    of recent disasters near user's watched area */
- disasterNearWatchedAreaSummaryScrolLView: {
-  flex: 1
- },
- /* container of the section with scroll view and explanation/heading text
-    for showing recent disasters near user's watched area*/
- disasterNearWatchedAreaSummaryContainer: {
-  height: 270,
-  backgroundColor: 'white',
-  borderRadius: 20,
-  width: '100%',
-  paddingHorizontal: 30,
-  paddingVertical: 20,
-  borderColor: 'grey',
-  borderWidth: 1,
-  elevation: 2
- },
- /* container of each item in the list showing 
-    recent disasters near user's watched area */
- disasterSummaryItemContainer: {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 10,
-  borderBottomWidth: 1,
-  borderBottomColor: '#2D3782'
- },
- disasterSummaryTxtContainer: {
-  display: 'flex', 
-  flexDirection: 'column', 
-  width: '60%',
-  rowGap: 10
- },
- /* text for each item in the list showing 
-    recent disasters near user's watched area */
- disasterSummaryTxt: {
-  width: '100%',
-  color: '#2D3782'
- },
- /* button to go to the details screen for 
-    the disaster shown in the list of recent 
-    disasters near user's watched area */
- disasterSummaryDetailsBtn: {
-  backgroundColor: '#2D3782',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  paddingVertical: 10,
-  borderRadius: 30
- },
- /* text inside the button to go 
-    to the details screen for the disaster 
-    shown in the list of recent 
-    disasters near user's watched area  */
- disasterSummaryDetailsBtnTxt: {
-  color: '#FFFFFF',
-  fontWeight: '600'
- },
- // the section heading texts 
- sectionHeadingTxt: {
-  fontWeight: '700',
-  fontSize: 17,
-  color: '#2D3782'
- },
- // button for editing areas watchlist 
- editWatchlistBtn: {
-  backgroundColor: '#2D3782',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '100%',
-  paddingVertical: 12,
-  paddingHorizontal: 20,
-  borderRadius: 30
- },
- // text inside button to edit areas watchlist
- editWatchlistBtnTxt: {
-  color: '#FFFFFF',
-  fontWeight: '600',
-  fontSize: 15
- },
- /* non-scrollable sections on the screen */
- homescreenContentSectionsNonScroll: {
-  backgroundColor: 'white',
-  borderRadius: 20,
-  width: '100%',
-  paddingHorizontal: 30,
-  paddingVertical: 20,
-  borderColor: 'grey',
-  borderWidth: 1,
-  elevation: 2,
-  display: 'flex',
-  flexDirection: 'column',
-  rowGap: 10,
-  columnGap: 20,
-  backgroundColor: 'white'
- },
- /* container of buttons in the non-scrollable 
-    sections of the screen */
- nonScrollSectionsButtonsContainer: {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 10,
-  flex: 1
- },
- /* buttons inside the non-scrollable 
-    section of the screen */
- nonScrollSectionButtons: {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#2D3782',
-  width: '30%',
-  height: '100%',
-  padding: 5,
-  maxWidth: 100,
-  borderRadius: 20,
-  elevation:  5
- },
- /* text inside the buttons in the 
-    non-scrollable section of the screen */
- nonScrollSectionButtonsTxt: {
-  color: '#FFFFFF',
-  textAlign: 'center',
-  fontWeight: '600'
- },
- /* explanation texts inside the 
-    sections of the screen */
- sectionExplanationTxt: {
-  color: '#2D3782'
- },
- // additional styling for text links
- linkText: {
-  color: 'dodgerblue',
-  textDecorationLine: 'underline'
- }
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  // text inside the button that says "Experienced a disaster (...)"
+  experiencedDisasterBtnTxt: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '600'
+  },
+  // explanation text about the disaster map
+  mapExplanationTxt: {
+    textAlign: 'center',
+    color: '#2D3782',
+    fontWeight: '500'
+  },
+  /* scroll view for showing a list of disaster summaries 
+     of recent disasters near user's watched area */
+  disasterNearWatchedAreaSummaryScrolLView: {
+    flex: 1
+  },
+  /* container of the section with scroll view and explanation/heading text
+     or showing recent disasters near user's watched area*/
+  disasterNearWatchedAreaSummaryContainer: {
+    height: 270,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: '100%',
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    borderColor: 'grey',
+    borderWidth: 1,
+    elevation: 2
+  },
+  /* container of each item in the list showing 
+     recent disasters near user's watched area */
+  disasterSummaryItemContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2D3782'
+  },
+  /* container of texts for summary of disasters 
+     near user's watched area */
+  disasterSummaryTxtContainer: {
+    display: 'flex', 
+    flexDirection: 'column', 
+    width: '60%',
+    rowGap: 10
+  },
+  /* text for each item in the list showing 
+     recent disasters near user's watched area */
+  disasterSummaryTxt: {
+    width: '100%',
+    color: '#2D3782'
+  },
+  /* button to go to the details screen for 
+     the disaster shown in the list of recent 
+     disasters near user's watched area */
+  disasterSummaryDetailsBtn: {
+    backgroundColor: '#2D3782',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 30
+  },
+  /* text inside the button to go 
+     to the details screen for the disaster 
+     shown in the list of recent 
+     disasters near user's watched area  */
+  disasterSummaryDetailsBtnTxt: {
+    color: '#FFFFFF',
+    fontWeight: '600'
+  },
+  // the section heading texts 
+  sectionHeadingTxt: {
+    fontWeight: '700',
+    fontSize: 17,
+    color: '#2D3782'
+  },
+  // button for editing areas watchlist 
+  editWatchlistBtn: {
+    backgroundColor: '#2D3782',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30
+  },
+  // text inside button to edit areas watchlist
+  editWatchlistBtnTxt: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 15
+  },
+  /* non-scrollable sections on the screen */
+  homescreenContentSectionsNonScroll: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: '100%',
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    borderColor: 'grey',
+    borderWidth: 1,
+    elevation: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: 10,
+    columnGap: 20,
+    backgroundColor: 'white'
+  },
+  /* container of buttons in the non-scrollable 
+     sections of the screen */
+  nonScrollSectionsButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    flex: 1
+  },
+  /* buttons inside the non-scrollable 
+     section of the screen */
+  nonScrollSectionButtons: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2D3782',
+    width: '30%',
+    height: '100%',
+    padding: 5,
+    maxWidth: 100,
+    borderRadius: 20,
+    elevation:  5
+  },
+  /* text inside the buttons in the 
+      non-scrollable section of the screen */
+  nonScrollSectionButtonsTxt: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '600'
+  },
+  /* explanation texts inside the 
+      sections of the screen */
+  sectionExplanationTxt: {
+    color: '#2D3782'
+  },
+  // additional styling for text links
+  linkText: {
+    color: 'dodgerblue',
+    textDecorationLine: 'underline'
+  }
 })
