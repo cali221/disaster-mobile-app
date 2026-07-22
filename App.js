@@ -17,7 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
-
+import { DisasterDetailsScreen } from './screens/DisasterDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -89,6 +89,10 @@ function homeScreenStack(){
             <>
               <Stack.Screen name='Home' 
                             component={HomeScreen} />
+                        
+              <Stack.Screen name='Disaster Details'
+                            component={DisasterDetailsScreen}
+                            options={{title: t('screenTitles.disasterDetailsScreenTitle')}} /> 
               
               <Stack.Screen name="Watched Areas Settings" 
                     component={WatchedAreasSettingsScreen}

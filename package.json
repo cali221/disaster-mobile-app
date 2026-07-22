@@ -12,7 +12,7 @@
   "jest": {
     "preset": "jest-expo",
     "setupFiles": [
-      "./jestSetupFile.js"
+      "./jest/jestSetupFile.js"
     ]
   },
   "dependencies": {
@@ -54,7 +54,6 @@
   "private": true,
   "devDependencies": {
     "@types/react": "~19.1.10",
-    "jest-when": "^4.0.3",
     "supabase": "^2.107.0",
     "typescript": "~5.9.2"
   }

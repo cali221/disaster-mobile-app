@@ -6,7 +6,7 @@ import { Text,
          ScrollView,
          Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
@@ -62,17 +62,19 @@ export function HomeScreen({ navigation }) {
   useEffect(()=>{
     // function to get recent disasters (last 24 hours) around user's watched areas
     const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
-      const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
-                                               {user_id_input: user_id});
-          
-      if(error){
-        showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
-                       error.message ?? error);
-      }
-      else{
-        if(data){
-          setDisastersSummaryFollowingWatchedAreas([...data]);
+        if(user_id){
+          const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
+                                                   {user_id_input: user_id});
+            
+        if(error){
+          showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
+                        error.message ?? error);
         }
+        else{
+          if(data){
+            setDisastersSummaryFollowingWatchedAreas([...data]);
+          }
+        } 
       }
     };
 
@@ -171,10 +173,10 @@ export function HomeScreen({ navigation }) {
 
             {
               (disastersLast24h?.map((disaster, index) => (
-                // TODO: implement redirect to disaster details screen
                 <Marker key={index} 
+                        testID='marker-on-map'
                         lngLat={[disaster['longitude'], disaster['latitude']]} 
-                        onPress={()=> alert(`${disaster['disaster_type']}`)}
+                        onPress={()=>{navigation.navigate('Disaster Details', {disasterId: disaster['id']})}}
                         accessibilityRole='button'
                         accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
 
@@ -212,7 +214,7 @@ export function HomeScreen({ navigation }) {
                 (disastersSummaryFollowingWatchedAreas?.map((summary, index) => (
                   /* map the corresponding array state into views with disaster 
                      description and details button */
-                  <View key={index} style={styles.disasterSummaryItemContainer}>
+                  <View key={index} style={styles.disasterSummaryItemContainer} testID='disaster-summary-item-container'>
                     {/* the disaster description text, showing the disaster type, 
                         how far is it from the watched area and 
                         the time of the disaster */}
@@ -230,11 +232,11 @@ export function HomeScreen({ navigation }) {
                       </Text>
                     </View>
 
-                    {/* TODO: Implement redirect to disaster details screen */}
                     {/* button to see the details of the disaster */}
                     <TouchableOpacity style={styles.disasterSummaryDetailsBtn}
                                       accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}
-                                      accessibilityRole='button'>
+                                      accessibilityRole='button'
+                                      onPress={()=>{navigation.navigate('Disaster Details', {disasterId: summary.disaster_id})}}>
                       <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('shared.details')}</Text>
                     </TouchableOpacity>
                   </View>

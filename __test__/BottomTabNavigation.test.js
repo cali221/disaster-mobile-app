@@ -1,3 +1,9 @@
+/**
+ * Tests for bottom tab navigator.
+ * Tests for navigation through interactions on specific screens,
+ * are on the test files of the screens.
+ */
+// To run: npm test -- BottomTabNavigation.test.js
 import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { Navigation } from '../App';
 import { AuthContext } from '../contexts/AuthContext';
@@ -65,7 +71,7 @@ describe('Navigation when logged in', ()=>{
             </AuthContext.Provider>
         )
 
-        expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
     });
 
     it('shows home screen when user is not null and user navigated to home screen', async()=>{
@@ -81,7 +87,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
     });
 
     it('shows resource hub screen when user is not null and user navigated to resource hub', async()=>{
@@ -97,7 +103,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        expect(screen.getByRole('heading', {name: 'Resource Hub'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Resource Hub'})).toBeOnTheScreen();
     });
 
     it('shows panic button screen when user is not null and user navigated to panic button', async()=>{
@@ -113,7 +119,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        expect(screen.getByRole('heading', {name: 'Panic Button'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Panic Button'})).toBeOnTheScreen();
     });
 
     it('shows notifications screen when user is not null and user navigated to notifications screen', async()=>{
@@ -129,7 +135,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        expect(screen.getByRole('heading', {name: 'Notifications'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Notifications'})).toBeOnTheScreen();
     });
 
     it('shows notifications screen when user is not null and user navigated to notifications screen', async()=>{
@@ -145,7 +151,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        expect(screen.getByRole('heading', {name: 'Profile'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Profile'})).toBeOnTheScreen();
     });
 });
 
@@ -158,7 +164,7 @@ describe('Navigation when logged out', ()=>{
             </AuthContext.Provider>
         );
         
-        expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
     });
 
     it('shows sign in screen when user is null and navigated to homescreen', async ()=>{
@@ -174,7 +180,7 @@ describe('Navigation when logged out', ()=>{
         
         await act(() => jest.runAllTimers());
         
-        expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
     });
 
     it('shows resource hub screen when user is null and navigated to resource hub screen', async ()=>{
@@ -190,7 +196,7 @@ describe('Navigation when logged out', ()=>{
         
         await act(() => jest.runAllTimers());
         
-        expect(screen.getByRole('heading', {name: 'Resource Hub'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Resource Hub'})).toBeOnTheScreen();
     });
 
     it('shows panic button screen when user is null and navigated to panic button screen', async ()=>{
@@ -206,7 +212,7 @@ describe('Navigation when logged out', ()=>{
         
         await act(() => jest.runAllTimers());
         
-        expect(screen.getByRole('heading', {name: 'Panic Button'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'Panic Button'})).toBeOnTheScreen();
     });
 
     it('shows sign in screen when user is null and navigated to notifiations screen', async ()=>{
@@ -222,7 +228,7 @@ describe('Navigation when logged out', ()=>{
         
         await act(() => jest.runAllTimers());
         
-        expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
     });
 
     it('shows sign in screen when user is null and navigated to profile screen', async ()=>{
@@ -238,6 +244,6 @@ describe('Navigation when logged out', ()=>{
         
         await act(() => jest.runAllTimers());
         
-        expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
     });
 });
