@@ -360,4 +360,34 @@ describe('Home Screen', () => {
                             .toBeOnTheScreen();
         }
     });    
+
+    it('should navigate to resource hub screen when the resouce hub link is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the resource hub link
+        const resourceHubLink = await screen.getByRole('link', {name: 'Resource Hub'})
+
+        // if link exists, press it
+        if(resourceHubLink){
+            await user.press(resourceHubLink);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the resource hub screen
+            await expect(screen.getByRole('heading', 
+                                          {name: 'Resource Hub'}))
+                        .toBeOnTheScreen();
+        }
+    });  
 });

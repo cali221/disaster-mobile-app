@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#df3015c4',
         width: 30, 
         height: 30, 
-        borderRadius: 15
+        borderRadius: 15,
+        zIndex: 15
     }
 })
