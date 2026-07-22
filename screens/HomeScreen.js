@@ -260,6 +260,7 @@ export function HomeScreen({ navigation }) {
             <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
           </TouchableOpacity>
 
+          {/* ====== TODO: implement redirect to the correct screen ====== */}
           {/* section for quick access to important screens */}
           <View style={styles.homescreenContentSectionsNonScroll}>
             {/* the section heading */}
@@ -272,7 +273,15 @@ export function HomeScreen({ navigation }) {
               {/* emergency number button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.emergencyNumberBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{
+                                              navigation.navigate('Resource Hub Screen', 
+                                                                  { screen: 'Emergency Numbers',
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })
+                                             }
+                                        }>
                 <Phone color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -283,7 +292,15 @@ export function HomeScreen({ navigation }) {
               {/* useful location button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.usefulLocBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{
+                                              navigation.navigate('Resource Hub Screen', 
+                                                                  { screen: 'Useful Locations',
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })
+                                             }
+                                        }>
                 <MapIcon color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -321,7 +338,8 @@ export function HomeScreen({ navigation }) {
               {/* quizzes button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.quizzesBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{navigation.navigate('Quizzes')}}>
                 <BadgeQuestionMark color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -332,7 +350,8 @@ export function HomeScreen({ navigation }) {
               {/* flashcards button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.flashcardsBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{navigation.navigate('Flashcards')}}>
                 <ScrollText color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -343,7 +362,8 @@ export function HomeScreen({ navigation }) {
               {/* emergency bag button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.emergencyBagBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{navigation.navigate('Emergency Bag')}}>
                 <Briefcase color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -369,7 +389,7 @@ export function HomeScreen({ navigation }) {
                   redirect to the Resource Hub screen when pressed */}
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
                     accessibilityRole='link'
-                    onPress={()=>{navigation.navigate('Resource Hub Stack', 
+                    onPress={()=>{navigation.navigate('Resource Hub Screen', 
                                                       { screen: 'Resource Hub',
                                                         initial: false, 
                                                         params: {}

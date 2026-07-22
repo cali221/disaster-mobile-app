@@ -22,7 +22,7 @@ jest.mock('lucide-react-native', () => {
         BadgeQuestionMark: 'BadgeQuestionMark', 
         ScrollText: 'ScrollText', 
         Briefcase: 'Briefcase',
-        // disaster legends icons:
+        // disaster legend icons:
         Activity: 'Activity',
         Waves: 'Waves',
         Flame: 'Flame',
@@ -68,9 +68,6 @@ jest.mock('@supabase/supabase-js', () => {
                                                 error: null}),
                 eq: jest.fn().mockReturnThis(),
                 rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
-                    console.log('param1: ' + rpcName);
-                    console.log('param2: ' + JSON.stringify(rpcInput));                        
-
                     if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
                         return {
                             data: [{ 
@@ -212,5 +209,155 @@ describe('Home Screen', () => {
                                         {name: 'screenTitles.createReportScreenTitle'}))
                             .toBeOnTheScreen();
         }
-    })
+    });
+
+    it('should navigate to emergency numbers screen when the corresponding button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the emergency numbers button
+        const emergencyNumsBtn = await screen.getByRole('button', {name: 'homeScreen.emergencyNumberBtnAccLbl'})
+
+        // if button exists, press it
+        if(emergencyNumsBtn){
+            await user.press(emergencyNumsBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the emergency numbers screen
+            await expect(screen.getByRole('heading', 
+                                        {name: 'screenTitles.emergencyNumbersScreenTitle'}))
+                            .toBeOnTheScreen();
+        }
+    });
+
+    it('should navigate to useful locations screen when the corresponding button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the useful locations button
+        const usefulLocBtn = await screen.getByRole('button', {name: 'homeScreen.usefulLocBtnAccLbl'})
+
+        // if button exists, press it
+        if(usefulLocBtn){
+            await user.press(usefulLocBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the useful locations screen
+            await expect(screen.getByRole('heading', 
+                                        {name: 'screenTitles.usefulLocationScreenTitle'}))
+                            .toBeOnTheScreen();
+        }
+    });
+
+    it('should navigate to quizzes screen when the corresponding button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the quizzes button
+        const quizzesBtn = await screen.getByRole('button', {name: 'homeScreen.quizzesBtnAccLbl'})
+
+        // if button exists, press it
+        if(quizzesBtn){
+            await user.press(quizzesBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the quizzes screen
+            await expect(screen.getByRole('heading', 
+                                          {name: 'screenTitles.quizzesScreenTitle'}))
+                            .toBeOnTheScreen();
+        }
+    });    
+
+    it('should navigate to flashcards screen when the corresponding button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the flashcards button
+        const flashcardsBtn = await screen.getByRole('button', {name: 'homeScreen.flashcardsBtnAccLbl'})
+
+        // if button exists, press it
+        if(flashcardsBtn){
+            await user.press(flashcardsBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the flashcards screen
+            await expect(screen.getByRole('heading', 
+                                          {name: 'Flashcards'}))
+                            .toBeOnTheScreen();
+        }
+    });    
+
+    it('should navigate to emergency bag screen when the corresponding button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        
+        await act(() => jest.runAllTimers());
+
+        // get the emergency bag button
+        const emergencyBagBtn = await screen.getByRole('button', {name: 'homeScreen.emergencyBagBtnAccLbl'})
+
+        // if button exists, press it
+        if(emergencyBagBtn){
+            await user.press(emergencyBagBtn);
+        
+            await act(() => jest.runAllTimers());
+            
+            // expect to be redirected to the emergency bag screen
+            await expect(screen.getByRole('heading', 
+                                          {name: 'screenTitles.emergencyBagScreenTitle'}))
+                            .toBeOnTheScreen();
+        }
+    });    
 });

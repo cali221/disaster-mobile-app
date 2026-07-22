@@ -1,14 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SignUpScreen } from './screens/SignUpScreen';
-import { SignInScreen } from './screens/SignInScreen';
-import { ProfileScreen} from './screens/ProfileScreen';
-import { HomeScreen } from './screens/HomeScreen';
-import { ResourceHubScreen } from './screens/ResourceHubScreen';
-import { NotificationsScreen } from './screens/NotificationsScreen';
-import { PanicButtonScreen } from './screens/PanicButtonScreen';
-import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen';
 import { View, StyleSheet, Text } from 'react-native';
 import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
@@ -17,8 +9,23 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
+
+// screen imports:
+import { SignUpScreen } from './screens/SignUpScreen';
+import { SignInScreen } from './screens/SignInScreen';
+import { ProfileScreen} from './screens/ProfileScreen';
+import { HomeScreen } from './screens/HomeScreen';
+import { ResourceHubScreen } from './screens/ResourceHubScreen';
+import { NotificationsScreen } from './screens/NotificationsScreen';
+import { PanicButtonScreen } from './screens/PanicButtonScreen';
+import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen';
 import { DisasterDetailsScreen } from './screens/DisasterDetailsScreen';
 import { CreateReportScreen } from './screens/CreateReportScreen';
+import { QuizzesScreen } from './screens/QuizzesScreen';
+import { FlashcardsScreen } from './screens/FlashcardsScreen';
+import { EmergencyBagScreen } from './screens/EmergencyBagScreen';
+import { UsefulLocationScreen } from './screens/UsefulLocationScreen';
+import { EmergencyNumbersScreen } from './screens/EmergencyNumbersScreen';
 
 const Stack = createStackNavigator();
 
@@ -98,6 +105,17 @@ function homeScreenStack(){
               <Stack.Screen name='Create Report'
                             component={CreateReportScreen}
                             options={{title: t('screenTitles.createReportScreenTitle')}} />
+
+              <Stack.Screen name='Quizzes'
+                            component={QuizzesScreen}
+                            options={{title: t('screenTitles.quizzesScreenTitle')}} />
+
+              <Stack.Screen name='Flashcards'
+                            component={FlashcardsScreen} />
+
+              <Stack.Screen name='Emergency Bag'
+                            component={EmergencyBagScreen}
+                            options={{title: t('screenTitles.emergencyBagScreenTitle')}} />
               
               <Stack.Screen name="Watched Areas Settings" 
                     component={WatchedAreasSettingsScreen}
@@ -213,6 +231,7 @@ function notificationScreenStack(){
 
 // stack of screens for resource hub screen
 function resourceHubScreenStack(){
+  const { t, i18n } = useTranslation();
   return(
     <Stack.Navigator screenOptions={{ headerShown: true,
                                       headerStyle: {
@@ -223,7 +242,16 @@ function resourceHubScreenStack(){
                                           fontWeight: 'bold',
                                       } 
                                    }}>
-        <Stack.Screen name='Resource Hub' component={ResourceHubScreen} />
+        <Stack.Screen name='Resource Hub' 
+                      component={ResourceHubScreen} />
+
+        <Stack.Screen name='Emergency Numbers' 
+                      component={EmergencyNumbersScreen}
+                      options={{title: t('screenTitles.emergencyNumbersScreenTitle')}} />
+
+        <Stack.Screen name='Useful Locations'
+                      component={UsefulLocationScreen}
+                      options={{title: t('screenTitles.usefulLocationScreenTitle')}} />
     </Stack.Navigator>
   )
 }
