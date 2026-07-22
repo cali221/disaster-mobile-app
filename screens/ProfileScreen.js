@@ -3,6 +3,7 @@ import { useContext, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 export function ProfileScreen({ navigation }) {
     const { user, signOut } = useContext(AuthContext);
@@ -48,7 +49,7 @@ export function ProfileScreen({ navigation }) {
             
             {
                 isLoading == true && (
-                    <ActivityIndicator size="large" color='pink' />
+                    <LoadingOverlay />
                 )
             }
         </View>
