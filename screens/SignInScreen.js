@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../contexts/AuthContext';
 import { registerForPushNotificationsAsync } from '../utils/register-for-notifications';
 import { StatusBar } from 'expo-status-bar';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -70,10 +71,9 @@ export function SignInScreen({navigation}){
   }
 
   return(
-    <ScrollView style={[styles.signInScreenScrollView, { paddingTop: insets.top,
-                                                         paddingBottom: insets.bottom,
-                                                         paddingLeft: insets.left,
-                                                         paddingRight: insets.right }]}>
+    <ScrollView style={[styles.signInScreenScrollView, { paddingLeft: insets.left,
+                                                         paddingRight: insets.right }]}
+                contentContainerStyle={styles.signInScrollViewContentContainer}>
       <StatusBar style="auto" />
       <View style={styles.signInScreenContainer}>
         {/* sign in form */}
@@ -118,7 +118,7 @@ export function SignInScreen({navigation}){
         </View>
         {
           isLoading == true && (
-            <ActivityIndicator size="large" color='pink' />
+            <LoadingOverlay />
           )
         }
       </View>
@@ -129,9 +129,12 @@ export function SignInScreen({navigation}){
 const styles = StyleSheet.create({
   // scroll view container of the screen
   signInScreenScrollView: {
-    backgroundColor:'white',
+    backgroundColor:'red',
     flex: 1,
-    width: '100%'
+    width: '100%',
+  },
+  signInScrollViewContentContainer:{
+    height: '100%'
   },
   // screen content container
   signInScreenContainer: {

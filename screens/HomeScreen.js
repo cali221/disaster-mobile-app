@@ -41,8 +41,6 @@ export function HomeScreen({ navigation }) {
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // TODO: add pull to refresh (?)
-  // TODO: connect processes to loading states
   useEffect(() => { 
     // TODO: these are just example listeners, should be removed/changed later
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
