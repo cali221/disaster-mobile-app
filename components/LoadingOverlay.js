@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor: '#060e2bb8',
+        backgroundColor: '#04091fb8',
         zIndex: 100 
     }
 })

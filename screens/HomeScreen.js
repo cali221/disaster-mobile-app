@@ -20,6 +20,7 @@ import { roundTo2DP } from '../utils/rounding';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
+import { BottomModalBase } from '../components/modals/BottomModalBase';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
@@ -46,6 +47,7 @@ export function HomeScreen({ navigation }) {
   const [disastersLast24h, setDisastersLast24h] = useState([]);
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldShowBottomModal, setShouldShowBottomModal] = useState(false);
 
   useEffect(() => { 
     // TODO: these are just example listeners, should be removed/changed later
@@ -222,7 +224,9 @@ export function HomeScreen({ navigation }) {
                 (disastersSummaryFollowingWatchedAreas?.map((summary, index) => (
                   /* map the corresponding array state into views with disaster 
                      description and details button */
-                  <View key={index} style={styles.disasterSummaryItemContainer} testID='disaster-summary-item-container'>
+                  <View key={index} 
+                        style={styles.disasterSummaryItemContainer} 
+                        testID='disaster-summary-item-container'>
                     {/* the disaster description text, showing the disaster type, 
                         how far is it from the watched area and 
                         the time of the disaster */}
@@ -260,7 +264,6 @@ export function HomeScreen({ navigation }) {
             <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
           </TouchableOpacity>
 
-          {/* ====== TODO: implement redirect to the correct screen ====== */}
           {/* section for quick access to important screens */}
           <View style={styles.homescreenContentSectionsNonScroll}>
             {/* the section heading */}
@@ -275,7 +278,7 @@ export function HomeScreen({ navigation }) {
                                 accessibilityLabel={t('homeScreen.emergencyNumberBtnAccLbl')}
                                 accessibilityRole='button'
                                 onPress={()=>{
-                                              navigation.navigate('Resource Hub Screen', 
+                                              navigation.navigate('Resource Hub Screen Stack', 
                                                                   { screen: 'Emergency Numbers',
                                                                     initial: false, 
                                                                     params: {}
@@ -294,7 +297,7 @@ export function HomeScreen({ navigation }) {
                                 accessibilityLabel={t('homeScreen.usefulLocBtnAccLbl')}
                                 accessibilityRole='button'
                                 onPress={()=>{
-                                              navigation.navigate('Resource Hub Screen', 
+                                              navigation.navigate('Resource Hub Screen Stack', 
                                                                   { screen: 'Useful Locations',
                                                                     initial: false, 
                                                                     params: {}
@@ -311,7 +314,8 @@ export function HomeScreen({ navigation }) {
               {/* evacuation steps button */}
               <TouchableOpacity style={styles.nonScrollSectionButtons}
                                 accessibilityLabel={t('homeScreen.evacuationStepsBtnAccLbl')}
-                                accessibilityRole='button'>
+                                accessibilityRole='button'
+                                onPress={()=>{setShouldShowBottomModal(true)}}>
                 <ShieldAlert color={'#FFFFFF'} size={30} />
 
                 <Text style={styles.nonScrollSectionButtonsTxt}>
@@ -389,7 +393,7 @@ export function HomeScreen({ navigation }) {
                   redirect to the Resource Hub screen when pressed */}
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
                     accessibilityRole='link'
-                    onPress={()=>{navigation.navigate('Resource Hub Screen', 
+                    onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
                                                       { screen: 'Resource Hub',
                                                         initial: false, 
                                                         params: {}
@@ -420,6 +424,85 @@ export function HomeScreen({ navigation }) {
             <Text>Go to Watched areas settings</Text>
           </TouchableOpacity>
       </ScrollView>
+
+      {/* the bottom modal to show when shouldShowBottomModal is true */}
+      {
+        shouldShowBottomModal == true && (
+          <BottomModalBase title={t('homeScreen.pickDisasterModalTitle')}
+                           closeFunc={()=>{setShouldShowBottomModal(false)}}>
+
+              {/* earthquake button */}
+              <TouchableOpacity style={styles.pickDisasterModalOptionBtn}
+                                accessibilityRole='button'
+                                accessibilityLabel={t('homeScreen.earthquakeBtnAccLbl')}
+                                onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
+                                                                  { screen: 'Earthquake Guide', 
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })}}>
+                <Text style={styles.pickDisasterModalOptionBtnTxt}>
+                  {capitalizeFirstLetter(t('disasterNames.earthquake'))}
+                </Text>
+              </TouchableOpacity>
+
+              {/* tsunami button */}
+              <TouchableOpacity style={styles.pickDisasterModalOptionBtn}
+                                accessibilityRole='button'
+                                accessibilityLabel={t('homeScreen.tsunamiBtnAccLbl')}
+                                onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
+                                                                  { screen: 'Tsunami Guide', 
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })}}>
+                <Text style={styles.pickDisasterModalOptionBtnTxt}>
+                  {capitalizeFirstLetter(t('disasterNames.tsunami'))}
+                </Text>
+              </TouchableOpacity>
+
+              {/* flood button */}
+              <TouchableOpacity style={styles.pickDisasterModalOptionBtn}
+                                accessibilityRole='button'
+                                accessibilityLabel={t('homeScreen.floodBtnAccLbl')}
+                                onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
+                                                                  { screen: 'Flood Guide', 
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })}}>
+                <Text style={styles.pickDisasterModalOptionBtnTxt}>
+                  {capitalizeFirstLetter(t('disasterNames.flood'))}
+                </Text>
+              </TouchableOpacity>
+
+              {/* landslide button */}
+              <TouchableOpacity style={styles.pickDisasterModalOptionBtn}
+                                accessibilityRole='button'
+                                accessibilityLabel={t('homeScreen.landslideBtnAccLbl')}
+                                onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
+                                                                  { screen: 'Landslide Guide', 
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })}}>
+                <Text style={styles.pickDisasterModalOptionBtnTxt}>
+                  {capitalizeFirstLetter(t('disasterNames.landslide'))}
+                </Text>
+              </TouchableOpacity>
+
+              {/* volcanic eruption button */}
+              <TouchableOpacity style={styles.pickDisasterModalOptionBtn}
+                                accessibilityRole='button'
+                                accessibilityLabel={t('homeScreen.volcanicEruptionBtnAccLbl')}
+                                onPress={()=>{navigation.navigate('Resource Hub Screen Stack', 
+                                                                  { screen: 'Volcanic Eruption Guide', 
+                                                                    initial: false, 
+                                                                    params: {}
+                                                                  })}}>
+                <Text style={styles.pickDisasterModalOptionBtnTxt}>
+                  {capitalizeFirstLetter(t('disasterNames.volcano'))}
+                </Text>
+              </TouchableOpacity>
+          </BottomModalBase>
+        )
+      }
 
       {/* loading overlay to show when isLoading is true */}
       {
@@ -641,5 +724,26 @@ const styles = StyleSheet.create({
   linkText: {
     color: 'dodgerblue',
     textDecorationLine: 'underline'
+  },
+  /* the option button on modal for disaster type 
+     to view evacuation steps for */
+  pickDisasterModalOptionBtn: {
+    width: '100%',
+    height: 55,
+    backgroundColor: '#2D3782',
+    borderRadius: 25,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 25
+  },
+  /* the text inside the option button 
+     on modal for disaster type to view 
+     evacuation steps for */
+  pickDisasterModalOptionBtnTxt: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 17
   }
 })

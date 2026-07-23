@@ -85,7 +85,7 @@ describe('Navigation when logged in', ()=>{
 
         const user = userEvent.setup();
         
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         
         await act(() => jest.runAllTimers());
 
@@ -101,7 +101,7 @@ describe('Navigation when logged in', ()=>{
 
         const user = userEvent.setup();
         
-        await user.press(screen.getByRole('button', { name: 'Resource Hub Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.resourceHub' }));
         
         await act(() => jest.runAllTimers());
 
@@ -117,7 +117,7 @@ describe('Navigation when logged in', ()=>{
 
         const user = userEvent.setup();
         
-        await user.press(screen.getByRole('button', { name: 'Panic Button Screen' }));
+        await user.press(screen.getByRole('button', { name: 'Panic Button (Tombol Panik)'}));
         
         await act(() => jest.runAllTimers());
 
@@ -133,7 +133,7 @@ describe('Navigation when logged in', ()=>{
 
         const user = userEvent.setup();
         
-        await user.press(screen.getByRole('button', { name: 'Notifications Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
         
         await act(() => jest.runAllTimers());
 
@@ -149,7 +149,7 @@ describe('Navigation when logged in', ()=>{
 
         const user = userEvent.setup();
         
-        await user.press(screen.getByRole('button', { name: 'Profile Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.profile' }));
         
         await act(() => jest.runAllTimers());
 
@@ -178,7 +178,7 @@ describe('Navigation when logged out', ()=>{
 
         const user = userEvent.setup();
 
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         
         await act(() => jest.runAllTimers());
         
@@ -194,7 +194,7 @@ describe('Navigation when logged out', ()=>{
 
         const user = userEvent.setup();
 
-        await user.press(screen.getByRole('button', { name: 'Resource Hub Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.resourceHub' }));
         
         await act(() => jest.runAllTimers());
         
@@ -210,7 +210,7 @@ describe('Navigation when logged out', ()=>{
 
         const user = userEvent.setup();
 
-        await user.press(screen.getByRole('button', { name: 'Panic Button Screen' }));
+        await user.press(screen.getByRole('button', { name: 'Panic Button (Tombol Panik)' }));
         
         await act(() => jest.runAllTimers());
         
@@ -226,7 +226,7 @@ describe('Navigation when logged out', ()=>{
 
         const user = userEvent.setup();
 
-        await user.press(screen.getByRole('button', { name: 'Notifications Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
         
         await act(() => jest.runAllTimers());
         
@@ -242,7 +242,7 @@ describe('Navigation when logged out', ()=>{
 
         const user = userEvent.setup();
 
-        await user.press(screen.getByRole('button', { name: 'Profile Screen' }));
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.profile' }));
         
         await act(() => jest.runAllTimers());
         

@@ -9,23 +9,40 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
+// ----- Screen Imports -----
+// authentication screens imports:
+import { SignUpScreen } from './screens/auth-screens/SignUpScreen';
+import { SignInScreen } from './screens/auth-screens/SignInScreen';
 
-// screen imports:
-import { SignUpScreen } from './screens/SignUpScreen';
-import { SignInScreen } from './screens/SignInScreen';
+// main screens imports:
 import { ProfileScreen} from './screens/ProfileScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { ResourceHubScreen } from './screens/ResourceHubScreen';
 import { NotificationsScreen } from './screens/NotificationsScreen';
 import { PanicButtonScreen } from './screens/PanicButtonScreen';
 import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen';
+
+// disaster details screens imports:
 import { DisasterDetailsScreen } from './screens/DisasterDetailsScreen';
+
+// resources screens imports:
+import { UsefulLocationScreen } from './screens/resources-screens/UsefulLocationScreen';
+import { EmergencyNumbersScreen } from './screens/resources-screens/EmergencyNumbersScreen';
+
+// disaster guides screens imports:
+import { EarthquakeGuideScreen } from './screens/resources-screens/disaster-guides/EarthquakeGuideScreen';
+import { TsunamiGuideScreen } from './screens/resources-screens/disaster-guides/TsunamiGuideScreen';
+import { FloodGuideScreen } from './screens/resources-screens/disaster-guides/FloodGuideScreen';
+import { LandslideGuideScreen } from './screens/resources-screens/disaster-guides/LandslideGuideScreen';
+import { VolcanicEruptionGuideScreen } from './screens/resources-screens/disaster-guides/VolcanicEruptionGuideScreen';
+
+// crowdsourced reports screens imports:
 import { CreateReportScreen } from './screens/CreateReportScreen';
-import { QuizzesScreen } from './screens/QuizzesScreen';
-import { FlashcardsScreen } from './screens/FlashcardsScreen';
-import { EmergencyBagScreen } from './screens/EmergencyBagScreen';
-import { UsefulLocationScreen } from './screens/UsefulLocationScreen';
-import { EmergencyNumbersScreen } from './screens/EmergencyNumbersScreen';
+
+// gamification screens imports
+import { QuizzesScreen } from './screens/gamification/QuizzesScreen';
+import { FlashcardsScreen } from './screens/gamification/FlashcardsScreen';
+import { EmergencyBagScreen } from './screens/gamification/EmergencyBagScreen';
 
 const Stack = createStackNavigator();
 
@@ -252,6 +269,26 @@ function resourceHubScreenStack(){
         <Stack.Screen name='Useful Locations'
                       component={UsefulLocationScreen}
                       options={{title: t('screenTitles.usefulLocationScreenTitle')}} />
+
+        <Stack.Screen name='Earthquake Guide'
+                      component={EarthquakeGuideScreen}
+                      options={{title: t('screenTitles.earthquakeGuideScreenTitle')}} />
+
+        <Stack.Screen name='Tsunami Guide'
+                      component={TsunamiGuideScreen}
+                      options={{title: t('screenTitles.tsunamiGuideScreenTitle')}} />
+
+        <Stack.Screen name='Flood Guide'
+                      component={FloodGuideScreen}
+                      options={{title: t('screenTitles.floodGuideScreenTitle')}} />
+
+        <Stack.Screen name='Landslide Guide'
+                      component={LandslideGuideScreen}
+                      options={{title: t('screenTitles.landslideGuideScreenTitle')}} />
+
+        <Stack.Screen name='Volcanic Eruption Guide'
+                    component={VolcanicEruptionGuideScreen}
+                    options={{title: t('screenTitles.volcanicEruptionsGuideScreenTitle')}} />
     </Stack.Navigator>
   )
 }
@@ -260,62 +297,67 @@ function resourceHubScreenStack(){
 const bottomNavigationTabs = createBottomTabNavigator({
   // set styling
   screenOptions: ({ route }) => ({
-    tabBarAccessibilityLabel: route.name,
+    headerShown: false,
     tabBarActiveTintColor: '#9ec110',
     tabBarInactiveTintColor: '#E0E0E0',
     tabBarStyle: {
       backgroundColor: '#2D3782',
       height: 120
     },
-    /* to avoid warning about nested screens with same names, 
-       use stack name and override labels on bottom tab */
+    // Note: tab bar navigation buttons' accessibility label follow these labels
+    // except for panic button where the accessiblity label is 'Panic Button (Tombol Panik) 
     tabBarLabel: ({ focused, color, size }) => {
-      if (route.name === 'Home Screen') {
+      const { t, i18n } = useTranslation();
+
+      if (route.name === 'Home Screen Stack') {
         return(
-          <Text style={[styles.bottomTabNavLabelTxts]}>Home</Text>
+          <Text style={[styles.bottomTabNavLabelTxts]}>{t('tabBarLabels.home')}</Text>
         )
       }
-      else if (route.name === 'Profile Screen') {
+      else if (route.name === 'Profile Screen Stack') {
         return(
-          <Text style={styles.bottomTabNavLabelTxts}>Profile</Text>
+           <Text style={[styles.bottomTabNavLabelTxts]}>{t('tabBarLabels.profile')}</Text>
         )
       }
-      else if (route.name === 'Resource Hub Screen') {
+      else if (route.name === 'Resource Hub Screen Stack') {
         return(
-          <Text style={styles.bottomTabNavLabelTxts}>Resources</Text>
+          <Text style={[styles.bottomTabNavLabelTxts]}>{t('tabBarLabels.resourceHub')}</Text>
         )
       }
-      else if (route.name === 'Notifications Screen') {
+      else if (route.name === 'Notifications Screen Stack') {
         return(
-          <Text style={styles.bottomTabNavLabelTxts}>Notifications</Text>
+          <Text style={[styles.bottomTabNavLabelTxts]}>{t('tabBarLabels.notifications')}</Text>
         )
+      }
+      else if (route.name == 'Panic Button Screen Stack'){
+        return null
       }
     },
     // set icons/button for navigation
     tabBarIcon: ({ focused, color, size }) => {
-      if (route.name === 'Home Screen') {
+      if (route.name === 'Home Screen Stack') {
         return (
          <House fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Profile Screen'){
+      else if(route.name == 'Profile Screen Stack'){
         return(
           <UserRound fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Notifications Screen'){
+      else if(route.name == 'Notifications Screen Stack'){
         return(
           <Bell fill={color} size={size} color={color} />
         )
       }
-      else if(route.name == 'Resource Hub Screen'){
+      else if(route.name == 'Resource Hub Screen Stack'){
         return(
           <FileText size={size} color='#2D3782' fill={color} />
         )
       }
       /* for panic button, use a view instead and hide label from tab navigator, 
          instead show the label through text inside view */
-      else if(route.name == 'Panic Button Screen'){
+      else if(route.name == 'Panic Button Screen Stack'){
         return(
           <View style={styles.panicButton}>
             <Siren size={35} color='#2D3782' />
@@ -326,36 +368,24 @@ const bottomNavigationTabs = createBottomTabNavigator({
     }
   }),
   screens: {
-    'Home Screen': {
-      screen: homeScreenStack,
-      options: {
-        headerShown: false
-      }
+    'Home Screen Stack': {
+      screen: homeScreenStack
     },
-    'Resource Hub Screen': {
-      screen: resourceHubScreenStack,
-      options: {
-        headerShown: false
-      }
+    'Resource Hub Screen Stack': {
+      screen: resourceHubScreenStack
     },
-    'Panic Button Screen': {
+    'Panic Button Screen Stack': {
       screen: panicButtonScreenStack,
+      // because tab bar label is not specified, specify accessibility label here
       options: {
-        headerShown: false,
-        tabBarLabel: () => null
+        tabBarAccessibilityLabel: 'Panic Button (Tombol Panik)'
       }
     },
-    'Notifications Screen': {
-      screen: notificationScreenStack,
-      options: {
-        headerShown: false
-      }
+    'Notifications Screen Stack': {
+      screen: notificationScreenStack
     },
-    'Profile Screen': {
-      screen: profileScreenStack,
-      options: {
-        headerShown: false
-      }
+    'Profile Screen Stack': {
+      screen: profileScreenStack
     }
   },
 });

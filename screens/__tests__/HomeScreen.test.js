@@ -22,7 +22,7 @@ jest.mock('lucide-react-native', () => {
         BadgeQuestionMark: 'BadgeQuestionMark', 
         ScrollText: 'ScrollText', 
         Briefcase: 'Briefcase',
-        // disaster legend icons:
+        // disaster legend icons (shown on map markers):
         Activity: 'Activity',
         Waves: 'Waves',
         Flame: 'Flame',
@@ -30,7 +30,9 @@ jest.mock('lucide-react-native', () => {
         Wind: 'Wind',
         Tornado: 'Tornado',
         Haze: 'Haze',
-        ShieldQuestion: 'ShieldQuestion'
+        ShieldQuestion: 'ShieldQuestion',
+        // close icon (shown on modal):
+        XCircle: 'XCircle'
     }
 });
 
@@ -131,8 +133,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get markers
@@ -141,7 +142,6 @@ describe('Home Screen', () => {
         // if marker exists, press on one (the first one in array)
         if(markersOnMapArr.length > 0){
             await user.press(markersOnMapArr[0]);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to disaster details screen
@@ -161,8 +161,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get details button
@@ -171,7 +170,6 @@ describe('Home Screen', () => {
         // if button exists, try to press on one (the first one in array)
         if(disasterSummaryItemArr.length > 0){
             await user.press(disasterSummaryItemArr[0]);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the disaster details screen
@@ -191,8 +189,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get create report button
@@ -201,7 +198,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(createReportBtn){
             await user.press(createReportBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the disaster details screen
@@ -221,8 +217,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the emergency numbers button
@@ -231,7 +226,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(emergencyNumsBtn){
             await user.press(emergencyNumsBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the emergency numbers screen
@@ -251,8 +245,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the useful locations button
@@ -261,7 +254,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(usefulLocBtn){
             await user.press(usefulLocBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the useful locations screen
@@ -281,8 +273,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the quizzes button
@@ -291,7 +282,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(quizzesBtn){
             await user.press(quizzesBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the quizzes screen
@@ -311,8 +301,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the flashcards button
@@ -321,7 +310,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(flashcardsBtn){
             await user.press(flashcardsBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the flashcards screen
@@ -341,8 +329,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the emergency bag button
@@ -351,7 +338,6 @@ describe('Home Screen', () => {
         // if button exists, press it
         if(emergencyBagBtn){
             await user.press(emergencyBagBtn);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the emergency bag screen
@@ -371,8 +357,7 @@ describe('Home Screen', () => {
         const user = userEvent.setup();
 
         // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'Home Screen' }));
-        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
 
         // get the resource hub link
@@ -381,7 +366,6 @@ describe('Home Screen', () => {
         // if link exists, press it
         if(resourceHubLink){
             await user.press(resourceHubLink);
-        
             await act(() => jest.runAllTimers());
             
             // expect to be redirected to the resource hub screen
@@ -389,5 +373,163 @@ describe('Home Screen', () => {
                                           {name: 'Resource Hub'}))
                         .toBeOnTheScreen();
         }
-    });  
+    });
+    
+    it('should show disaster types menu modal when evacuation steps button is pressed', async() => {
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <HomeScreen />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // press evacuation steps button (in the quick access section)
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // expect modal title to be visible
+        await expect(screen.getByText('homeScreen.pickDisasterModalTitle')).toBeVisible();
+
+    });
+
+    it('should navigate to the earthquake guide screen if the flood button is pressed on disaster types menu modal', async()=>{
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press evacuation steps button to show menu modal
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // press earthquake option button
+        await user.press(screen.getByRole('button', { name: 'homeScreen.earthquakeBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+        
+        // expect to be redirected to the earthquake guide screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.earthquakeGuideScreenTitle'}))
+                    .toBeOnTheScreen();
+        
+    });
+
+    it('should navigate to the tsunami guide screen if the tsunami button is pressed on disaster types menu modal', async()=>{
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press evacuation steps button to show menu modal
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // press tsunami option button
+        await user.press(screen.getByRole('button', { name: 'homeScreen.tsunamiBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+        
+        // expect to be redirected to the tsunami guide screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.tsunamiGuideScreenTitle'}))
+                    .toBeOnTheScreen();
+        
+    });
+
+    it('should navigate to the flood guide screen if the flood button is pressed on disaster types menu modal', async()=>{
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press evacuation steps button to show menu modal
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // press flood option button
+        await user.press(screen.getByRole('button', { name: 'homeScreen.floodBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+        
+        // expect to be redirected to the flood guide screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.floodGuideScreenTitle'}))
+                    .toBeOnTheScreen();
+        
+    });
+
+    it('should navigate to the landslide guide screen if the landslide button is pressed on disaster types menu modal', async()=>{
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press evacuation steps button to show menu modal
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // press landslide option button
+        await user.press(screen.getByRole('button', { name: 'homeScreen.landslideBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+        
+        // expect to be redirected to the landslide guide screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.landslideGuideScreenTitle'}))
+                    .toBeOnTheScreen();
+        
+    });
+
+    it('should navigate to the volcanic eruption guide screen if the volcanic eruption button is pressed on disaster types menu modal', async()=>{
+        await render(
+            <AuthContext value={{user: testUser}}>
+                <Navigation />
+            </AuthContext>
+        );
+
+        const user = userEvent.setup();
+
+        // navigate to home screen first to be sure it's on home screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press evacuation steps button to show menu modal
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // press volcanic eruption option button
+        await user.press(screen.getByRole('button', { name: 'homeScreen.volcanicEruptionBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+        
+        // expect to be redirected to the landslide guide screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.volcanicEruptionsGuideScreenTitle'}))
+                    .toBeOnTheScreen();
+        
+    });
 });

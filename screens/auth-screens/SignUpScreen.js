@@ -6,12 +6,12 @@ import { StyleSheet,
          ScrollView,
          ActivityIndicator } from 'react-native';
 import { useState, useContext } from 'react'
-import { showErrorToast, showSuccessToast } from '../utils/show-toast';
+import { showErrorToast, showSuccessToast } from '../../utils/show-toast';
 import { useTranslation } from 'react-i18next';
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LoadingOverlay } from '../components/LoadingOverlay';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export function SignUpScreen({navigation}){
   // state handling when the loading spinner should be shown

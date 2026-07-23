@@ -8,13 +8,13 @@ import { StyleSheet,
 import * as Notifications from 'expo-notifications';
 import { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showErrorToast } from '../utils/show-toast';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
-import { AuthContext } from '../contexts/AuthContext';
-import { registerForPushNotificationsAsync } from '../utils/register-for-notifications';
+import { AuthContext } from '../../contexts/AuthContext';
+import { registerForPushNotificationsAsync } from '../../utils/register-for-notifications';
 import { StatusBar } from 'expo-status-bar';
-import { LoadingOverlay } from '../components/LoadingOverlay';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { showErrorToast } from '../../utils/show-toast';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
