@@ -8,12 +8,52 @@ import { useContext, useEffect, useState, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { showErrorToast } from '../utils/show-toast';
 import { useTranslation } from 'react-i18next';
 import { RotateCw } from 'lucide-react-native';
+import { showErrorToast, showSuccessToast, showInfoToast } from '../utils/show-toast';
 
-// TODO: make 'Details' and 'Follow Back' button functional
 // TODO: implement the notification for Mutuals tab
+
+ // function to fetch notifications for logged in user
+const fetchNotifications = async (userId, notifTypeToFetch) => {
+    const {data, error} = await supabase.schema('users')
+                                        .from('notifications')
+                                        .select()
+                                        .eq('dest_user_id', userId)
+                                        .eq('notif_type', notifTypeToFetch)
+                                        .order('created_at', { ascending: false })
+
+    if(error){
+        throw error;
+    }
+    else{
+        if(data){
+            return data;
+        }
+    }
+};
+
+// function to follow back
+const followBack = async(user1_id, user2_id) => {
+    const { error } = await supabase.schema('users')
+                                    .from('user_1_is_following_user_2')
+                                    .insert({
+                                        user1: user1_id,
+                                        user2: user2_id
+                                    });
+
+    if(error){
+        if(error.code == 23505){
+            showInfoToast('You already followed this user', '')
+        }
+        else{
+            showErrorToast('Failed to follow user', error.message ?? error)
+        }
+    }
+    else{
+        showSuccessToast('User is now followed')
+    }
+};
 
 export function NotificationsScreen({ navigation }) {
     const { user } = useContext(AuthContext);
@@ -23,25 +63,6 @@ export function NotificationsScreen({ navigation }) {
     const [notifCategoryChosen, setNotifCategoryChosen] = useState('disasters');
     const [notificationsToShow, setNotificationsToShow] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-    
-    // function to fetch notifications for logged in user
-    const fetchNotifications = useCallback(async (userId, notifTypeToFetch) => {
-        const {data, error} = await supabase.schema('users')
-                                            .from('notifications')
-                                            .select()
-                                            .eq('dest_user_id', userId)
-                                            .eq('notif_type', notifTypeToFetch)
-                                            .order('created_at', { ascending: false })
-
-        if(error){
-            throw error;
-        }
-        else{
-            if(data){
-                setNotificationsToShow([...data]);
-            }
-        }
-    }, []);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -49,10 +70,10 @@ export function NotificationsScreen({ navigation }) {
         if(user){
             try{
                 if(notifCategoryChosen == 'disasters'){
-                    fetchNotifications(user.id, 'disaster_notification');
+                    fetchNotifications(user.id, 'disaster_notification').then((data)=>{setNotificationsToShow([...data])});
                 }
                 else if(notifCategoryChosen == 'followers'){
-                    fetchNotifications(user.id, 'follow_notification');
+                    fetchNotifications(user.id, 'follow_notification').then((data)=>{setNotificationsToShow([...data])});
                 }
             }
             catch(error){
@@ -61,23 +82,23 @@ export function NotificationsScreen({ navigation }) {
         }
         
         setRefreshing(false);
-    }, [user, notifCategoryChosen, fetchNotifications]);
+    }, [user, notifCategoryChosen]);
 
     useEffect(()=>{
         if(user){
             try{
                 if(notifCategoryChosen == 'disasters'){
-                    fetchNotifications(user.id, 'disaster_notification');
+                    fetchNotifications(user.id, 'disaster_notification').then((data)=>{setNotificationsToShow([...data])});
                 }
                 else if(notifCategoryChosen == 'followers'){
-                    fetchNotifications(user.id, 'follow_notification');
+                    fetchNotifications(user.id, 'follow_notification').then((data)=>{setNotificationsToShow([...data])});
                 }
             }
             catch(error){
                 showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
             }
         }
-    }, [user, notifCategoryChosen, fetchNotifications]);
+    }, [user, notifCategoryChosen]);
 
     return(
         <View style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
@@ -134,11 +155,13 @@ export function NotificationsScreen({ navigation }) {
                                                          onRefresh={onRefresh}
                                                          colors={['#2D3782']}
                                                          progressBackgroundColor='#9ec110' /> }>
-                <View style={styles.pullToRefreshTextContainer}>
+                <View style={styles.pullToRefreshTextContainer}
+                      accessibilityLabel={t('notifScreen.pullDownToRefresh')}
+                      accessibilityHint='Pull down on the screen to view updated notifications'>
                     {/* rotating arrow icon */}
                     <RotateCw color={'#2D3782'} />
 
-                    {/* Pull down to refresh text */}
+                    {/* pull down to refresh text */}
                     <Text style={styles.pullToRefreshTxt}>
                         {t('notifScreen.pullDownToRefresh')}
                     </Text>
@@ -163,7 +186,10 @@ export function NotificationsScreen({ navigation }) {
                         { 
                             notifCategoryChosen == 'disasters' ? 
                                                     (
-                                                        <TouchableOpacity style={styles.notificationItemBtn}> 
+                                                        <TouchableOpacity style={styles.notificationItemBtn}
+                                                                          accessibilityRole='button'
+                                                                          accessibilityLabel={t('notifScreen.detailsBtnAccLbl')}
+                                                                          onPress={()=>{navigation.navigate('Disaster Details', {disasterId: item.associated_disaster_id})}}> 
                                                             <Text style={styles.notificationItemBtnTxt}>
                                                                 {t('shared.details')}
                                                             </Text>
@@ -171,7 +197,10 @@ export function NotificationsScreen({ navigation }) {
                                                     ) : 
                                                     (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) && 
                                                     (
-                                                        <TouchableOpacity style={styles.notificationItemBtn}> 
+                                                        <TouchableOpacity style={styles.notificationItemBtn}
+                                                                          accessibilityRole='button'
+                                                                          accessibilityLabel={t('notifScreen.followBack')}
+                                                                          onPress={()=>{followBack(user.id, item.mentioned_user_user_id)}}> 
                                                             <Text style={styles.notificationItemBtnTxt}>
                                                               {t('notifScreen.followBack')}
                                                             </Text>

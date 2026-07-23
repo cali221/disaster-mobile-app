@@ -228,6 +228,7 @@ function notificationScreenStack(){
           (
             <>
               <Stack.Screen name='Notifications' component={NotificationsScreen} />
+              <Stack.Screen name='Disaster Details' component={DisasterDetailsScreen} />
             </>
           ):
           (

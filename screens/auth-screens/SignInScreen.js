@@ -96,7 +96,8 @@ export function SignInScreen({navigation}){
 
           {/* button to sign in */}
           <TouchableOpacity onPress={() => {handleSignIn(email, password)}}
-                            style={styles.signInBtn}>
+                            style={styles.signInBtn}
+                            accessibilityRole='button'>
             <Text style={styles.signInBtnTxt}>
               {t('authWords.signIn')}
             </Text>
@@ -109,7 +110,8 @@ export function SignInScreen({navigation}){
               </Text>
 
               {/* link to go to sign up screen */}
-              <TouchableOpacity onPress={() => {navigation.navigate('Sign Up')}}>
+              <TouchableOpacity accessibilityRole='button' 
+                                onPress={() => {navigation.navigate('Sign Up')}}>
                   <Text style={[styles.signUpAreaTxts, styles.signUpTxt]}>
                   {t('signInScreen.signUpHere')}
                   </Text>
