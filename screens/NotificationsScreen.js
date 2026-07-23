@@ -11,6 +11,8 @@ import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { RotateCw } from 'lucide-react-native';
 import { showErrorToast, showSuccessToast, showInfoToast } from '../utils/show-toast';
+import { LoadingOverlay } from '../components/LoadingOverlay';
+import { addFollow } from '../utils/users-utilities';
 
 // TODO: implement the notification for Mutuals tab
 
@@ -33,28 +35,6 @@ const fetchNotifications = async (userId, notifTypeToFetch) => {
     }
 };
 
-// function to follow back
-const followBack = async(user1_id, user2_id) => {
-    const { error } = await supabase.schema('users')
-                                    .from('user_1_is_following_user_2')
-                                    .insert({
-                                        user1: user1_id,
-                                        user2: user2_id
-                                    });
-
-    if(error){
-        if(error.code == 23505){
-            showInfoToast('You already followed this user', '')
-        }
-        else{
-            showErrorToast('Failed to follow user', error.message ?? error)
-        }
-    }
-    else{
-        showSuccessToast('User is now followed')
-    }
-};
-
 export function NotificationsScreen({ navigation }) {
     const { user } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
@@ -63,6 +43,39 @@ export function NotificationsScreen({ navigation }) {
     const [notifCategoryChosen, setNotifCategoryChosen] = useState('disasters');
     const [notificationsToShow, setNotificationsToShow] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // function to handle following back from a notification item button
+    const handleFollow = async (user1, user2, notifItem) => {
+        setIsLoading(true);
+
+        try{
+            // add following data to supabase
+            await addFollow(user1, user2);
+
+            // find the index of the notification where the follow took place using the id
+            const index = notificationsToShow.findIndex(notif => notif.id === notifItem.id);
+
+            // if index is found, update states
+            if(index !== -1){
+                const newNotifsToShowArr = [...notificationsToShow];
+                newNotifsToShowArr[index] = {...notificationsToShow[index], users_are_now_mutuals: true};
+                setNotificationsToShow(newNotifsToShowArr);
+            }
+
+            showSuccessToast('Followed', '')
+        }
+        catch(error){
+            if(error.code == 23505){
+                showInfoToast('You already followed this user', '')
+            }
+            else{
+                showErrorToast('Failed to follow user', error.message ?? error)
+            }
+        }
+           
+        setIsLoading(false);
+    }    
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -200,7 +213,7 @@ export function NotificationsScreen({ navigation }) {
                                                         <TouchableOpacity style={styles.notificationItemBtn}
                                                                           accessibilityRole='button'
                                                                           accessibilityLabel={t('notifScreen.followBack')}
-                                                                          onPress={()=>{followBack(user.id, item.mentioned_user_user_id)}}> 
+                                                                          onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
                                                             <Text style={styles.notificationItemBtnTxt}>
                                                               {t('notifScreen.followBack')}
                                                             </Text>
@@ -211,6 +224,11 @@ export function NotificationsScreen({ navigation }) {
                 )))
                }
             </ScrollView>
+            {
+                isLoading == true && (
+                <LoadingOverlay />
+                )
+            }
         </View>
     )
 }
