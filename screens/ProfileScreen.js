@@ -87,7 +87,7 @@ export function ProfileScreen({ navigation, route }) {
             </Text>
 
             {/* placeholder view */}
-            <View style={{width: '80%', height: 200, backgroundColor: 'plum'}} />
+            <View style={{width: 200, height: 200, backgroundColor: 'plum'}} />
            
             {/* username */}
             <Text style={styles.usernameTxt}>

@@ -271,9 +271,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        columnGap: 30,
-        borderBottomWidth: 1,
-        borderBottomColor: 'lightgray'
+        columnGap: 30
     },
     // buttons for picking notification category/type
     notifCategoryBtn: {

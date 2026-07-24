@@ -1,13 +1,16 @@
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
-export function FollowingFollowersScreen() {
+export function FollowingFollowersScreen({ navigation, route }) {
+    const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
 
     return(
         <View style={styles.screenContainer}>
             <ScrollView style={styles.listScrollView}
                         contentContainerStyle={styles.listScrollViewContentContainer}>
+                {/* placeholders, to be replaced with actual following/followers info. */}
                 <View style={{width: '100%', height: 70, backgroundColor: 'plum', marginBottom: 20}} />
                 <View style={{width: '100%', height: 70, backgroundColor: 'plum', marginBottom: 20}} />
                 <View style={{width: '100%', height: 70, backgroundColor: 'plum', marginBottom: 20}} />
@@ -17,9 +20,10 @@ export function FollowingFollowersScreen() {
             </ScrollView>
 
             <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom}]}>
-                {/* <View style={{backgroundColor: 'white', height: '100%', width: 50}}></View> */}
-                <TouchableOpacity style={styles.findUserBtn}>
-                    <Text>Find Users to Follow</Text>
+                <TouchableOpacity style={styles.findUsersBtn}>
+                    <Text style={styles.findUsersBtnTxt}>
+                        {t('followingFollwersScreen.findUsersToFollowBtnTxt')}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -65,8 +69,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+    // the 'Find Users to Follow' button
     findUsersBtn: {
-
+        backgroundColor: '#2D3782',
+        height: 50, 
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 30,
+        minWidth: 170
+    },
+    // the text inside the 'Find Users to Follow' button
+    findUsersBtnTxt: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 17
     }
-
 });
