@@ -1,4 +1,9 @@
-import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, 
+         View, 
+         StyleSheet, 
+         TouchableOpacity, 
+         ActivityIndicator, 
+         ScrollView } from 'react-native';
 import { useContext, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
@@ -28,11 +33,15 @@ export function ProfileScreen({ navigation }) {
     }
 
     return(
-        <View style={[styles.notificationScreenContainer, { paddingTop: insets.top,
-                                                            paddingBottom: insets.bottom,
-                                                            paddingLeft: insets.left,
-                                                            paddingRight: insets.right }]}>
+        <ScrollView style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
+                                                                  paddingRight: insets.right }]}>
           
+            <View style={{width: '100%', height: 250, backgroundColor: 'limegreen', marginBottom: 30}} />
+            <View style={{width: '100%', height: 250, backgroundColor: 'limegreen', marginBottom: 30}} />
+            <View style={{width: '100%', height: 250, backgroundColor: 'limegreen', marginBottom: 30}} />
+
+
+            
             <View>
                 <Text>Profile Screen Placeholder</Text>
                 <Text>{user?.user_metadata.username}</Text>
@@ -52,7 +61,7 @@ export function ProfileScreen({ navigation }) {
                     <LoadingOverlay />
                 )
             }
-        </View>
+        </ScrollView>
     )
 }
 

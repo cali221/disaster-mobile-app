@@ -224,7 +224,7 @@ export function NotificationsScreen({ navigation }) {
                                     </Text>
                                 </TouchableOpacity>
                             ) :
-                            // if category is followers and users are mutuals show 'You are now mutuals text
+                            // if category is followers and users are mutuals show 'You are now mutuals' text
                             (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == true) && 
                             (
                                 <Text style={styles.nowMutualsTxt}>
@@ -273,6 +273,7 @@ const styles = StyleSheet.create({
         columnGap: 30,
         borderBottomWidth: 1,
         borderBottomColor: 'lightgray',
+        width: '100%'
     },
     // buttons for picking notification category/type
     notifCategoryBtn: {
