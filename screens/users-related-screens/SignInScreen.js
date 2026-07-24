@@ -64,9 +64,9 @@ export function SignInScreen({navigation}){
       }
     }
     catch(error){
-      console.log(error);
       showErrorToast(t('signInScreen.signInFailed'), `${error.message ?? error}`);
     }
+    
     setIsLoading(false);
   }
 

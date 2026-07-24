@@ -17,6 +17,7 @@ import { SignInScreen } from './screens/users-related-screens/SignInScreen';
 import { AccountSettingsScreen } from './screens/users-related-screens/AccountSettingsScreen';
 import { WatchedAreasSettingsScreen } from './screens/users-related-screens/WatchedAreasSettingsScreen';
 import { FollowingFollowersScreen } from './screens/users-related-screens/FollowingFollowersScreen';
+import { FindUsersScreen } from './screens/users-related-screens/FindUsersScreen';
 
 // main screens imports:
 import { ProfileScreen} from './screens/ProfileScreen';
@@ -188,6 +189,10 @@ function profileScreenStack(){
                             options={({ route }) => ({
                               title: route.params.screenTitle,
                             })} />
+
+              <Stack.Screen name='Find Users' 
+                            component={FindUsersScreen}
+                            options={{title: t('screenTitles.findUsersScreenTitle')}} />
             </>
           ):
           (

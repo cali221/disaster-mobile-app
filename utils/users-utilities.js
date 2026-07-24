@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase } from '../lib/supabase';
 
 // function to follow 
 export async function addFollow(user1_id, user2_id){

@@ -19,8 +19,13 @@ export function FollowingFollowersScreen({ navigation, route }) {
                 <View style={{width: '100%', height: 70, backgroundColor: 'plum', marginBottom: 20}} />
             </ScrollView>
 
+            {/* container of the button to find other users, 'sticky' at the bottom of screen */}
             <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom}]}>
-                <TouchableOpacity style={styles.findUsersBtn}>
+                {/* button to find other users */}
+                <TouchableOpacity style={styles.findUsersBtn}
+                                  accessibilityRole='button'
+                                  accessibilityLabel={'followingFollowersScreen.findUserBtnAccLbl'}
+                                  onPress={()=>{navigation.navigate('Find Users')}}>
                     <Text style={styles.findUsersBtnTxt}>
                         {t('followingFollwersScreen.findUsersToFollowBtnTxt')}
                     </Text>
