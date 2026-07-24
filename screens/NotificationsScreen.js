@@ -16,7 +16,7 @@ import { addFollow } from '../utils/users-utilities';
 
 // TODO: implement the notification for Mutuals tab
 
- // function to fetch notifications for logged in user
+// function to fetch notifications for logged in user
 const fetchNotifications = async (userId, notifTypeToFetch) => {
     const {data, error} = await supabase.schema('users')
                                         .from('notifications')
@@ -77,40 +77,43 @@ export function NotificationsScreen({ navigation }) {
         setIsLoading(false);
     }    
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-
+    // function for handling fetching notifications
+    const handleFetchNotifications = () => {
         if(user){
             try{
                 if(notifCategoryChosen == 'disasters'){
-                    fetchNotifications(user.id, 'disaster_notification').then((data)=>{setNotificationsToShow([...data])});
+                    fetchNotifications(user.id, 'disaster_notification').then((data)=>{
+                        if(data){
+                            setNotificationsToShow([...data]);
+                        }
+                    });
                 }
                 else if(notifCategoryChosen == 'followers'){
-                    fetchNotifications(user.id, 'follow_notification').then((data)=>{setNotificationsToShow([...data])});
+                    fetchNotifications(user.id, 'follow_notification').then((data)=>{
+                        if(data){
+                            setNotificationsToShow([...data])
+                        }
+                    });
                 }
             }
             catch(error){
                 showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
             }
         }
+    }
+
+    // fetch notificaiton when pulled to refresh 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+
+        handleFetchNotifications();
         
         setRefreshing(false);
     }, [user, notifCategoryChosen]);
 
+    // fetch notification on first load and user/notification category change
     useEffect(()=>{
-        if(user){
-            try{
-                if(notifCategoryChosen == 'disasters'){
-                    fetchNotifications(user.id, 'disaster_notification').then((data)=>{setNotificationsToShow([...data])});
-                }
-                else if(notifCategoryChosen == 'followers'){
-                    fetchNotifications(user.id, 'follow_notification').then((data)=>{setNotificationsToShow([...data])});
-                }
-            }
-            catch(error){
-                showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
-            }
-        }
+        handleFetchNotifications();
     }, [user, notifCategoryChosen]);
 
     return(
@@ -195,7 +198,7 @@ export function NotificationsScreen({ navigation }) {
                             - if user is viewing disasters notification, show 'Details' button on the notification item
                             - if user is viewing followers notification and the users are not yet mutuals, show 'Follow Back' button
                             - otherwise, don't show the button (i.e. if users are now mutuals, don't show follow back button)
-                         */}
+                        */}
                         { 
                             notifCategoryChosen == 'disasters' ? 
                                                     (
@@ -224,9 +227,11 @@ export function NotificationsScreen({ navigation }) {
                 )))
                }
             </ScrollView>
+
+            {/* loading indicator shown when isLoading is true */}
             {
                 isLoading == true && (
-                <LoadingOverlay />
+                    <LoadingOverlay />
                 )
             }
         </View>
@@ -359,4 +364,4 @@ const styles = StyleSheet.create({
        fontWeight: '600',
        color: '#2D3782'
     }
-})
+});
