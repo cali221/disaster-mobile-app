@@ -200,6 +200,7 @@ export function NotificationsScreen({ navigation }) {
                             - otherwise, show 'You are now mutuals text instead of a button
                         */}
                         { 
+                            // if category is disasters, show details button
                             notifCategoryChosen == 'disasters' ? 
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
@@ -211,6 +212,7 @@ export function NotificationsScreen({ navigation }) {
                                     </Text>
                                 </TouchableOpacity>
                             ) : 
+                            // if category is followers and users are not yet mutuals, show follow back button
                             (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) ? 
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
@@ -222,6 +224,7 @@ export function NotificationsScreen({ navigation }) {
                                     </Text>
                                 </TouchableOpacity>
                             ) :
+                            // if category is followers and users are mutuals show 'You are now mutuals text
                             (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == true) && 
                             (
                                 <Text style={styles.nowMutualsTxt}>
