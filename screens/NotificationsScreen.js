@@ -197,31 +197,37 @@ export function NotificationsScreen({ navigation }) {
                             show button according to condition:
                             - if user is viewing disasters notification, show 'Details' button on the notification item
                             - if user is viewing followers notification and the users are not yet mutuals, show 'Follow Back' button
-                            - otherwise, don't show the button (i.e. if users are now mutuals, don't show follow back button)
+                            - otherwise, show 'You are now mutuals text instead of a button
                         */}
                         { 
                             notifCategoryChosen == 'disasters' ? 
-                                                    (
-                                                        <TouchableOpacity style={styles.notificationItemBtn}
-                                                                          accessibilityRole='button'
-                                                                          accessibilityLabel={t('notifScreen.detailsBtnAccLbl')}
-                                                                          onPress={()=>{navigation.navigate('Disaster Details', {disasterId: item.associated_disaster_id})}}> 
-                                                            <Text style={styles.notificationItemBtnTxt}>
-                                                                {t('shared.details')}
-                                                            </Text>
-                                                        </TouchableOpacity>
-                                                    ) : 
-                                                    (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) && 
-                                                    (
-                                                        <TouchableOpacity style={styles.notificationItemBtn}
-                                                                          accessibilityRole='button'
-                                                                          accessibilityLabel={t('notifScreen.followBack')}
-                                                                          onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
-                                                            <Text style={styles.notificationItemBtnTxt}>
-                                                              {t('notifScreen.followBack')}
-                                                            </Text>
-                                                        </TouchableOpacity>
-                                                    )
+                            (
+                                <TouchableOpacity style={styles.notificationItemBtn}
+                                                    accessibilityRole='button'
+                                                    accessibilityLabel={t('notifScreen.detailsBtnAccLbl')}
+                                                    onPress={()=>{navigation.navigate('Disaster Details', {disasterId: item.associated_disaster_id})}}> 
+                                    <Text style={styles.notificationItemBtnTxt}>
+                                        {t('shared.details')}
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : 
+                            (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) ? 
+                            (
+                                <TouchableOpacity style={styles.notificationItemBtn}
+                                                    accessibilityRole='button'
+                                                    accessibilityLabel={t('notifScreen.followBack')}
+                                                    onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
+                                    <Text style={styles.notificationItemBtnTxt}>
+                                        {t('notifScreen.followBack')}
+                                    </Text>
+                                </TouchableOpacity>
+                            ) :
+                            (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == true) && 
+                            (
+                                <Text style={styles.nowMutualsTxt}>
+                                    {t('notifScreen.nowMutuals')}
+                                </Text>
+                            )
                         }
                     </View>
                 )))
@@ -363,5 +369,13 @@ const styles = StyleSheet.create({
        fontSize: 15,
        fontWeight: '600',
        color: '#2D3782'
+    },
+    /* 'You are now mutuals' text shown on notification 
+       item where user is followed back or followed back the
+       user that followed them */
+    nowMutualsTxt: {
+        color: '#2D3782',
+        fontWeight: '600',
+        fontSize: 14
     }
 });
