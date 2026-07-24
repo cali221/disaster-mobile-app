@@ -6,7 +6,7 @@ import { Text,
          StyleSheet, 
          ScrollView, 
          ActivityIndicator } from 'react-native';
-import { supabase } from '../lib/supabase'
+import { supabase } from '../../lib/supabase';
 import { useRoute } from '@react-navigation/native';
 
 export function WatchedAreasSettingsScreen({navigation}) {

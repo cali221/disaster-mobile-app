@@ -17,6 +17,7 @@ import { addFollow } from '../utils/users-utilities';
 // TODO: implement the notification for Mutuals tab
 
 // function to fetch notifications for logged in user
+// placed outside useEffect so it can be used in onRefresh too
 const fetchNotifications = async (userId, notifTypeToFetch) => {
     const {data, error} = await supabase.schema('users')
                                         .from('notifications')
@@ -70,7 +71,7 @@ export function NotificationsScreen({ navigation }) {
                 showInfoToast('You already followed this user', '')
             }
             else{
-                showErrorToast('Failed to follow user', error.message ?? error)
+                showErrorToast('Failed to follow user', `${error.message ?? error}`)
             }
         }
            
@@ -97,7 +98,7 @@ export function NotificationsScreen({ navigation }) {
                 }
             }
             catch(error){
-                showErrorToast(t('notifScreen.failedToFetchNotifs'), error.message ?? error);
+                showErrorToast(t('notifScreen.failedToFetchNotifs'), `${error.message ?? error}`);
             }
         }
     }
@@ -188,10 +189,17 @@ export function NotificationsScreen({ navigation }) {
                 (notificationsToShow?.map((item, index) => (
                     // container of each notification
                     <View key={index} style={styles.notificationItemContainer}>
-                        {/* the notification's text */}
-                        <Text style={styles.notificationItemTxt}>
-                            {item.body}
-                        </Text>
+                        <View style={styles.notificationItemTxtContainer}>
+                            {/* the notification's text */}
+                            <Text style={styles.notificationItemTxt}>
+                                {item.body}
+                            </Text>
+
+                            <Text style={styles.notificationItemTxt}>
+                                Notification created at: {"\n"}
+                                {new Date(item.created_at).toLocaleString('id', {timeZoneName: 'short'})}
+                            </Text>
+                        </View>
 
                         {/*
                             show button according to condition:
@@ -213,7 +221,7 @@ export function NotificationsScreen({ navigation }) {
                                 </TouchableOpacity>
                             ) : 
                             // if category is followers and users are not yet mutuals, show follow back button
-                            (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) ? 
+                            (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) &&
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
                                                     accessibilityRole='button'
@@ -223,14 +231,7 @@ export function NotificationsScreen({ navigation }) {
                                         {t('notifScreen.followBack')}
                                     </Text>
                                 </TouchableOpacity>
-                            ) :
-                            // if category is followers and users are mutuals show 'You are now mutuals' text
-                            (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == true) && 
-                            (
-                                <Text style={styles.nowMutualsTxt}>
-                                    {t('notifScreen.nowMutuals')}
-                                </Text>
-                            )
+                            ) 
                         }
                     </View>
                 )))
@@ -272,8 +273,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         columnGap: 30,
         borderBottomWidth: 1,
-        borderBottomColor: 'lightgray',
-        width: '100%'
+        borderBottomColor: 'lightgray'
     },
     // buttons for picking notification category/type
     notifCategoryBtn: {
@@ -337,6 +337,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         padding: 30,
         rowGap: 30
+    },
+    // container of notification item texts
+     notificationItemTxtContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20
     },
     // the notification body text
     notificationItemTxt: {

@@ -9,10 +9,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AuthProvider from './contexts/AuthContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
+
 // ----- Screen Imports -----
-// authentication screens imports:
-import { SignUpScreen } from './screens/auth-screens/SignUpScreen';
-import { SignInScreen } from './screens/auth-screens/SignInScreen';
+// authentication/users related screens imports:
+import { SignUpScreen } from './screens/users-related-screens/SignUpScreen';
+import { SignInScreen } from './screens/users-related-screens/SignInScreen';
+import { AccountSettingsScreen } from './screens/users-related-screens/AccountSettingsScreen';
+import { WatchedAreasSettingsScreen } from './screens/users-related-screens/WatchedAreasSettingsScreen';
+import { FollowingFollowersScreen } from './screens/users-related-screens/FollowingFollowersScreen';
 
 // main screens imports:
 import { ProfileScreen} from './screens/ProfileScreen';
@@ -20,10 +24,9 @@ import { HomeScreen } from './screens/HomeScreen';
 import { ResourceHubScreen } from './screens/ResourceHubScreen';
 import { NotificationsScreen } from './screens/NotificationsScreen';
 import { PanicButtonScreen } from './screens/PanicButtonScreen';
-import { WatchedAreasSettingsScreen } from './screens/WatchedAreasSettingsScreen';
 
 // disaster details screens imports:
-import { DisasterDetailsScreen } from './screens/DisasterDetailsScreen';
+import { DisasterDetailsScreen } from './screens/disasters-details-screens/DisasterDetailsScreen';
 
 // resources screens imports:
 import { UsefulLocationScreen } from './screens/resources-screens/UsefulLocationScreen';
@@ -37,12 +40,12 @@ import { LandslideGuideScreen } from './screens/resources-screens/disaster-guide
 import { VolcanicEruptionGuideScreen } from './screens/resources-screens/disaster-guides/VolcanicEruptionGuideScreen';
 
 // crowdsourced reports screens imports:
-import { CreateReportScreen } from './screens/CreateReportScreen';
+import { CreateReportScreen } from './screens/crowdsourced-reports-screens/CreateReportScreen';
 
 // gamification screens imports
-import { QuizzesScreen } from './screens/gamification/QuizzesScreen';
-import { FlashcardsScreen } from './screens/gamification/FlashcardsScreen';
-import { EmergencyBagScreen } from './screens/gamification/EmergencyBagScreen';
+import { QuizzesScreen } from './screens/gamification-screens/QuizzesScreen';
+import { FlashcardsScreen } from './screens/gamification-screens/FlashcardsScreen';
+import { EmergencyBagScreen } from './screens/gamification-screens/EmergencyBagScreen';
 
 const Stack = createStackNavigator();
 
@@ -174,6 +177,17 @@ function profileScreenStack(){
           (
             <>
               <Stack.Screen name='Profile' component={ProfileScreen} />
+
+              <Stack.Screen name='Account Settings' 
+                            component={AccountSettingsScreen} 
+                            options={{title: t('screenTitles.accountSettingsScreenTitle')}} />
+
+              {/* handle screen titles in Profile screen based on route.params */}
+              <Stack.Screen name='Following/Followers' 
+                            component={FollowingFollowersScreen}
+                            options={({ route }) => ({
+                              title: route.params.screenTitle,
+                            })} />
             </>
           ):
           (
@@ -421,7 +435,8 @@ const styles = StyleSheet.create({
   panicButtonTxt: {
     textAlign: 'center',
     color: '#2D3782',
-    fontSize: 12
+    fontSize: 12,
+    fontWeight: '600'
   },
   bottomTabNavLabelTxts:{
     color: '#E0E0E0',

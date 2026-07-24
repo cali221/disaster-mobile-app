@@ -35,7 +35,7 @@ export function SignUpScreen({navigation}){
         showErrorToast(t('signUpScreen.signUpFailed'), t('signUpScreen.usernameMightBeInvalidOrTaken'));
       }
       else{
-        showErrorToast(t('signUpScreen.signUpFailed'), error.message ?? error);
+        showErrorToast(t('signUpScreen.signUpFailed'), `${error.message ?? error}`);
       }
     }
     setIsLoading(false);

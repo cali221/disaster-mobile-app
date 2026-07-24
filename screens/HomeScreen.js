@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
@@ -75,7 +75,7 @@ export function HomeScreen({ navigation }) {
             
         if(error){
           showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
-                        error.message ?? error);
+                        `${error.message ?? error}`);
         }
         else{
           if(data){
@@ -94,7 +94,7 @@ export function HomeScreen({ navigation }) {
                                             .gt('datetime', gtTimestrFilter);
       
       if(error){
-        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), error.message ?? error);
+        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), `${error.message ?? error}`);
       }
       else{
         if(data){
@@ -174,10 +174,10 @@ export function HomeScreen({ navigation }) {
           </TouchableOpacity>
 
           {/* map placeholder, use when testing on web */}
-          <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View>
+          {/* <View style={{ width: '100%', height: '100%', backgroundColor: 'pink'}}></View> */}
     
           {/* the disaster map component */}
-          {/* <Map style={styles.disasterMap} 
+          <Map style={styles.disasterMap} 
                mapStyle={mapStyle}
                compassPosition={{top: 20, left: 20}}
                onStartShouldSetResponder={()=>{return true}}>
@@ -195,7 +195,7 @@ export function HomeScreen({ navigation }) {
                 </Marker>
               )))
             }
-          </Map>  */}
+          </Map> 
       </View>
 
       {/* scroll view for content below disaster map */}
@@ -240,7 +240,7 @@ export function HomeScreen({ navigation }) {
                       </Text>
 
                       <Text style={styles.disasterSummaryTxt}> 
-                        {new Date(summary.disaster_datetime).toLocaleString('en', {timeZoneName: 'short'})}
+                        {new Date(summary.disaster_datetime).toLocaleString('id', {timeZoneName: 'short'})}
                       </Text>
                     </View>
 
