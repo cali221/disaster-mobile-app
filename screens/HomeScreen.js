@@ -260,7 +260,8 @@ export function HomeScreen({ navigation }) {
           {/* button to edit the areas watchlist */}
           <TouchableOpacity style={styles.editWatchlistBtn}
                             accessibilityLabel={t('homeScreen.editWatchlistBtnTxt')}
-                            accessibilityRole='button'>
+                            accessibilityRole='button'
+                            onPress={()=>{navigation.navigate('Watched Areas Settings')}}>
             <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
           </TouchableOpacity>
 
@@ -415,14 +416,6 @@ export function HomeScreen({ navigation }) {
               </Text>
             </Text>
           </View>
-
-          {/* TODO: temporary, move/remove later */}
-          {/* button to go to watched areas settings, currently for adding watched areas */}
-          <TouchableOpacity style={styles.accountSettingsBtn}
-                            onPress={()=>{navigation.navigate('Watched Areas Settings', 
-                                                              {'session': session})}}>
-            <Text>Go to Watched areas settings</Text>
-          </TouchableOpacity>
       </ScrollView>
 
       {/* the bottom modal to show when shouldShowBottomModal is true */}

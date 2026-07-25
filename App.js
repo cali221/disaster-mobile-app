@@ -139,8 +139,8 @@ function homeScreenStack(){
                             options={{title: t('screenTitles.emergencyBagScreenTitle')}} />
               
               <Stack.Screen name="Watched Areas Settings" 
-                    component={WatchedAreasSettingsScreen}
-                    options={{title: t('screenTitles.watchedAreasSettingsScreenTitle')}} />
+                            component={WatchedAreasSettingsScreen}
+                            options={{title: t('screenTitles.watchedAreasSettingsScreenTitle')}} />
             </>
           ) : 
           (

@@ -94,6 +94,7 @@ export function ProfileScreen({ navigation, route }) {
                 @{user?.user_metadata.username}
             </Text>
 
+            {/* following and followers buttons with the following/followers count */}
             <View style={styles.followingFollowersBtnsContainer}>
                 <TouchableOpacity style={styles.followingFollowersBtns}
                                   onPress={()=>{
@@ -122,6 +123,10 @@ export function ProfileScreen({ navigation, route }) {
                 </TouchableOpacity>
             </View>
 
+            {/* buttons at the bottom of the screen: 
+               - account settings
+               - button to change language 
+               - button to sign out */}
             <View style={styles.bottomButtonsContainer}>
                 {/* button for changing language
                     if current language is English, show button to change language to Indonesian,

@@ -8,20 +8,18 @@ import { Text,
          ActivityIndicator } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useRoute } from '@react-navigation/native';
+import { AuthContext } from '../../contexts/AuthContext';
+import React, { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { showErrorToast, showSuccessToast, showInfoToast } from '../../utils/show-toast';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
-export function WatchedAreasSettingsScreen({navigation}) {
-    const attrDefaultStr = `Indonesian subnational administrative boundaries data source: \
-Badan Pusat Statistik (BPS - Statistics Indonesia). Contributed by: \
-OCHA Field Information Services Section (FISS). \
-Licensed under Creative Commons Attribution for Intergovernmental Organisations (CC BY-IGO) \
-(https://creativecommons.org/licenses/by/3.0/igo/). \
-The data used in this project is a subset of the data provided and \
-organized and shown according the the project's needs.  \
-Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
-
+export function WatchedAreasSettingsScreen({navigation}) {  
     const route = useRoute();
 
-    const [session, setSession] = useState(null);
+    const { t, i18n } = useTranslation();
+
+    const { user } = useContext(AuthContext);
 
     // state handling when the loading spinner should be shown
     const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +35,6 @@ Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
 
     // function for searching for a location
     const searchLoc = async(query) => {
-        // show loading spinner
         setIsLoading(true);
 
         const { data, error } = await supabase.schema('admin_boundaries')
@@ -46,132 +43,198 @@ Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
                                               .ilike('adm2_name', `%${query}%`);
 
         if(error){
-            console.error(error.message);
+            showErrorToast(t('watchedAreasScreen.failedToFetchSearchRes'), `${error.message ?? error}`);
         }
         else{
+            if(data.length == 0){
+                showInfoToast(t('watchedAreasScreen.noSearchRes'), '')
+            }
             // set search results using the results obtained
             setLocSearchResults(data);
         }
 
-        // stop showing loading spinner
         setIsLoading(false);
-    }
+    };
 
     // function for adding location to watchlist
     const addToWatchedAreas = async(selectedArea) => {
+        setIsLoading(true);
+
         // insert area to table for user watched area
         const { error } = await supabase.schema('users')
                                         .from('users_watched_areas')
-                                        .insert({user_id: route.params.session.user.id, 
+                                        .insert({user_id: user.id, 
                                                  watched_area_id: selectedArea.ogc_fid});
         if(error){
-            console.error(error.message)
+            if(error.code == 23505){
+                showInfoToast(t('watchedAreasScreen.alreadyWatchingArea'), '')
+            }
+            else{
+                showErrorToast(t('watchedAreasScreen.failedToAddToWatchlist') `${error.message ?? error}`);
+            }
         }
         else{
             // if successful, update state
-            setWatchedAreas(watchedAreas => [...watchedAreas, `${selectedArea.adm2_name}, ${selectedArea.adm1_name}`]);
+            setWatchedAreas(watchedAreas => [...watchedAreas, {adm2_name: selectedArea.adm2_name, adm1_name: selectedArea.adm1_name}]);
+            showSuccessToast(t('watchedAreasScreen.addedToWatchedAreas'), '')
         }
-    }
+        setIsLoading(false);
+    };
+
+    // function to remove area from watchlist
+    const removeWatchedArea = async(idOfAreaToRemove) => {
+        setIsLoading(true);
+
+        const { error } = await supabase.schema('users')
+                                        .from('users_watched_areas')
+                                        .delete()
+                                        .eq('watched_area_id', idOfAreaToRemove);
+
+        if(error){
+            showErrorToast(t('watchedAreasScreen.failedToRemoveWatchedArea'), `${error.message ?? error}`);
+        }
+        else{
+            // remove area from watched areas state
+            const newWatchedAreasArr = watchedAreas.filter((area) => area.watched_area_id !== idOfAreaToRemove);
+            setWatchedAreas(newWatchedAreasArr);
+
+            showSuccessToast(t('watchedAreasScreen.areaRemoved'), '');
+        }
+
+        setIsLoading(false);
+    };
 
     // on first load fetch user's watched areas and admin boundaries data attribution text
     useEffect(()=>{
-        const { authData } = supabase.auth.onAuthStateChange((event, session) => {
-            if(!session?.user || event === 'SIGNED_OUT'){
-                setSession(null);
-                navigation.navigate('Sign In')
-            }
-            else if(session?.user){
-                setSession(session);
-            }
-        });
-
         // function for getting areas on user's watchlist
         const getAreasWatched = async() => {
+            setIsLoading(true);
+
            const {data, error} = await supabase.schema('public')
-                                               .rpc('get_user_watched_areas_as_diplay_names',
-                                                    {user_id_input: route.params.session.user.id})
+                                               .rpc('get_user_watched_areas',
+                                                    {user_id_input: user.id})
 
            if(error){
-            alert(error);
+            showErrorToast(t('watchedAreasScreen.failedToFetchWatchedAreas'), `${error.message ?? error}`);
            }
            else{
-            const fetchedWatchedAreas = data.map(item => item.display_name);
-            setWatchedAreas([...fetchedWatchedAreas]);
+            setWatchedAreas(data);
            }
+
+           setIsLoading(false);
         };
         
         getAreasWatched();
     }, [])
         
     return(
-        <ScrollView style={styles.accountSettingsScreenScrollView} nestedScrollEnabled={true}>
-            <View style={styles.accountSettingsScreenContentContainer}>
+        <ScrollView style={styles.watchedAreasScreen} 
+                    nestedScrollEnabled={true} 
+                    contentContainerStyle={styles.watchedAreasScreenContentContainer}>
+            
+            {/* data attribution */}
+            <View style={styles.dataAttrTxtContainer}>
                 <Text style={styles.attributionTxt}>
-                    {attrDefaultStr}
+                    {t('watchedAreasScreen.dataAttrTxt')}
                 </Text>
+            </View>
 
-                {/* area for ocation searches */}
-                <View style={styles.searchArea}>
-                    {/* search input field*/}
-                    <TextInput onChangeText={setLocSearchQuery}
-                            value={locSearchQuery}
-                            style={styles.searchTextInput} /> 
+            {/* area for location searches */}
+            <View style={styles.searchArea}>
+                {/* search input field*/}
+                <TextInput onChangeText={setLocSearchQuery}
+                        value={locSearchQuery}
+                        style={styles.searchTextInput} /> 
 
-                    {/* search button */}
-                    <TouchableOpacity onPress={()=>{searchLoc(locSearchQuery)}}
-                                    style={styles.searchBtn}>
-                        <Text>
-                            Search
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-                
+                {/* search button */}
+                <TouchableOpacity onPress={()=>{searchLoc(locSearchQuery)}}
+                                  style={styles.searchBtn}
+                                  accessibilityRole='button'
+                                  accessibilityLabel={t('shared.search')}>
+                    <Text style={styles.searchBtnTxt}>
+                        {t('shared.search')}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.searchResultsContainer}>
                 {/* area for showing search results */}
                 <Text style={styles.headingTxt}>
-                    Search Results:
+                    {t('shared.searchRes')}:
                 </Text>
 
-                <View style={styles.searchResultsContainer}>
-                    <ScrollView style={styles.searchResultsScrollView} nestedScrollEnabled={true}>
-                        {locSearchResults.map((item, i) => (
-                            <View key={i} style={styles.resultItemContainer}>
-                                {/* area display name */}
-                                <View style={styles.searchResTxtsContainer}>
-                                    <Text>{item.adm2_name}</Text>
-                                    <Text>{item.adm1_name}</Text>
-                                </View>
+                {/* scroll view showing search results */}
+                <ScrollView style={styles.dataScrollView} 
+                            nestedScrollEnabled={true} 
+                            contentContainerStyle={styles.dataScrollViewContentContainer}>
+                    {locSearchResults.map((item, i) => (
+                        <View key={i} style={styles.resultItemContainer}>
+                            {/* area display name */}
+                            <View style={styles.searchResTxtsContainer}>
+                                <Text style={styles.adm2Txt}>
+                                    {item.adm2_name}
+                                </Text>
 
-                                {/* button to add the location to watchlist */}
-                                <TouchableOpacity style={styles.watchAreaBtn}
-                                                onPress={()=>{addToWatchedAreas(item)}}>
-                                    <Text>
-                                        Watch area
-                                    </Text>
-                                </TouchableOpacity>
+                                <Text style={styles.adm1Txt}>
+                                    {item.adm1_name}
+                                </Text>
                             </View>
-                        ))}
-                    </ScrollView>
-                </View>
 
-                {/* area for showing locations in user's watchlist */}
-                <Text style={styles.headingTxt}>Locations on your watchlist:</Text>
-
-                <View style={styles.watchlistContainer}>
-                    <ScrollView style={styles.watchlistScrollView} nestedScrollEnabled={true}>
-                        {route.params.session?.user && watchedAreas.map((item, i) => (
-                            <View key={i} style={styles.watchlistItemContainer}>
-                                <Text>{item}</Text> 
-                            </View>
-                        ))}
-                    </ScrollView>
-                </View>
+                            {/* button to add the location to watchlist */}
+                            <TouchableOpacity style={styles.watchAreaBtn}
+                                              onPress={()=>{addToWatchedAreas(item)}}
+                                              accessibilityRole='button'
+                                              accessibilityLabel={t('watchedAreasScreen.watchAreaBtnTxt')}>
+                                <Text style={styles.watchAreaBtnTxt}>
+                                    {t('watchedAreasScreen.watchAreaBtnTxt')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
             </View>
-            {/* loading spinner, shown only when isLoading is true */}
+
+            <View style={styles.watchlistContainer}>
+                {/* area for showing locations in user's watchlist */}
+                <Text style={styles.headingTxt}>
+                    {t('watchedAreasScreen.locsOnWatchlist')}:
+                </Text>
+
+                {/* scroll view showing the user's current watched areas */}
+                <ScrollView style={styles.dataScrollView} 
+                            nestedScrollEnabled={true}
+                            contentContainerStyle={styles.dataScrollViewContentContainer}>
+                    {user && watchedAreas.map((item, i) => (
+                        <View key={i} style={styles.watchlistItemContainer}>
+                            <Text style={styles.watchedAreaTxt}>
+                                <Text style={styles.adm2Txt}>
+                                    {item.adm2_name}
+                                </Text>
+
+                                <Text style={styles.adm1Txt}>
+                                    {item.adm1_name}
+                                </Text>
+                            </Text> 
+
+                            {/* button to remove area from watchlist */}
+                            <TouchableOpacity style={styles.removeAreaBtn}
+                                              accessibilityRole='button'
+                                              accessibilityLabel={t('shared.remove')}
+                                              accessibilityHint={t('watchedAreasScreen.accHintRemoveAreaBtn')}
+                                              onPress={()=>{removeWatchedArea(item.watched_area_id)}}>
+                                <Text style={styles.removeAreaBtnTxt}>
+                                    {t('shared.remove')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
+            </View>
+           
+            {/* loading ovelay, shown only when isLoading is true */}
             {
                 isLoading == true && (
-                    <View style={styles.loadingOverlay}>
-                        <ActivityIndicator size="large" color='pink' />
-                    </View>
+                    <LoadingOverlay />
                 )
             }
         </ScrollView>
@@ -180,24 +243,44 @@ Web page of data and resources: https://data.humdata.org/dataset/cod-ab-idn`;
 
 const styles = StyleSheet.create({
     // screen scrollview container
-    accountSettingsScreenScrollView: {
-      backgroundColor:'white',
-      flex: 1,
+    watchedAreasScreenScrollView: {
+      backgroundColor:'red',
       width: '100%'
     },
-    accountSettingsScreenContentContainer:{
-        padding: 30,
-        height: '100%',
-        marginBottom: '30%'
+    watchedAreasScreenContentContainer:{
+        paddingHorizontal: 30, 
+        paddingTop: 30, 
+        paddingBottom: 100, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        backgroundColor: 'white',
+        width: '100%',
+        justifyContent: 'center',
+        rowGap: 30
+    },
+    // container of the data attribution text
+    dataAttrTxtContainer: {
+        borderRadius: 20,
+        padding: 20,
+        display: 'flex',
+        backgroundColor: '#D2DAE4',
+        borderWidth: 1,
+        borderColor: '#2D3782'
+    },
+    // the data attribution text
+    attributionTxt: {
+        fontSize: 15,
+        color: '#2D3782',
+        fontWeight: '500'
     },
     // the text input field for searching for locations
     searchTextInput: {
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: 'black',
-        width: '70%',
-        maxWidth: 300,
         borderRadius: 20,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        height: '100%',
+        flex: 1
     },
     // container of search form (text input + search button)
     searchArea: {
@@ -205,46 +288,66 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 12
+        columnGap: 20
     },
     // button for searching for locations
     searchBtn: {
-        width: 80,
-        backgroundColor: 'pink',
-        height: '50',
+        minWidth: 80,
+        backgroundColor: '#2D3782',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 20
+        borderRadius: 20,
+        height: '100%',
+        paddingHorizontal: 20,
+        paddingVertical: 10
+    },
+    // text inside the search button
+    searchBtnTxt: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 15
     },
     // container of search results scroll view
     searchResultsContainer: {
         height: 250
     },
-    // scroll view showing search results
-    searchResultsScrollView: {
-        borderWidth: 2,
-        borderColor: 'black',
+    // scroll view for showing data
+    dataScrollView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
         width: '100%',
-        padding: 20,
-        borderRadius: 20
+        paddingHorizontal: 30,
+        paddingVertical: 20,
+        borderColor: 'grey',
+        borderWidth: 1,
+        elevation: 2
+    },
+    // content container of data scroll views
+    dataScrollViewContentContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20,
+        paddingBottom: 80
     },
     // heading texts for sections on the screen
     headingTxt: {
-        marginVertical: 12
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#2D3782',
+        marginBottom: 15
     },
     // container of each search result + button to add to watchlist
     resultItemContainer: {
-        width: '100%',
-        marginBottom: 20,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         columnGap: 20,
-        paddingBottom: 10,
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        borderBottomColor: '#2D3782',
+        paddingVertical: 10
     },
     // container of the texts of each search result
     searchResTxtsContainer:{
@@ -256,46 +359,73 @@ const styles = StyleSheet.create({
     },
     // button to add location to watchlist
     watchAreaBtn: {
-        backgroundColor: 'pink',
-        height: 50,
-        width: 90,
+        backgroundColor: '#2D3782',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 20
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        width: 120,
+        height: 45
     },
-    // overlay behind loading spinner
-    loadingOverlay:{
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent:'center',
-        alignItems:'center',
-        backgroundColor: '#0000008f',
-        zIndex: 1,
+    // text inside the watch area button
+    watchAreaBtnTxt: {
+        fontWeight: '600',
+        fontSize: 15,
+        color: 'white',
+        textAlign: 'center'
     },
-    /// container of scroll view showing areas on user's watchlist
+    // container of scroll view showing areas on user's watchlist
     watchlistContainer: {
         height: 250
-    },
-    // scroll view showing the locations on user's watchlist
-    watchlistScrollView: {
-        padding: 15,
-        borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 20,
     },
     // container of each item on user's watchlist
     watchlistItemContainer:{
         borderBottomWidth: 1,
-        borderColor: 'black',
-        marginBottom: 20,
+        borderColor: '#2D3782',
         paddingBottom: 10,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        columnGap: 20
     },
-    attributionTxt: {
-        marginBottom: 12
+    // text showing user's watched areas
+    watchedAreaTxt: {
+        color: '#2D3782',
+        fontSize: 15,
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10
+    },
+    // text showing admin 2 name 
+    adm2Txt: {
+        color: '#2D3782',
+        fontSize: 15,
+        fontWeight: '600'
+    },
+    // text showing admin 1 name
+    adm1Txt: {
+        color: '#2D3782',
+        fontSize: 15
+    },
+    // button to remove location from watchlist
+    removeAreaBtn: {
+        backgroundColor: '#2D3782',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        width: 120,
+        height: 45
+    },
+    // text inside button to remove area from watchlist
+    removeAreaBtnTxt: {
+        fontWeight: '600',
+        fontSize: 15,
+        color: 'white',
+        textAlign: 'center'
     }
 })

@@ -27,7 +27,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
                                   accessibilityLabel={'followingFollowersScreen.findUserBtnAccLbl'}
                                   onPress={()=>{navigation.navigate('Find Users')}}>
                     <Text style={styles.findUsersBtnTxt}>
-                        {t('followingFollwersScreen.findUsersToFollowBtnTxt')}
+                        {t('followingFollowersScreen.findUsersToFollowBtnTxt')}
                     </Text>
                 </TouchableOpacity>
             </View>
