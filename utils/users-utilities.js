@@ -61,4 +61,36 @@ export async function getUserProfileData(userId){
     else{
         return data;
     }
-}
+};
+
+// function to get following
+export async function getFollowing(userId){
+    const { data, error } = await supabase.schema('users')
+                                          .from('user_1_is_following_user_2')
+                                          .select(`profiles_public_data!user_1_is_following_user_2_user2_fkey (user_id, username, avatar_img_url)`)
+                                          .eq('user1', userId);
+
+    if(error){
+         console.error(error)
+        throw error;
+    }
+    else{
+        return data;
+    }
+};
+
+
+// function to get followers
+export async function getFollowers(userId){
+    const { data, error } = await supabase.schema('users')
+                                          .from('user_1_is_following_user_2')
+                                          .select(`profiles_public_data!user_1_is_following_user_2_user1_fkey (user_id, username, avatar_img_url)`)
+                                          .eq('user2', userId);
+
+    if(error){
+        throw error;
+    }
+    else{
+        return data;
+    }
+};

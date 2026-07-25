@@ -83,7 +83,7 @@ export function ProfileScreen({ navigation, route }) {
                             {(t('profileScreen.keepPracticingTxt'))}
                         </Text>
 
-                        {/* use profile picture with ruound background and avatar */}
+                        {/* use profile picture with round background and avatar */}
                         <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
                                             width={200} 
                                             height={200} 
@@ -191,7 +191,7 @@ export function ProfileScreen({ navigation, route }) {
             }
         </ScrollView>
     )
-}
+};
 
 const styles = StyleSheet.create({
     // screen scroll view container
@@ -309,4 +309,4 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#2D3782'
     }
-})
+});
