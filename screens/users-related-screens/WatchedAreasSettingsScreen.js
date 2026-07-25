@@ -13,6 +13,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { showErrorToast, showSuccessToast, showInfoToast } from '../../utils/show-toast';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { DataAttributionSection } from '../../components/DataAttributionSection';
 
 export function WatchedAreasSettingsScreen({navigation}) {  
     const route = useRoute();
@@ -131,13 +132,6 @@ export function WatchedAreasSettingsScreen({navigation}) {
         <ScrollView style={styles.watchedAreasScreen} 
                     nestedScrollEnabled={true} 
                     contentContainerStyle={styles.watchedAreasScreenContentContainer}>
-            
-            {/* data attribution */}
-            <View style={styles.dataAttrTxtContainer}>
-                <Text style={styles.attributionTxt}>
-                    {t('watchedAreasScreen.dataAttrTxt')}
-                </Text>
-            </View>
 
             <Text style={styles.searchExplanationTxt}>
                 {t('watchedAreasScreen.searchExplanationTxt')}
@@ -241,6 +235,9 @@ export function WatchedAreasSettingsScreen({navigation}) {
                     <LoadingOverlay />
                 )
             }
+
+            {/* data attribution */}
+            <DataAttributionSection attributionTxt={t('watchedAreasScreen.dataAttrTxt')} />
         </ScrollView>
     )
 }
@@ -261,21 +258,6 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         rowGap: 30
-    },
-    // container of the data attribution text
-    dataAttrTxtContainer: {
-        borderRadius: 20,
-        padding: 20,
-        display: 'flex',
-        backgroundColor: '#D2DAE4',
-        borderWidth: 1,
-        borderColor: '#2D3782'
-    },
-    // the data attribution text
-    attributionTxt: {
-        fontSize: 15,
-        color: '#2D3782',
-        fontWeight: '500'
     },
     // explanation text about search
     searchExplanationTxt: {
