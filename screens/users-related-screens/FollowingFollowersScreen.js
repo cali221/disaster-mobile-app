@@ -2,7 +2,6 @@ import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
 import { getFollowers, getFollowing } from '../../utils/users-utilities';
 import { showErrorToast } from '../../utils/show-toast';
 import { UserProfilePicture } from '../../components/UserProfilePicture';
@@ -10,21 +9,19 @@ import { UserProfilePicture } from '../../components/UserProfilePicture';
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
-    const { user } = useContext(AuthContext);
     const [followData, setFollowData] = useState([]);
 
     useEffect(()=>{
+        // fetch following/followers data
         const fetchFollowingOrFollowers = async (userId) => {
             try{
                 if(route.params.screenTitle == t('profileScreen.following')){
                     const fetchedFollowingData = await getFollowing(userId);
-                    //console.log(fetchedFollowingData.map(follower => follower.profiles_public_data));
                     setFollowData(fetchedFollowingData.map(follower => follower.profiles_public_data));
 
                 }
                 else if(route.params.screenTitle == t('profileScreen.followers')){
                     const fetchedFollowersData = await getFollowers(userId);
-                    //console.log(fetchedFollowersData.map(follower => follower.profiles_public_data));
                     setFollowData(fetchedFollowersData.map(follower => follower.profiles_public_data));
                 }
             }
@@ -42,10 +39,13 @@ export function FollowingFollowersScreen({ navigation, route }) {
 
     return(
         <View style={styles.screenContainer}>
+            {/* scroll view listing followers/following */}
             <ScrollView style={styles.listScrollView}
                         contentContainerStyle={styles.listScrollViewContentContainer}>
                {
                 followData.map((user, i) => (
+                    /* container of each following/follower data item 
+                       containing username and profile picture */ 
                     <View key={i} style={styles.followDataItemContainer}>
                         <UserProfilePicture width={100} 
                                             height={100} 
@@ -74,7 +74,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
             </View>
         </View>
     )
-}
+};
 
 const styles = StyleSheet.create({
     // the screen container

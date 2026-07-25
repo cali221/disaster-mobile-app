@@ -139,6 +139,10 @@ export function WatchedAreasSettingsScreen({navigation}) {
                 </Text>
             </View>
 
+            <Text style={styles.searchExplanationTxt}>
+                {t('watchedAreasScreen.searchExplanationTxt')}
+            </Text>
+
             {/* area for location searches */}
             <View style={styles.searchArea}>
                 {/* search input field*/}
@@ -206,7 +210,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                             contentContainerStyle={styles.dataScrollViewContentContainer}>
                     {user && watchedAreas.map((item, i) => (
                         <View key={i} style={styles.watchlistItemContainer}>
-                            <Text style={styles.watchedAreaTxt}>
+                            <View style={styles.watchedAreaTxt}>
                                 <Text style={styles.adm2Txt}>
                                     {item.adm2_name}
                                 </Text>
@@ -214,7 +218,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                                 <Text style={styles.adm1Txt}>
                                     {item.adm1_name}
                                 </Text>
-                            </Text> 
+                            </View> 
 
                             {/* button to remove area from watchlist */}
                             <TouchableOpacity style={styles.removeAreaBtn}
@@ -272,6 +276,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#2D3782',
         fontWeight: '500'
+    },
+    // explanation text about search
+    searchExplanationTxt: {
+        fontSize: 15,
+        fontWeight: '400',
+        color: '#2D3782'
     },
     // the text input field for searching for locations
     searchTextInput: {
@@ -390,13 +400,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         columnGap: 20
     },
-    // text showing user's watched areas
+    // container of text showing user's watched areas
     watchedAreaTxt: {
-        color: '#2D3782',
-        fontSize: 15,
         display: 'flex',
         flexDirection: 'column',
-        rowGap: 10
+        rowGap: 10,
+        width: '50%',
+        maxWidth: 350,
     },
     // text showing admin 2 name 
     adm2Txt: {
