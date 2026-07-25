@@ -2,7 +2,6 @@ import { Text,
          View, 
          StyleSheet, 
          TouchableOpacity, 
-         ActivityIndicator, 
          ScrollView } from 'react-native';
 import { useContext, useEffect, useState, useLayoutEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +9,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { showErrorToast } from '../utils/show-toast';
-import { getFollowersCount, getFollowingCount, getUserProfileData } from '../utils/users-utilities';
+import { getUserProfileData } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
 
@@ -74,49 +73,66 @@ export function ProfileScreen({ navigation, route }) {
         <ScrollView style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
                                                                   paddingRight: insets.right }]}
                     contentContainerStyle={[styles.screenScrollContainerContent, {paddingBottom: insets.bottom + 80}]}>
-          
-            <Text style={styles.keepPracticingTxt}>
-                {(t('profileScreen.keepPracticingTxt'))}
-            </Text>
 
-            <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
-                                width={200} 
-                                height={200} 
-                                bgColor='lightgrey' />
-           
-            {/* username */}
-            <Text style={styles.usernameTxt}>
-                @{userProfile?.username}
-            </Text>
+            {
+                userProfile ? (
+                    // if profile data is available display them
+                    <View style={styles.profileInfoContainer}> 
+                        {/* explanation text about flashcards and avatar's armor condition */}
+                        <Text style={styles.keepPracticingTxt}>
+                            {(t('profileScreen.keepPracticingTxt'))}
+                        </Text>
 
-            {/* following and followers buttons with the following/followers count */}
-            <View style={styles.followingFollowersBtnsContainer}>
-                <TouchableOpacity style={styles.followingFollowersBtns}
-                                  onPress={()=>{
-                                    navigation.navigate('Following/Followers', 
-                                                        {
-                                                            screenTitle: t('profileScreen.following'),
-                                                            userId: user.id
-                                                        })
-                                  }}>
-                    <Text style={styles.followingFollowersBtnsTxt}>
-                        {userProfile?.following_count} {t('profileScreen.following')}
+                        {/* use profile picture with ruound background and avatar */}
+                        <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
+                                            width={200} 
+                                            height={200} 
+                                            bgColor='#D2DAE4' />
+                    
+                        {/* username */}
+                        <Text style={styles.usernameTxt}>
+                            @{userProfile.username ?? 'Unknown User'}
+                        </Text>
+
+                        {/* following and followers buttons with the following/followers count */}
+                        <View style={styles.followingFollowersBtnsContainer}>
+                            {/* following button */}
+                            <TouchableOpacity style={styles.followingFollowersBtns}
+                                            onPress={()=>{
+                                                navigation.navigate('Following/Followers', 
+                                                                    {
+                                                                        screenTitle: t('profileScreen.following'),
+                                                                        userId: user.id
+                                                                    })
+                                            }}>
+                                <Text style={styles.followingFollowersBtnsTxt}>
+                                    {userProfile?.following_count} {t('profileScreen.following')}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {/* followers count */}
+                            <TouchableOpacity style={styles.followingFollowersBtns}
+                                            onPress={()=>{
+                                                navigation.navigate('Following/Followers', 
+                                                                    {
+                                                                        screenTitle: t('profileScreen.followers'),
+                                                                        userId: user.id
+                                                                    })
+                                            }}>
+                                <Text style={styles.followingFollowersBtnsTxt}>
+                                    {userProfile?.followers_count} {t('profileScreen.followers')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ) :
+                (
+                    // text shown when fetchig user profile data failed
+                    <Text style={styles.failedToFetchUserDataText}>
+                        {t('profileScreen.failedToFetchUserData')}
                     </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.followingFollowersBtns}
-                                  onPress={()=>{
-                                    navigation.navigate('Following/Followers', 
-                                                        {
-                                                            screenTitle: t('profileScreen.followers'),
-                                                            userId: user.id
-                                                        })
-                                  }}>
-                    <Text style={styles.followingFollowersBtnsTxt}>
-                       {userProfile?.followers_count} {t('profileScreen.followers')}
-                    </Text>
-                </TouchableOpacity>
-            </View>
+                )
+            }
 
             {/* buttons at the bottom of the screen: 
                - account settings
@@ -190,6 +206,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
         rowGap: 20
+    },
+    profileInfoContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        rowGap: 20,
+        width: '100%'
     },
     // keep practicing explanation text
     keepPracticingTxt: {
@@ -279,5 +302,11 @@ const styles = StyleSheet.create({
     // color of the text inside the button to go to the account settings screen
     accountSettingsBtnTxtColor: {
         color: 'white'
+    },
+    // text shown when fetching user data failed
+    failedToFetchUserDataText: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#2D3782'
     }
 })
