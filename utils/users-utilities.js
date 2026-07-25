@@ -1,3 +1,7 @@
+/**
+ * users related utilities that might be shared between screens 
+ */
+
 import { supabase } from '../lib/supabase';
 
 // function to follow 
@@ -44,3 +48,17 @@ export async function getFollowingCount(userId){
         return count;
     }
 };
+
+// function to fetch user's profile data
+export async function getUserProfileData(userId){
+    const { data, error } = await supabase.schema('public')
+                                          .rpc('get_user_profile_data', {user_id_input: userId})
+                                          .single();
+
+    if(error){
+        throw error;
+    }
+    else{
+        return data;
+    }
+}

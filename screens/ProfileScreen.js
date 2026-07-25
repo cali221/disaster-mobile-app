@@ -10,8 +10,9 @@ import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { showErrorToast } from '../utils/show-toast';
-import { getFollowersCount, getFollowingCount } from '../utils/users-utilities';
+import { getFollowersCount, getFollowingCount, getUserProfileData } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
+import { UserProfilePicture } from '../components/UserProfilePicture';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
@@ -19,8 +20,8 @@ export function ProfileScreen({ navigation, route }) {
     const { user, signOut } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false)
     const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
-    const [followingCount, setFollowingCount] = useState(0);
-    const [followersCount, setFollowersCount] = useState(0);
+    const [userProfile, setUserProfile] = useState(null);
+    
     const insets = useSafeAreaInsets();
 
     // handle language change
@@ -51,29 +52,21 @@ export function ProfileScreen({ navigation, route }) {
     };
 
     useEffect(()=>{
-        // handle getting followers and following count
-        const getFollowingAndFollowersCount = async (userId) => {
+        // get profile data of user
+        const getProfileData = async(userId) => {
             try{
-                const followersCount = await getFollowersCount(userId);
-                if(followersCount){
-                    setFollowersCount(followersCount);
-                }
-
-                const followingCount = await getFollowingCount(userId);
-                if(followingCount){
-                    setFollowingCount(followingCount);
-                }
+                const fetchedUserData = await getUserProfileData(userId);
+                setUserProfile(fetchedUserData);
             }
             catch(error){
-                showErrorToast(t('profileScreen.failedToFetchFollowingOrFollowersCount'), 
-                            `${error.message ?? error}`);
+                showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
             }
-        };
+        }
 
         /* fetch following and followers count if there is 
            logged in user and screen is in focus */
         if(user && isFocused == true){
-            getFollowingAndFollowersCount(user.id);
+            getProfileData(user.id);
         }
     }, [user, isFocused])
 
@@ -86,12 +79,14 @@ export function ProfileScreen({ navigation, route }) {
                 {(t('profileScreen.keepPracticingTxt'))}
             </Text>
 
-            {/* placeholder view */}
-            <View style={{width: 200, height: 200, backgroundColor: 'plum'}} />
+            <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
+                                width={200} 
+                                height={200} 
+                                bgColor='lightgrey' />
            
             {/* username */}
             <Text style={styles.usernameTxt}>
-                @{user?.user_metadata.username}
+                @{userProfile?.username}
             </Text>
 
             {/* following and followers buttons with the following/followers count */}
@@ -105,7 +100,7 @@ export function ProfileScreen({ navigation, route }) {
                                                         })
                                   }}>
                     <Text style={styles.followingFollowersBtnsTxt}>
-                        {followingCount} {t('profileScreen.following')}
+                        {userProfile?.following_count} {t('profileScreen.following')}
                     </Text>
                 </TouchableOpacity>
 
@@ -118,7 +113,7 @@ export function ProfileScreen({ navigation, route }) {
                                                         })
                                   }}>
                     <Text style={styles.followingFollowersBtnsTxt}>
-                       {followersCount} {t('profileScreen.followers')}
+                       {userProfile?.followers_count} {t('profileScreen.followers')}
                     </Text>
                 </TouchableOpacity>
             </View>
