@@ -2,7 +2,8 @@ import { Text,
          View, 
          StyleSheet, 
          TouchableOpacity, 
-         ScrollView } from 'react-native';
+         ScrollView,
+         Image } from 'react-native';
 import { useContext, useEffect, useState, useLayoutEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
@@ -51,29 +52,33 @@ export function ProfileScreen({ navigation, route }) {
     };
 
     useEffect(()=>{
-        // get profile data of user
+        // function to handle getting profile data of user
         const getProfileData = async(userId) => {
             try{
                 const fetchedUserData = await getUserProfileData(userId);
-                setUserProfile(fetchedUserData);
+
+                /* set user profile state using the fetched data with sorted badges array 
+                   where earned badges occupy the first indexes */
+                setUserProfile({...fetchedUserData,  
+                                user_badges: fetchedUserData.user_badges.sort((a, b)=> b.earned - a.earned)});
             }
             catch(error){
                 showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
             }
-        }
+        };
 
-        /* fetch following and followers count if there is 
-           logged in user and screen is in focus */
+        /* fetch user profile data and sort badges array */
         if(user && isFocused == true){
             getProfileData(user.id);
         }
     }, [user, isFocused])
-
+    
     return(
         <ScrollView style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
                                                                   paddingRight: insets.right }]}
                     contentContainerStyle={[styles.screenScrollContainerContent, {paddingBottom: insets.bottom + 80}]}>
 
+            <View style={styles.contentWrapper}>
             {
                 userProfile ? (
                     // if profile data is available display them
@@ -123,6 +128,30 @@ export function ProfileScreen({ navigation, route }) {
                                     {userProfile?.followers_count} {t('profileScreen.followers')}
                                 </Text>
                             </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.badgesSection}>
+                            <View style={styles.badgesSectionHeader}>
+                                <Text style={styles.badgesHeadingTxt}>
+                                    {t('profileScreen.badges')}
+                                </Text>
+                            </View>
+
+                            <ScrollView style={styles.badgesScrollView}
+                                        horizontal={true}
+                                        contentContainerStyle={styles.badgesScrollViewContentContainer}>
+                                {
+                                    (userProfile?.user_badges?.map((item, index) => {
+                                        return(
+                                            <View key={index} style={styles.badgeItemContainer}>
+                                                <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
+                                                                                                item.earned == false && {filter: 'grayscale(100%)'}]}/>
+                                                <Text style={styles.badgeNameTxt}>{item.name}</Text>
+                                            </View>
+                                        )
+                                    }))
+                                }
+                            </ScrollView>
                         </View>
                     </View>
                 ) :
@@ -189,6 +218,7 @@ export function ProfileScreen({ navigation, route }) {
                     <LoadingOverlay />
                 )
             }
+            </View>
         </ScrollView>
     )
 };
@@ -197,14 +227,21 @@ const styles = StyleSheet.create({
     // screen scroll view container
     notificationScreenContainer: {
         width: '100%',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
     },
     // content container of the screen container scroll view
     screenScrollContainerContent: { 
         padding: 30,
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: 'white',
+        rowGap: 20
+    },
+    // content wrapper inside the scroll view
+    contentWrapper: {
+        display: 'flex', 
+        justifyContent: 'center', 
+        maxWidth: 550,
+        width: '100%',
         rowGap: 20
     },
     // container of section containing user information
@@ -231,7 +268,7 @@ const styles = StyleSheet.create({
     followingFollowersBtnsContainer: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         columnGap: 35,
         width: '100%'
     },
@@ -308,6 +345,61 @@ const styles = StyleSheet.create({
     failedToFetchUserDataText: {
         fontSize: 17,
         fontWeight: '600',
+        color: '#2D3782'
+    },
+    // the badges section container
+    badgesSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%'
+    },
+    /* the header of the badges section with the section 
+       heading and the View All link/button */
+    badgesSectionHeader: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between'
+    },
+    // the container of the badges scroll view content
+    badgesScrollViewContentContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        flex: 1,
+        flexWrap: 'nowrap',
+        overflow: 'auto',
+        columnGap: 20,
+    },
+    // scroll view for showing badges
+    badgesScrollView: {
+        width: '100%'
+    },
+    // container of each badge item
+    badgeItemContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    // the badge image
+    badgeImg: {
+        flex: 1,
+        width: 110,
+        height: 110,
+        resizeMode: 'cover',
+        elevation: 5
+    },
+    // heading text of badges section
+    badgesHeadingTxt: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    // text showing each badge's name
+    badgeNameTxt: {
+        fontSize: 15,
         color: '#2D3782'
     }
 });

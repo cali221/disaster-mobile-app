@@ -42,13 +42,15 @@ export function SignUpScreen({navigation}){
   } 
 
   return(
-    <ScrollView contentContainerStyle={styles.signUpScrollViewContentContainer}
-                style={[styles.signUpScreenScrollView, { paddingLeft: insets.left,
-                                                         paddingRight: insets.right }]}>
+    <ScrollView contentContainerStyle={[styles.signUpScrollViewContentContainer, 
+                                        { paddingLeft: insets.left,
+                                          paddingRight: insets.right }]}
+                style={styles.signUpScreenScrollView}>
       <StatusBar style="auto" />
-      <View style={styles.signUpScreenContainer}>
+      <View style={[styles.signUpScreenContainer, { paddingBottom: insets.bottom + 50 }]}>
         {/* sign up form */}
         <View style={styles.signUpInputForm}>
+          <Text>{insets.bot}</Text>
           {/* username input field */}
           <View style={styles.signUpInputFormFields}>
             <Text style={styles.inputFormLabelTxt}>Username</Text>
@@ -112,7 +114,8 @@ const styles = StyleSheet.create({
   },
   signUpScrollViewContentContainer:{
     flexGrow: 1,
-    height: '100%'
+    height: '100%',
+    backgroundColor: 'white'
   },
   // screen content container
   signUpScreenContainer: {
@@ -121,8 +124,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     width: '100%',
-    height: '100%',
-    paddingBottom: 150
+    height: '100%'
   },
   // input form field container for text input field + the field label
   signUpInputFormFields: {
