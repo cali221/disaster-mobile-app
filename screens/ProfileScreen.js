@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         rowGap: 20
     },
+    // container of section containing user information
     profileInfoContainer: {
         display: 'flex',
         alignItems: 'center',
