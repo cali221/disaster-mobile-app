@@ -130,22 +130,47 @@ export function ProfileScreen({ navigation, route }) {
                             </TouchableOpacity>
                         </View>
 
+                        {/* level/league and xp overview */}
+                        <View style={styles.levelXpOverviewSection}>
+                            {/* league/level image */}
+                            <Image source={{uri: userProfile.level_img_url}} style={styles.levelImg} />
+
+                            {/* text container */}
+                            <View style={styles.levelXpOverviewTextContainer}>
+                                {/* user level/league name */}
+                                <Text style={styles.levelNameTxt}>
+                                    {userProfile.level_name}
+                                </Text>
+
+                                {/* user XP */}
+                                <Text style={styles.totalXpTxt}>
+                                    Total XP: {userProfile.xp}
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* badges section */}
                         <View style={styles.badgesSection}>
                             <View style={styles.badgesSectionHeader}>
+                                {/* badges section headiing text */}
                                 <Text style={styles.badgesHeadingTxt}>
                                     {t('profileScreen.badges')}
                                 </Text>
                             </View>
 
+                            {/* horizontal scroll view for showing badges */}
                             <ScrollView style={styles.badgesScrollView}
                                         horizontal={true}
                                         contentContainerStyle={styles.badgesScrollViewContentContainer}>
                                 {
                                     (userProfile?.user_badges?.map((item, index) => {
                                         return(
+                                            // badge item container with badge image and name
                                             <View key={index} style={styles.badgeItemContainer}>
+                                                {/* the badge image, grayscale if unearned */}
                                                 <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
                                                                                                 item.earned == false && {filter: 'grayscale(100%)'}]}/>
+                                                {/* the badge name */}
                                                 <Text style={styles.badgeNameTxt}>{item.name}</Text>
                                             </View>
                                         )
@@ -167,58 +192,57 @@ export function ProfileScreen({ navigation, route }) {
                - account settings
                - button to change language 
                - button to sign out */}
-            <View style={styles.bottomButtonsContainer}>
-                {/* button for changing language
-                    if current language is English, show button to change language to Indonesian,
-                    if current language is Indonesian, show button to change language to English */}
-                {
-                    currentLang == 'en' ? 
-                    (
-                        <TouchableOpacity onPress={()=>{handleLangChange('id')}}
-                                          style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
-                            <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                {t('profileScreen.changeLangToId')}
-                            </Text>
-                        </TouchableOpacity>
-                        
-                    ):
-                    currentLang == 'id' &&
-                    (
-                        <TouchableOpacity onPress={()=>{handleLangChange('en')}}
-                                          style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
-                            <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                {t('profileScreen.changeLangToEn')}
-                            </Text>
-                        </TouchableOpacity>
-                    )
-                }
+                <View style={styles.bottomButtonsContainer}>
+                    {/* button for changing language
+                        if current language is English, show button to change language to Indonesian,
+                        if current language is Indonesian, show button to change language to English */}
+                    {
+                        currentLang == 'en' ? 
+                        (
+                            <TouchableOpacity onPress={()=>{handleLangChange('id')}}
+                                            style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
+                                    {t('profileScreen.changeLangToId')}
+                                </Text>
+                            </TouchableOpacity>
+                            
+                        ):
+                        currentLang == 'id' &&
+                        (
+                            <TouchableOpacity onPress={()=>{handleLangChange('en')}}
+                                            style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
+                                    {t('profileScreen.changeLangToEn')}
+                                </Text>
+                            </TouchableOpacity>
+                        )
+                    }
 
-                {/* button to go to account settings screen*/}
-                <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
-                                  style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
-                                  accessibilityRole='button'>
-                    <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
-                       {t('profileScreen.accountSettingsBtnTxt')}
-                    </Text>
-                </TouchableOpacity>
+                    {/* button to go to account settings screen*/}
+                    <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
+                                    style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
+                                    accessibilityRole='button'>
+                        <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
+                        {t('profileScreen.accountSettingsBtnTxt')}
+                        </Text>
+                    </TouchableOpacity>
 
-                {/* button for signing out */}
-                <TouchableOpacity onPress={()=>{callSignOut()}}
-                                  style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
-                                  accessibilityRole='button'>
-                    <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
-                        {t('profileScreen.signOutBtnTxt')}
-                    </Text>
-                </TouchableOpacity>
+                    {/* button for signing out */}
+                    <TouchableOpacity onPress={()=>{callSignOut()}}
+                                    style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
+                                    accessibilityRole='button'>
+                        <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
+                            {t('profileScreen.signOutBtnTxt')}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        
             {/* loading indicator to show when isLoading is true */}
             {
                 isLoading == true && (
                     <LoadingOverlay />
                 )
             }
-            </View>
         </ScrollView>
     )
 };
@@ -399,6 +423,46 @@ const styles = StyleSheet.create({
     },
     // text showing each badge's name
     badgeNameTxt: {
+        fontSize: 15,
+        color: '#2D3782'
+    },
+    // section container for XP and level overview
+    levelXpOverviewSection: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        columnGap: 50,
+        borderRadius: 20,
+        width: '100%',
+        paddingHorizontal: 30,
+        paddingVertical: 20,
+        borderColor: 'grey',
+        borderWidth: 1,
+        elevation: 2
+    },
+    // the level/league image
+    levelImg: {
+        width: 100,
+        height: 100,
+        resizeMode: 'cover'
+    },
+    // container of texts in the level and XP overview section
+    levelXpOverviewTextContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    // the text showing the level/league name
+    levelNameTxt: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    // the text showing total XP
+    totalXpTxt: {
         fontSize: 15,
         color: '#2D3782'
     }
