@@ -4,7 +4,7 @@ import { Text,
          TouchableOpacity, 
          ScrollView,
          Image } from 'react-native';
-import { useContext, useEffect, useState, useLayoutEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,11 @@ export function ProfileScreen({ navigation, route }) {
     const [userProfile, setUserProfile] = useState(null);
     
     const insets = useSafeAreaInsets();
+
+    // function to sort badges array so that earned badges are at the start of array
+    const  sortBadgesArrByEarnedStatus = (arr) => {
+        return arr.sort((a, b)=> b.earned - a.earned);
+    }
 
     // handle language change
     const handleLangChange = (langCode) => {
@@ -60,7 +65,7 @@ export function ProfileScreen({ navigation, route }) {
                 /* set user profile state using the fetched data with sorted badges array 
                    where earned badges occupy the first indexes */
                 setUserProfile({...fetchedUserData,  
-                                user_badges: fetchedUserData.user_badges.sort((a, b)=> b.earned - a.earned)});
+                                user_badges: sortBadgesArrByEarnedStatus(fetchedUserData.user_badges)});
             }
             catch(error){
                 showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
@@ -71,12 +76,21 @@ export function ProfileScreen({ navigation, route }) {
         if(user && isFocused == true){
             getProfileData(user.id);
         }
-    }, [user, isFocused])
+    }, [user, isFocused]);
+
+    useEffect(()=>{
+        if(userProfile?.user_badges){
+            setUserProfile({...userProfile,  
+                            user_badges: sortBadgesArrByEarnedStatus(userProfile.user_badges)});
+        }
+    }, [userProfile?.user_badges])
     
     return(
         <ScrollView style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
                                                                   paddingRight: insets.right }]}
-                    contentContainerStyle={[styles.screenScrollContainerContent, {paddingBottom: insets.bottom + 80}]}>
+                    contentContainerStyle={[styles.screenScrollContainerContent, 
+                                            {paddingBottom: insets.bottom + 80}]}
+                    nestedScrollEnabled={true}>
 
             <View style={styles.contentWrapper}>
             {
@@ -161,6 +175,7 @@ export function ProfileScreen({ navigation, route }) {
                             {/* horizontal scroll view for showing badges */}
                             <ScrollView style={styles.badgesScrollView}
                                         horizontal={true}
+                                        nestedScrollEnabled={true}
                                         contentContainerStyle={styles.badgesScrollViewContentContainer}>
                                 {
                                     (userProfile?.user_badges?.map((item, index) => {
@@ -229,8 +244,8 @@ export function ProfileScreen({ navigation, route }) {
 
                     {/* button for signing out */}
                     <TouchableOpacity onPress={()=>{callSignOut()}}
-                                    style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
-                                    accessibilityRole='button'>
+                                      style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
+                                      accessibilityRole='button'>
                         <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
                             {t('profileScreen.signOutBtnTxt')}
                         </Text>
@@ -390,11 +405,7 @@ const styles = StyleSheet.create({
     badgesScrollViewContentContainer: {
         display: 'flex',
         flexDirection: 'row',
-        width: '100%',
-        flex: 1,
-        flexWrap: 'nowrap',
-        overflow: 'auto',
-        columnGap: 20,
+        columnGap: 20
     },
     // scroll view for showing badges
     badgesScrollView: {
@@ -412,8 +423,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: 110,
         height: 110,
-        resizeMode: 'cover',
-        elevation: 5
+        resizeMode: 'cover'
     },
     // heading text of badges section
     badgesHeadingTxt: {
@@ -436,10 +446,11 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: '100%',
         paddingHorizontal: 30,
-        paddingVertical: 20,
+        paddingVertical: 10,
         borderColor: 'grey',
         borderWidth: 1,
-        elevation: 2
+        elevation: 2,
+        backgroundColor: 'white'
     },
     // the level/league image
     levelImg: {
@@ -453,7 +464,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         rowGap: 20,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'flex-start'
     },
     // the text showing the level/league name
     levelNameTxt: {
