@@ -14,22 +14,40 @@ import { getLeaderboard, getUserProfileData } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
 import { ChevronRight, RotateCw, Trophy } from 'lucide-react-native';
+import { CenterModalBase } from '../components/modals/CenterModalBase';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const isFocused = useIsFocused();
     const { user, signOut } = useContext(AuthContext);
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+    const [shouldShowBadgeModal, setShoudlShowBadgeModal] = useState(false);
     const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
     const [userProfile, setUserProfile] = useState(null);
     const [leaderboardTop3, setLeaderboardTop3] = useState([]);
+    const [badgeModalData, setBadgeModalData] = useState(null);
     
     const insets = useSafeAreaInsets();
+
+    // function to handle showing badge modal
+    const showBadgeModal = (badge) => {
+        //setShouldDisableScroll(true);
+        setBadgeModalData({
+            ...badge
+        });
+        setShoudlShowBadgeModal(true);
+    };
+
+    // function to handle hiding badge modal
+    const hideBadgeModal = () => {
+        setShoudlShowBadgeModal(false);
+        setBadgeModalData(null);
+    };
 
     // function to sort badges array so that earned badges are at the start of array
     const sortBadgesArrByEarnedStatus = (arr) => {
         return arr.sort((a, b)=> b.earned - a.earned);
-    }
+    };
 
     // handle language change
     const handleLangChange = (langCode) => {
@@ -49,16 +67,17 @@ export function ProfileScreen({ navigation, route }) {
     // handle signing out
     const callSignOut = async () => {
         setIsLoading(true);
+
         try{
           await signOut();
         }
         catch(error){
           showErrorToast(t('profileScreen.failedToSignOut'), `${error.message ?? error}`);
-        }
+        };
+
         setIsLoading(false);
     };
 
-    // TODO: change error toast message to use translation
     // handle getting leaderboard
     const callGetLeaderboard = async (userId) => {
         try{
@@ -119,262 +138,291 @@ export function ProfileScreen({ navigation, route }) {
     }, [userProfile?.user_badges])
     
     return(
-        <ScrollView style={[styles.notificationScreenContainer, { paddingLeft: insets.left,
-                                                                  paddingRight: insets.right }]}
-                    contentContainerStyle={[styles.screenScrollContainerContent, 
-                                            {paddingBottom: insets.bottom + 80}]}
-                    nestedScrollEnabled={true}>
+        <View style={styles.screenContainer}>
+            <ScrollView style={[styles.notificationScreenScrollContainer, { paddingLeft: insets.left,
+                                                                            paddingRight: insets.right }]}
+                        contentContainerStyle={[styles.screenScrollContainerContent, 
+                                                {paddingBottom: insets.bottom + 80}]}
+                        nestedScrollEnabled={true}>
 
-            <View style={styles.contentWrapper}>
-            {
-                userProfile ? (
-                    // if profile data is available display them
-                    <View style={styles.profileInfoContainer}> 
-                        {/* explanation text about flashcards and avatar's armor condition */}
-                        <Text style={styles.keepPracticingTxt}>
-                            {(t('profileScreen.keepPracticingTxt'))}
-                        </Text>
-
-                        {/* use profile picture with round background and avatar */}
-                        <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
-                                            width={200} 
-                                            height={200} 
-                                            bgColor='#D2DAE4' />
-                    
-                        {/* username */}
-                        <Text style={styles.usernameTxt}>
-                            @{userProfile.username ?? 'Unknown User'}
-                        </Text>
-
-                        {/* following and followers buttons with the following/followers count */}
-                        <View style={styles.followingFollowersBtnsContainer}>
-                            {/* following button */}
-                            <TouchableOpacity style={styles.followingFollowersBtns}
-                                            onPress={()=>{
-                                                navigation.navigate('Following/Followers', 
-                                                                    {
-                                                                        screenTitle: t('profileScreen.following'),
-                                                                        userId: user.id
-                                                                    })
-                                            }}>
-                                <Text style={styles.followingFollowersBtnsTxt}>
-                                    {userProfile?.following_count} {t('profileScreen.following')}
-                                </Text>
-                            </TouchableOpacity>
-
-                            {/* followers count */}
-                            <TouchableOpacity style={styles.followingFollowersBtns}
-                                              onPress={()=>{
-                                                navigation.navigate('Following/Followers', 
-                                                                    {
-                                                                        screenTitle: t('profileScreen.followers'),
-                                                                        userId: user.id
-                                                                    })
-                                              }}>
-                                <Text style={styles.followingFollowersBtnsTxt}>
-                                    {userProfile?.followers_count} {t('profileScreen.followers')}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* level/league and xp overview */}
-                        <View style={styles.levelXpOverviewSection}>
-                            {/* league/level image */}
-                            <Image source={{uri: userProfile.level_img_url}} style={styles.levelImg} />
-
-                            {/* text container */}
-                            <View style={styles.levelXpOverviewTextContainer}>
-                                {/* user level/league name */}
-                                <Text style={styles.levelNameTxt}>
-                                    {userProfile.level_name}
-                                </Text>
-
-                                {/* user XP */}
-                                <Text style={styles.totalXpTxt}>
-                                    Total XP: {userProfile.xp}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.progressBarArea}>
-                            <View style={styles.progressBar}>
-                                <View style={styles.unfilledBar}>
-                                    <View style={[styles.filledBar, 
-                                                 {width: `${((userProfile.xp - userProfile.current_level_min_xp)/
-                                                             (userProfile.next_level_min_xp - userProfile.current_level_min_xp)) 
-                                                             * 100}%`}]}>
-                                    </View>
-                                </View>
-
-                                {/* next level name at the end of progress bar */}
-                                <View style={styles.nextLevelContainer}>
-                                    <Text style={styles.nextLevelTxt}>
-                                        {userProfile.next_level_name}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            {/* XP ratio text: xp gained by user after reaching current level / required XP to gain to reach next level */}
-                            <Text style={styles.xpRatioTxt}>
-                                {userProfile.xp - userProfile.current_level_min_xp}/{userProfile.next_level_min_xp - userProfile.current_level_min_xp} Required XP
+                <View style={styles.contentWrapper}>
+                {
+                    userProfile ? (
+                        // if profile data is available display them
+                        <View style={styles.profileInfoContainer}> 
+                            {/* explanation text about flashcards and avatar's armor condition */}
+                            <Text style={styles.keepPracticingTxt}>
+                                {(t('profileScreen.keepPracticingTxt'))}
                             </Text>
-                        </View>
 
-                        {/* badges section */}
-                        <View style={styles.badgesSection}>
-                            <View style={styles.badgesSectionHeader}>
-                                {/* badges section heading text */}
-                                <Text style={styles.headingTxts}>
-                                    {t('profileScreen.badges')}
-                                </Text>
-                            </View>
+                            {/* use profile picture with round background and avatar */}
+                            <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
+                                                width={200} 
+                                                height={200} 
+                                                bgColor='#D2DAE4' />
+                        
+                            {/* username */}
+                            <Text style={styles.usernameTxt}>
+                                @{userProfile.username ?? 'Unknown User'}
+                            </Text>
 
-                            {/* horizontal scroll view for showing badges */}
-                            <ScrollView style={styles.badgesScrollView}
-                                        horizontal={true}
-                                        nestedScrollEnabled={true}
-                                        contentContainerStyle={styles.badgesScrollViewContentContainer}>
-                                {
-                                    (userProfile?.user_badges?.map((item, index) => {
-                                        return(
-                                            // badge item container with badge image and name
-                                            <View key={index} style={styles.badgeItemContainer}>
-                                                {/* the badge image, grayscale if unearned */}
-                                                <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
-                                                                                                item.earned == false && {filter: 'grayscale(100%)'}]}/>
-                                                {/* the badge name */}
-                                                <Text style={styles.badgeNameTxt}>{item.name}</Text>
-                                            </View>
-                                        )
-                                    }))
-                                }
-                            </ScrollView>
-                        </View>
-
-                        {/* leaderboard top 3 section */}
-                        <View style={styles.leaderboardSection}>
-                            <View style={styles.leaderboardHeader}>
-                                <View style={styles.leaderboardHeadingAndRefreshBtn}>
-                                    {/* section heading text */}
-                                    <Text style={styles.headingTxts}>Leaderboard (Top 3)</Text>
-
-                                    {/* refresh button */}
-                                    <TouchableOpacity onPress={()=>{callGetLeaderboard(user.id).
-                                                                    then((data)=>{
-                                                                        setIsLoading(true);
-                                                                        setLeaderboardTop3([...data]);
-                                                                        setIsLoading(false);
-                                                                        }
-                                                                    )}}>
-                                        <RotateCw size={22} color={'#2D3782'} />
-                                    </TouchableOpacity>
-                                </View>
-
-                                <TouchableOpacity style={styles.viewAllBtn}>
-                                    <Text style={styles.viewAllTxt}>
-                                        {t('profileScreen.viewAll')} 
+                            {/* following and followers buttons with the following/followers count */}
+                            <View style={styles.followingFollowersBtnsContainer}>
+                                {/* following button */}
+                                <TouchableOpacity style={styles.followingFollowersBtns}
+                                                onPress={()=>{
+                                                    navigation.navigate('Following/Followers', 
+                                                                        {
+                                                                            screenTitle: t('profileScreen.following'),
+                                                                            userId: user.id
+                                                                        })
+                                                }}>
+                                    <Text style={styles.followingFollowersBtnsTxt}>
+                                        {userProfile?.following_count} {t('profileScreen.following')}
                                     </Text>
-                                    <ChevronRight size={20} color={'#2D3782'} />
+                                </TouchableOpacity>
+
+                                {/* followers count */}
+                                <TouchableOpacity style={styles.followingFollowersBtns}
+                                                onPress={()=>{
+                                                    navigation.navigate('Following/Followers', 
+                                                                        {
+                                                                            screenTitle: t('profileScreen.followers'),
+                                                                            userId: user.id
+                                                                        })
+                                                }}>
+                                    <Text style={styles.followingFollowersBtnsTxt}>
+                                        {userProfile?.followers_count} {t('profileScreen.followers')}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
 
-                            <View style={styles.leaderboardList}>
-                                {
-                                    (leaderboardTop3.map((item, index) => {
-                                        return(
-                                          <View key={index} style={[styles.leaderboardItem, 
-                                                                    index!=(leaderboardTop3.length - 1) && {borderBottomWidth: 2}]}>
-                                            <View style={styles.leaderboardItemTxtsContainer}>
-                                                {/* username of the user */}
-                                                <Text style={styles.leaderboardUsernameTxt}>
-                                                    @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
-                                                </Text>
+                            {/* level/league and xp overview */}
+                            <View style={styles.levelXpOverviewSection}>
+                                {/* league/level image */}
+                                <Image source={{uri: userProfile.level_img_url}} style={styles.levelImg} />
 
-                                                {/* total XP of the user */}
-                                                <Text style={styles.leaderboardXpTxt}>
-                                                    Total XP: {item.xp}
-                                                </Text>
+                                {/* text container */}
+                                <View style={styles.levelXpOverviewTextContainer}>
+                                    {/* user level/league name */}
+                                    <Text style={styles.levelNameTxt}>
+                                        {userProfile.level_name}
+                                    </Text>
+
+                                    {/* user XP */}
+                                    <Text style={styles.totalXpTxt}>
+                                        Total XP: {userProfile.xp}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.progressBarArea}>
+                                <View style={styles.progressBar}>
+                                    <View style={styles.unfilledBar}>
+                                        <View style={[styles.filledBar, 
+                                                    {width: `${((userProfile.xp - userProfile.current_level_min_xp)/
+                                                                (userProfile.next_level_min_xp - userProfile.current_level_min_xp)) 
+                                                                * 100}%`}]}>
+                                        </View>
+                                    </View>
+
+                                    {/* next level name at the end of progress bar */}
+                                    <View style={styles.nextLevelContainer}>
+                                        <Text style={styles.nextLevelTxt}>
+                                            {userProfile.next_level_name}
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                {/* XP ratio text: xp gained by user after reaching current level / required XP to gain to reach next level */}
+                                <Text style={styles.xpRatioTxt}>
+                                    {userProfile.xp - userProfile.current_level_min_xp}/{userProfile.next_level_min_xp - userProfile.current_level_min_xp} Required XP
+                                </Text>
+                            </View>
+
+                            {/* badges section */}
+                            <View style={styles.badgesSection}>
+                                <View style={styles.badgesSectionHeader}>
+                                    {/* badges section heading text */}
+                                    <Text style={styles.headingTxts}>
+                                        {t('profileScreen.badges')}
+                                    </Text>
+                                </View>
+
+                                {/* horizontal scroll view for showing badges */}
+                                <ScrollView style={styles.badgesScrollView}
+                                            horizontal={true}
+                                            nestedScrollEnabled={true}
+                                            contentContainerStyle={styles.badgesScrollViewContentContainer}>
+                                    {
+                                        (userProfile?.user_badges?.map((item, index) => {
+                                            return(
+                                                // badge item container with badge image and name
+                                                <TouchableOpacity key={index} 
+                                                                  style={styles.badgeItemContainer}
+                                                                  onPress={()=>{showBadgeModal(item)}}>
+                                                    {/* the badge image, grayscale if unearned */}
+                                                    <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
+                                                                                                    item.earned == false && {filter: 'grayscale(100%)'}]}/>
+                                                    {/* the badge name */}
+                                                    <Text style={styles.badgeNameTxt}>{item.name}</Text>
+                                                </TouchableOpacity>
+                                            )
+                                        }))
+                                    }
+                                </ScrollView>
+                            </View>
+
+                            {/* leaderboard top 3 section */}
+                            <View style={styles.leaderboardSection}>
+                                <View style={styles.leaderboardHeader}>
+                                    <View style={styles.leaderboardHeadingAndRefreshBtn}>
+                                        {/* section heading text */}
+                                        <Text style={styles.headingTxts}>Leaderboard (Top 3)</Text>
+
+                                        {/* refresh button */}
+                                        <TouchableOpacity onPress={()=>{callGetLeaderboard(user.id).
+                                                                        then((data)=>{
+                                                                            setIsLoading(true);
+                                                                            setLeaderboardTop3([...data]);
+                                                                            setIsLoading(false);
+                                                                            }
+                                                                        )}}>
+                                            <RotateCw size={22} color={'#2D3782'} />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <TouchableOpacity style={styles.viewAllBtn}>
+                                        <Text style={styles.viewAllTxt}>
+                                            {t('profileScreen.viewAll')} 
+                                        </Text>
+                                        <ChevronRight size={20} color={'#2D3782'} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={styles.leaderboardList}>
+                                    {
+                                        (leaderboardTop3.map((item, index) => {
+                                            return(
+                                            <View key={index} style={[styles.leaderboardItem, 
+                                                                        index!=(leaderboardTop3.length - 1) && {borderBottomWidth: 2}]}>
+                                                <View style={styles.leaderboardItemTxtsContainer}>
+                                                    {/* username of the user */}
+                                                    <Text style={styles.leaderboardUsernameTxt}>
+                                                        @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
+                                                    </Text>
+
+                                                    {/* total XP of the user */}
+                                                    <Text style={styles.leaderboardXpTxt}>
+                                                        Total XP: {item.xp}
+                                                    </Text>
+                                                </View>
+
+                                                { index == 0 && (<Trophy size={30} fill={'#eba103'} color={'#2D3782'} />) }
                                             </View>
-
-                                            { index == 0 && (<Trophy size={30} fill={'#eba103'} color={'#2D3782'} />) }
-                                          </View>
-                                        )
-                                    }))
-                                }
+                                            )
+                                        }))
+                                    }
+                                </View>
                             </View>
                         </View>
+                    ) :
+                    (
+                        // text shown when fetching user profile data failed
+                        <Text style={styles.failedToFetchUserDataText}>
+                            {t('profileScreen.failedToFetchUserData')}
+                        </Text>
+                    )
+                }
+
+                {/* buttons at the bottom of the screen: 
+                - account settings
+                - button to change language 
+                - button to sign out */}
+                    <View style={styles.bottomButtonsContainer}>
+                        {/* button for changing language
+                            if current language is English, show button to change language to Indonesian,
+                            if current language is Indonesian, show button to change language to English */}
+                        {
+                            currentLang == 'en' ? 
+                            (
+                                <TouchableOpacity onPress={()=>{handleLangChange('id')}}
+                                                style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                    <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
+                                        {t('profileScreen.changeLangToId')}
+                                    </Text>
+                                </TouchableOpacity>
+                                
+                            ):
+                            currentLang == 'id' &&
+                            (
+                                <TouchableOpacity onPress={()=>{handleLangChange('en')}}
+                                                style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                    <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
+                                        {t('profileScreen.changeLangToEn')}
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }
+
+                        {/* button to go to account settings screen*/}
+                        <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
+                                        style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
+                                        accessibilityRole='button'>
+                            <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
+                            {t('profileScreen.accountSettingsBtnTxt')}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* button for signing out */}
+                        <TouchableOpacity onPress={()=>{callSignOut()}}
+                                        style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
+                                        accessibilityRole='button'>
+                            <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
+                                {t('profileScreen.signOutBtnTxt')}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
-                ) :
-                (
-                    // text shown when fetching user profile data failed
-                    <Text style={styles.failedToFetchUserDataText}>
-                        {t('profileScreen.failedToFetchUserData')}
-                    </Text>
-                )
-            }
-
-            {/* buttons at the bottom of the screen: 
-               - account settings
-               - button to change language 
-               - button to sign out */}
-                <View style={styles.bottomButtonsContainer}>
-                    {/* button for changing language
-                        if current language is English, show button to change language to Indonesian,
-                        if current language is Indonesian, show button to change language to English */}
-                    {
-                        currentLang == 'en' ? 
-                        (
-                            <TouchableOpacity onPress={()=>{handleLangChange('id')}}
-                                              style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
-                                <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                    {t('profileScreen.changeLangToId')}
-                                </Text>
-                            </TouchableOpacity>
-                            
-                        ):
-                        currentLang == 'id' &&
-                        (
-                            <TouchableOpacity onPress={()=>{handleLangChange('en')}}
-                                              style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
-                                <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                    {t('profileScreen.changeLangToEn')}
-                                </Text>
-                            </TouchableOpacity>
-                        )
-                    }
-
-                    {/* button to go to account settings screen*/}
-                    <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
-                                      style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
-                                      accessibilityRole='button'>
-                        <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
-                        {t('profileScreen.accountSettingsBtnTxt')}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* button for signing out */}
-                    <TouchableOpacity onPress={()=>{callSignOut()}}
-                                      style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
-                                      accessibilityRole='button'>
-                        <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
-                            {t('profileScreen.signOutBtnTxt')}
-                        </Text>
-                    </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
+
             {/* loading indicator to show when isLoading is true */}
             {
                 isLoading == true && (
                     <LoadingOverlay />
                 )
             }
-        </ScrollView>
+
+            {/* badge modal shown when shouldShowBadgeModal is true */}
+            {
+                shouldShowBadgeModal == true && (
+                    <CenterModalBase title={badgeModalData.name} 
+                                     closeFunc={()=>{hideBadgeModal()}}>
+                        <View style={styles.badgeModalContentContainer}>
+                            {/* the badge's image */}
+                            <Image source={{uri: badgeModalData.badgeImgUrl}} style={[styles.badgeModalImg, 
+                                                                            badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
+                            {/* the badge's description */}
+                            <Text style={styles.badgeModalDescTxt}>
+                                {badgeModalData.badgeDesc}
+                            </Text>
+                        </View>
+                    </CenterModalBase>
+                )
+            }
+
+        </View>
     )
 };
 
 const styles = StyleSheet.create({
+    // container of the whole screen
+    screenContainer: {
+        height: '100%', 
+        width: '100%'
+    },
     // screen scroll view container
-    notificationScreenContainer: {
+    notificationScreenScrollContainer: {
         width: '100%',
         backgroundColor: 'white',
     },
@@ -720,5 +768,23 @@ const styles = StyleSheet.create({
     viewAllBtn: {
         display: 'flex',
         flexDirection: 'row'
+    },
+    // content/body container of badge modal
+    badgeModalContentContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column'
+    },
+    // modal image shown on badge modal
+    badgeModalImg: {
+        width: 200,
+        height: 200
+    },
+    // description text shown on badge modal
+    badgeModalDescTxt: {
+        fontSize: 16,
+        color: '#2D3782',
+        textAlign: 'center'
     }
 });

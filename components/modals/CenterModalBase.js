@@ -3,16 +3,17 @@ import { XCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export function BottomModalBase(props) {
+export function CenterModalBase(props) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
 
     return(
         <View style={[styles.modalOverlay, {paddingTop: insets.top, 
                                             paddingLeft: insets.left, 
-                                            paddingRight: insets.right}]}>
+                                            paddingRight: insets.right,
+                                            paddingBottom: insets.bottom}]}>
             {/* the base of the modal */}
-            <View style={[styles.modalBase, {paddingBottom: insets.bottom }]}>
+            <View style={styles.modalBase}>
                 {/* the modal header with title and close button */}
                 <View style={styles.modalHeader}>
                     {/* modal title */}
@@ -30,12 +31,9 @@ export function BottomModalBase(props) {
                     </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.contentScrollView}
-                            contentContainerStyle={styles.contentScrollViewContentContainer}
-                            accessibilityRole='scrollbar'>
-                    {/* content of the modal */}
+                <View style={styles.content}>
                     {props.children}
-                </ScrollView>
+                </View>
             </View>
         </View>
     )
@@ -50,26 +48,26 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         display: 'flex',
-        justifyContent:'flex-end',
         backgroundColor: '#04091fb8',
         zIndex: 100,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     // the modal base/template
     modalBase: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: 'white',
         rowGap: 30,
-        width: '100%',
-        maxWidth:  500,
-        borderTopLeftRadius: 50,
-        borderTopRightRadius: 50,
+        width: '75%',
+        borderRadius: 50,
         paddingHorizontal: 30,
         paddingTop: 35,
-        maxHeight: (Dimensions.get('window').height * 0.7) - 50,
-        elevation: 2
+        paddingBottom: 50,
+        backgroundColor: 'white',
+        elevation: 2,
+        maxWidth: 350,
+        maxHeight: (Dimensions.get('window').height * 0.6) - 50
     },
     // the modal header with title and close button
     modalHeader: {
@@ -78,7 +76,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: 'white',
-        width: '100%'
+        width: '100%',
+        
     },
     // the close button with X icon and 'Close' text
     closeBtn: {
@@ -101,13 +100,13 @@ const styles = StyleSheet.create({
         maxWidth: 300,
         width: '70%'
     },
-    // scroll view container of the modal content
-    contentScrollView: {
-        width: '100%',
-        marginBottom: 30
-    },
-    // content container of the scroll view container of the modal content
-    contentScrollViewContentContainer: {
+    // modal body/content container
+    content: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
         width: '100%'
     }
 });

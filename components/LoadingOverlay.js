@@ -1,4 +1,4 @@
-import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text, View, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
 
 export function LoadingOverlay() {
     return(
@@ -12,14 +12,15 @@ const styles = StyleSheet.create({
     // the loading overlay background
     loadingOverlay: {
         position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
         display: 'flex',
         justifyContent:'center',
         alignItems:'center',
         backgroundColor: '#04091fb8',
-        zIndex: 100 
+        zIndex: 100,
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        flex: 1
     }
 })
