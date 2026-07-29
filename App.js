@@ -18,6 +18,7 @@ import { AccountSettingsScreen } from './screens/users-related-screens/AccountSe
 import { WatchedAreasSettingsScreen } from './screens/users-related-screens/WatchedAreasSettingsScreen';
 import { FollowingFollowersScreen } from './screens/users-related-screens/FollowingFollowersScreen';
 import { FindUsersScreen } from './screens/users-related-screens/FindUsersScreen';
+import { LeaderboardScreen } from './screens/users-related-screens/LeaderboardScreen';
 
 // main screens imports:
 import { ProfileScreen} from './screens/ProfileScreen';
@@ -193,6 +194,9 @@ function profileScreenStack(){
               <Stack.Screen name='Find Users' 
                             component={FindUsersScreen}
                             options={{title: t('screenTitles.findUsersScreenTitle')}} />
+
+              <Stack.Screen name='Leaderboard' 
+                            component={LeaderboardScreen} />
             </>
           ):
           (

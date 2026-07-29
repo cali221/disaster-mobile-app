@@ -3,7 +3,8 @@ import { Text,
          StyleSheet, 
          TouchableOpacity, 
          ScrollView,
-         Image } from 'react-native';
+         Image,
+         TextInput } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
@@ -15,6 +16,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
 import { ChevronRight, RotateCw, Trophy } from 'lucide-react-native';
 import { CenterModalBase } from '../components/modals/CenterModalBase';
+import { BottomModalBase } from '../components/modals/BottomModalBase';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
@@ -22,6 +24,7 @@ export function ProfileScreen({ navigation, route }) {
     const { user, signOut } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [shouldShowBadgeModal, setShoudlShowBadgeModal] = useState(false);
+    const [shouldShowAddContactModal, setShouldShowAddContactModal] = useState(false);
     const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
     const [userProfile, setUserProfile] = useState(null);
     const [leaderboardTop3, setLeaderboardTop3] = useState([]);
@@ -293,7 +296,8 @@ export function ProfileScreen({ navigation, route }) {
                                         </TouchableOpacity>
                                     </View>
 
-                                    <TouchableOpacity style={styles.viewAllBtn}>
+                                    <TouchableOpacity style={styles.viewAllBtn}
+                                                      onPress={()=>{navigation.navigate('Leaderboard')}}>
                                         <Text style={styles.viewAllTxt}>
                                             {t('profileScreen.viewAll')} 
                                         </Text>
@@ -331,8 +335,10 @@ export function ProfileScreen({ navigation, route }) {
                                 {/* the trusted contacts section heading text */}
                                 <Text style={styles.headingTxts}>Trusted Contacts</Text>
 
-                                <View>
-
+                                <View style={styles.trustedContactList}>
+                                    <TouchableOpacity onPress={()=>{setShouldShowAddContactModal(true)}}>
+                                        <Text>{t('shared.add')}</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -419,6 +425,41 @@ export function ProfileScreen({ navigation, route }) {
                             </Text>
                         </View>
                     </CenterModalBase>
+                )
+            }
+
+            {/* modal for adding a new trusted contact, 
+                shown when shouldShowAddContactModal is true */}
+            {
+                shouldShowAddContactModal == true && (
+                    <BottomModalBase title={t('profileScreen.addNewTrustedContact')} 
+                                     closeFunc={()=>{setShouldShowAddContactModal(false)}}>
+                                    
+                        
+                        <View style={styles.addContactModalContentContainer}>
+                            <View style={styles.addContactModaTextInputContainer}>
+                                <Text style={styles.addContactModalTextInputLabelTxt}>
+                                    {t('profileScreen.phoneNumber')}
+                                </Text>
+
+                                <TextInput style={styles.addContactModalTextInput}/>
+                            </View>
+
+                            <View style={styles.addContactModaTextInputContainer}>
+                                <Text style={styles.addContactModalTextInputLabelTxt}>
+                                    {t('profileScreen.contactName')}
+                                </Text>
+
+                                <TextInput style={styles.addContactModalTextInput} />
+                            </View>
+
+                            <TouchableOpacity style={styles.addContactModalAddBtn}>
+                                <Text style={styles.addContactModalAddBtnTxt}>
+                                    {t('shared.add')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </BottomModalBase>
                 )
             }
 
@@ -578,6 +619,7 @@ const styles = StyleSheet.create({
     },
     // scroll view for showing badges
     badgesScrollView: {
+        marginTop: 15,
         width: '100%'
     },
     // container of each badge item
@@ -707,8 +749,7 @@ const styles = StyleSheet.create({
     leaderboardSection: {
         display: 'flex',
         flexDirection: 'column',
-        width: '100%',
-        rowGap: 10
+        width: '100%'
     },
     /* header of leaderboard section 
        with heading text and refresh button */
@@ -730,7 +771,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         elevation: 2,
         backgroundColor: 'white',
-        minHeight: 100
+        minHeight: 100,
+        marginTop: 15
     },
     // container of each item in the leaderboard
     leaderboardItem: {
@@ -764,9 +806,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         columnGap: 7,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        flex: 1
+        alignItems:'center'
     },
     // view all text in leaderboard section
     viewAllTxt: {
@@ -799,11 +839,73 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         textAlign: 'center'
     },
-    // the trusteed contact section container
+    // the trusted contact section container
     trustedContactSection: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         width: '100%'
+    },
+    trustedContactList: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 20,
+        width: '100%',
+        paddingHorizontal: 30,
+        paddingVertical: 10,
+        borderColor: 'grey',
+        borderWidth: 1,
+        elevation: 2,
+        backgroundColor: 'white',
+        minHeight: 100,
+        marginTop: 15
+    },
+    // content container for modal for adding new trusted contact
+    addContactModalContentContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20
+    },
+    // text inputs on modal for adding new trusted contact
+    addContactModalTextInput: {
+        width: '100%',
+        borderWidth: 1,
+        borderColor: '#2D3782',
+        borderRadius: 25,
+        height: 50,
+        paddingHorizontal: 20,
+        color: 'black',
+        backgroundColor: 'white'
+    },
+    // labels for text inputs on add contact modal
+    addContactModalTextInputLabelTxt: {
+        color: '#2D3782',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    // add button on modal for adding new trusted contact
+    addContactModalAddBtn: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2D3782',
+        paddingVertical: 12,
+        paddingHorizontal: 30,
+        borderRadius: 50
+    },
+    // text inside add button on modal for adding new trusted contact
+    addContactModalAddBtnTxt: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    addContactModaTextInputContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 5,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
     }
 });
