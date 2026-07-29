@@ -98,7 +98,9 @@ const AuthProvider = ({ children }) => {
   // add listener for auth state change and update user state accordingly
   useEffect(() => { 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(event);
+      if(event=='SIGNED_IN'){
+        
+      }
       setLoggedInUser(session?.user);
     });
   }, []);

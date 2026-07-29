@@ -25,7 +25,7 @@ export function ProfileScreen({ navigation, route }) {
     const insets = useSafeAreaInsets();
 
     // function to sort badges array so that earned badges are at the start of array
-    const  sortBadgesArrByEarnedStatus = (arr) => {
+    const sortBadgesArrByEarnedStatus = (arr) => {
         return arr.sort((a, b)=> b.earned - a.earned);
     }
 
@@ -131,13 +131,13 @@ export function ProfileScreen({ navigation, route }) {
 
                             {/* followers count */}
                             <TouchableOpacity style={styles.followingFollowersBtns}
-                                            onPress={()=>{
+                                              onPress={()=>{
                                                 navigation.navigate('Following/Followers', 
                                                                     {
                                                                         screenTitle: t('profileScreen.followers'),
                                                                         userId: user.id
                                                                     })
-                                            }}>
+                                              }}>
                                 <Text style={styles.followingFollowersBtnsTxt}>
                                     {userProfile?.followers_count} {t('profileScreen.followers')}
                                 </Text>
@@ -163,10 +163,27 @@ export function ProfileScreen({ navigation, route }) {
                             </View>
                         </View>
 
+                        <View style={styles.progressBarArea}>
+                            <View style={styles.progressBar}>
+                                <View style={styles.unfilledBar}>
+                                    <View style={[styles.filledBar, {width: `${(0.1) * 100}%`}]}>
+                                    </View>
+                                </View>
+                                <View style={styles.nextLevelContainer}>
+                                    <Text style={styles.nextLevelTxt}>
+                                        {userProfile.next_level_name}
+                                    </Text>
+                                </View>
+                            </View>
+                            <Text style={styles.xpRatioTxt}>
+                                {userProfile.xp - userProfile.current_level_min_xp}/{userProfile.next_level_min_xp - userProfile.current_level_min_xp} Required XP
+                            </Text>
+                        </View>
+
                         {/* badges section */}
                         <View style={styles.badgesSection}>
                             <View style={styles.badgesSectionHeader}>
-                                {/* badges section headiing text */}
+                                {/* badges section heading text */}
                                 <Text style={styles.badgesHeadingTxt}>
                                     {t('profileScreen.badges')}
                                 </Text>
@@ -288,7 +305,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         backgroundColor: 'white',
-        rowGap: 20,
+        rowGap: 30,
         width: '100%'
     },
     // keep practicing explanation text
@@ -476,5 +493,62 @@ const styles = StyleSheet.create({
     totalXpTxt: {
         fontSize: 15,
         color: '#2D3782'
+    },
+    // the progress bar section with progress bar and xp ratio text
+    progressBarArea: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        marginTop: 20
+    },
+    // the progress bar
+    progressBar: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20
+    },
+    // unfilled bar in the progress bar
+    unfilledBar: {
+        backgroundColor: 'lightgrey',
+        width: '100%',
+        height: 12,
+        borderRadius: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        elevation: 2
+    },
+    // filled part of the progress bar
+    filledBar: {
+        backgroundColor: '#2D3782',
+        height: '100%',
+        borderRadius: 12
+    },
+    // container of next level name at the end of the progress bar
+    nextLevelContainer: {
+        position: 'absolute',
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        backgroundColor: '#2D3782',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        right: 0,
+        padding: 10
+    },
+    // the text showing the next level name at the end of progress
+    nextLevelTxt: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 15,
+        width: '100%',
+        textAlign: 'center'
+    },
+    // the XP ratio text under the progress bar
+    xpRatioTxt: {
+        color: '#2D3782',
+        fontSize: 15
     }
 });
