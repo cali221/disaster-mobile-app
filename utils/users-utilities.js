@@ -94,3 +94,16 @@ export async function getFollowers(userId){
         return data;
     }
 };
+
+// function to get leaderboard for user
+export async function getLeaderboard(userId){
+    const { data, error } = await supabase.schema('public')
+                                          .rpc('get_leaderboard_for_user', {user_id_input: userId});
+
+    if(error){
+        throw error;
+    }
+    else{
+        return data;
+    }
+};

@@ -10,9 +10,10 @@ import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { showErrorToast } from '../utils/show-toast';
-import { getUserProfileData } from '../utils/users-utilities';
+import { getLeaderboard, getUserProfileData } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
+import { ChevronRight, RotateCw, Trophy } from 'lucide-react-native';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
@@ -21,6 +22,7 @@ export function ProfileScreen({ navigation, route }) {
     const [isLoading, setIsLoading] = useState(false)
     const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
     const [userProfile, setUserProfile] = useState(null);
+    const [leaderboardTop3, setLeaderboardTop3] = useState([]);
     
     const insets = useSafeAreaInsets();
 
@@ -51,30 +53,61 @@ export function ProfileScreen({ navigation, route }) {
           await signOut();
         }
         catch(error){
-          showErrorToast('Failed to sign out', `${error.message ?? error}`);
+          showErrorToast(t('profileScreen.failedToSignOut'), `${error.message ?? error}`);
         }
         setIsLoading(false);
     };
 
+    // TODO: change error toast message to use translation
+    // handle getting leaderboard
+    const callGetLeaderboard = async (userId) => {
+        try{
+            const leaderboardData = await getLeaderboard(userId);
+            const top3Data = leaderboardData.slice(0, 3);
+
+            console.log(top3Data);
+
+            if(top3Data){
+                return top3Data;
+            }
+        }
+        catch(error){
+            showErrorToast((t('profileScreen.failedToGetTop3Leaderboard')), `${error.message ?? error}`);
+        }
+    };
+
+     // function to handle getting profile data of user
+    const getProfileData = async(userId) => {
+        try{
+            const fetchedUserData = await getUserProfileData(userId);
+
+            if(fetchedUserData){
+                return fetchedUserData;
+            }
+        }
+        catch(error){
+            showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
+        }
+    };
+
     useEffect(()=>{
-        // function to handle getting profile data of user
-        const getProfileData = async(userId) => {
-            try{
-                const fetchedUserData = await getUserProfileData(userId);
-
-                /* set user profile state using the fetched data with sorted badges array 
-                   where earned badges occupy the first indexes */
-                setUserProfile({...fetchedUserData,  
-                                user_badges: sortBadgesArrByEarnedStatus(fetchedUserData.user_badges)});
-            }
-            catch(error){
-                showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
-            }
-        };
-
         /* fetch user profile data and sort badges array */
         if(user && isFocused == true){
-            getProfileData(user.id);
+            setIsLoading(true);
+
+            getProfileData(user.id).then((data)=>{
+                /* set user profile state using the fetched data with sorted badges array 
+                   where earned badges occupy the first indexes */
+                setUserProfile({...data,  
+                                user_badges: sortBadgesArrByEarnedStatus(data.user_badges)
+                               });
+            });
+            
+            callGetLeaderboard(user.id).then((data)=>{
+                setLeaderboardTop3([...data]);
+            });
+
+            setIsLoading(false);
         }
     }, [user, isFocused]);
 
@@ -191,7 +224,7 @@ export function ProfileScreen({ navigation, route }) {
                         <View style={styles.badgesSection}>
                             <View style={styles.badgesSectionHeader}>
                                 {/* badges section heading text */}
-                                <Text style={styles.badgesHeadingTxt}>
+                                <Text style={styles.headingTxts}>
                                     {t('profileScreen.badges')}
                                 </Text>
                             </View>
@@ -217,10 +250,63 @@ export function ProfileScreen({ navigation, route }) {
                                 }
                             </ScrollView>
                         </View>
+
+                        {/* leaderboard top 3 section */}
+                        <View style={styles.leaderboardSection}>
+                            <View style={styles.leaderboardHeader}>
+                                <View style={styles.leaderboardHeadingAndRefreshBtn}>
+                                    {/* section heading text */}
+                                    <Text style={styles.headingTxts}>Leaderboard (Top 3)</Text>
+
+                                    {/* refresh button */}
+                                    <TouchableOpacity onPress={()=>{callGetLeaderboard(user.id).
+                                                                    then((data)=>{
+                                                                        setIsLoading(true);
+                                                                        setLeaderboardTop3([...data]);
+                                                                        setIsLoading(false);
+                                                                        }
+                                                                    )}}>
+                                        <RotateCw size={22} color={'#2D3782'} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <TouchableOpacity style={styles.viewAllBtn}>
+                                    <Text style={styles.viewAllTxt}>
+                                        {t('profileScreen.viewAll')} 
+                                    </Text>
+                                    <ChevronRight size={20} color={'#2D3782'} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.leaderboardList}>
+                                {
+                                    (leaderboardTop3.map((item, index) => {
+                                        return(
+                                          <View key={index} style={[styles.leaderboardItem, 
+                                                                    index!=(leaderboardTop3.length - 1) && {borderBottomWidth: 2}]}>
+                                            <View style={styles.leaderboardItemTxtsContainer}>
+                                                {/* username of the user */}
+                                                <Text style={styles.leaderboardUsernameTxt}>
+                                                    @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
+                                                </Text>
+
+                                                {/* total XP of the user */}
+                                                <Text style={styles.leaderboardXpTxt}>
+                                                    Total XP: {item.xp}
+                                                </Text>
+                                            </View>
+
+                                            { index == 0 && (<Trophy size={30} fill={'#eba103'} color={'#2D3782'} />) }
+                                          </View>
+                                        )
+                                    }))
+                                }
+                            </View>
+                        </View>
                     </View>
                 ) :
                 (
-                    // text shown when fetchig user profile data failed
+                    // text shown when fetching user profile data failed
                     <Text style={styles.failedToFetchUserDataText}>
                         {t('profileScreen.failedToFetchUserData')}
                     </Text>
@@ -239,7 +325,7 @@ export function ProfileScreen({ navigation, route }) {
                         currentLang == 'en' ? 
                         (
                             <TouchableOpacity onPress={()=>{handleLangChange('id')}}
-                                            style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                              style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                 <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
                                     {t('profileScreen.changeLangToId')}
                                 </Text>
@@ -249,7 +335,7 @@ export function ProfileScreen({ navigation, route }) {
                         currentLang == 'id' &&
                         (
                             <TouchableOpacity onPress={()=>{handleLangChange('en')}}
-                                            style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                              style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                 <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
                                     {t('profileScreen.changeLangToEn')}
                                 </Text>
@@ -259,8 +345,8 @@ export function ProfileScreen({ navigation, route }) {
 
                     {/* button to go to account settings screen*/}
                     <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
-                                    style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
-                                    accessibilityRole='button'>
+                                      style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
+                                      accessibilityRole='button'>
                         <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
                         {t('profileScreen.accountSettingsBtnTxt')}
                         </Text>
@@ -449,8 +535,8 @@ const styles = StyleSheet.create({
         height: 110,
         resizeMode: 'cover'
     },
-    // heading text of badges section
-    badgesHeadingTxt: {
+    // heading texts of the sections on the screen
+    headingTxts: {
         fontSize: 18,
         fontWeight: '600',
         color: '#2D3782'
@@ -557,5 +643,82 @@ const styles = StyleSheet.create({
     xpRatioTxt: {
         color: '#2D3782',
         fontSize: 15
+    },
+    // container of the leaderboard section
+    leaderboardSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        rowGap: 10
+    },
+    /* header of leaderboard section 
+       with heading text and refresh button */
+    leaderboardHeader: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    // the list showing leaderboard with top 3 users
+    leaderboardList: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 20,
+        width: '100%',
+        paddingHorizontal: 30,
+        paddingVertical: 10,
+        borderColor: 'grey',
+        borderWidth: 1,
+        elevation: 2,
+        backgroundColor: 'white',
+        minHeight: 100
+    },
+    // container of each item in the leaderboard
+    leaderboardItem: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        borderBottomColor: '#2D3782'
+    },
+    // container of texts for each leaderboard item
+    leaderboardItemTxtsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 5
+    },
+    // username texts inside the leaderboard
+    leaderboardUsernameTxt: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    // XP texts inside the leaderboard
+    leaderboardXpTxt: {
+        fontSize: 15,
+        color: '#2D3782'
+    },
+    /* container of leaderboard heading 
+       text and refresh button */
+    leaderboardHeadingAndRefreshBtn: {
+        display: 'flex',
+        flexDirection: 'row',
+        columnGap: 7,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flex: 1
+    },
+    // view all text in leaderboard section
+    viewAllTxt: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    /* view all button in leaderboard section 
+       with view all text and chevron icon */
+    viewAllBtn: {
+        display: 'flex',
+        flexDirection: 'row'
     }
 });
