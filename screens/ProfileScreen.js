@@ -81,10 +81,11 @@ export function ProfileScreen({ navigation, route }) {
     // handle getting leaderboard
     const callGetLeaderboard = async (userId) => {
         try{
+            // leaderboard data (ordered from highest to lowest rank)
             const leaderboardData = await getLeaderboard(userId);
-            const top3Data = leaderboardData.slice(0, 3);
 
-            console.log(top3Data);
+            // slice the array to get only the first 3 items
+            const top3Data = leaderboardData.slice(0, 3);
 
             if(top3Data){
                 return top3Data;
@@ -325,6 +326,15 @@ export function ProfileScreen({ navigation, route }) {
                                     }
                                 </View>
                             </View>
+
+                            <View style={styles.trustedContactSection}>
+                                {/* the trusted contacts section heading text */}
+                                <Text style={styles.headingTxts}>Trusted Contacts</Text>
+
+                                <View>
+
+                                </View>
+                            </View>
                         </View>
                     ) :
                     (
@@ -400,8 +410,9 @@ export function ProfileScreen({ navigation, route }) {
                                      closeFunc={()=>{hideBadgeModal()}}>
                         <View style={styles.badgeModalContentContainer}>
                             {/* the badge's image */}
-                            <Image source={{uri: badgeModalData.badgeImgUrl}} style={[styles.badgeModalImg, 
-                                                                            badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
+                            <Image source={{uri: badgeModalData.badgeImgUrl}} 
+                                            style={[styles.badgeModalImg, 
+                                                    badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
                             {/* the badge's description */}
                             <Text style={styles.badgeModalDescTxt}>
                                 {badgeModalData.badgeDesc}
@@ -774,17 +785,25 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        width: '100%'
     },
     // modal image shown on badge modal
     badgeModalImg: {
-        width: 200,
-        height: 200
+        width: 170,
+        height: 170
     },
     // description text shown on badge modal
     badgeModalDescTxt: {
         fontSize: 16,
         color: '#2D3782',
         textAlign: 'center'
+    },
+    // the trusteed contact section container
+    trustedContactSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        width: '100%'
     }
 });

@@ -31,9 +31,9 @@ export function CenterModalBase(props) {
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.content}>
-                    {props.children}
-                </View>
+                {/* the modal content, specify when usesd on parent component */}
+                {props.children}
+
             </View>
         </View>
     )
@@ -99,14 +99,5 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         maxWidth: 300,
         width: '70%'
-    },
-    // modal body/content container
-    content: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flex: 1,
-        width: '100%'
     }
 });
