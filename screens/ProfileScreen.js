@@ -166,15 +166,22 @@ export function ProfileScreen({ navigation, route }) {
                         <View style={styles.progressBarArea}>
                             <View style={styles.progressBar}>
                                 <View style={styles.unfilledBar}>
-                                    <View style={[styles.filledBar, {width: `${(0.1) * 100}%`}]}>
+                                    <View style={[styles.filledBar, 
+                                                 {width: `${((userProfile.xp - userProfile.current_level_min_xp)/
+                                                             (userProfile.next_level_min_xp - userProfile.current_level_min_xp)) 
+                                                             * 100}%`}]}>
                                     </View>
                                 </View>
+
+                                {/* next level name at the end of progress bar */}
                                 <View style={styles.nextLevelContainer}>
                                     <Text style={styles.nextLevelTxt}>
                                         {userProfile.next_level_name}
                                     </Text>
                                 </View>
                             </View>
+
+                            {/* XP ratio text: xp gained by user after reaching current level / required XP to gain to reach next level */}
                             <Text style={styles.xpRatioTxt}>
                                 {userProfile.xp - userProfile.current_level_min_xp}/{userProfile.next_level_min_xp - userProfile.current_level_min_xp} Required XP
                             </Text>
