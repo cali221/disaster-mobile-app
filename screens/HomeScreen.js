@@ -40,6 +40,7 @@ Notifications.setNotificationHandler({
   })
 });
 
+// TODO: handle overlapping markers
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();

@@ -2,10 +2,8 @@ import React, { createContext, useState, useEffect, useCallback, useMemo } from 
 import { supabase } from '../lib/supabase';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerForPushNotificationsAsync } from "../utils/register-for-notifications";
-import { sortBadgesArrByEarnedStatus,
-         getUserProfileData,
+import { getUserProfileData,
          getTrustedContacts } from "../utils/users-utilities";
-import { showErrorToast } from "../utils/show-toast";
 import { useTranslation } from 'react-i18next';
 import * as Notifications from 'expo-notifications';
 
@@ -14,6 +12,10 @@ export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const { t, i18n } = useTranslation();
   const [user, setUser] = useState(null);
+
+  /* separate user profile satate from auth user state to prevent 
+     unnecessary re-renders on screen that don't use profile data
+     and keep management simpler */
   const [userProfile, setUserProfile] = useState(null);
 
   // function to update user state
