@@ -1,4 +1,4 @@
-import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 export function DataAttributionSection(props) {
     return(

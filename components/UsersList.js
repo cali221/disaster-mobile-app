@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        width: 150,
-        height: 50,
+        width: 130,
         borderRadius: 100
     },
     // text inside action button

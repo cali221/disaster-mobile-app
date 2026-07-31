@@ -64,14 +64,14 @@ export function NotificationsScreen({ navigation }) {
                 setNotificationsToShow(newNotifsToShowArr);
             }
 
-            showSuccessToast('Followed', '')
+            showSuccessToast(t('shared.followed'), '')
         }
         catch(error){
             if(error.code == 23505){
-                showInfoToast('You already followed this user', '')
+                showInfoToast(t('shared.alreadyFollowed'), '')
             }
             else{
-                showErrorToast('Failed to follow user', `${error.message ?? JSON.stringify(error)}`)
+                showErrorToast(t('shared.failedToFollow'), `${error.message ?? JSON.stringify(error)}`)
             }
         }
            
@@ -158,8 +158,8 @@ export function NotificationsScreen({ navigation }) {
                                           styles.notPickedNotifCategoryBtnColor]}>
                     <Text style={[styles.notifCategoryBtnTxt, 
                                   notifCategoryChosen == 'mutuals' ? 
-                                                         styles.pickedNotifCategoryBtnTxtColor : 
-                                                         styles.notPickedNotifCategoryBtnTxtColor]}>
+                                  styles.pickedNotifCategoryBtnTxtColor : 
+                                  styles.notPickedNotifCategoryBtnTxtColor]}>
                         Mutuals
                     </Text>
                 </TouchableOpacity>
@@ -174,7 +174,7 @@ export function NotificationsScreen({ navigation }) {
                                                          progressBackgroundColor='#9ec110' /> }>
                 <View style={styles.pullToRefreshTextContainer}
                       accessibilityLabel={t('notifScreen.pullDownToRefresh')}
-                      accessibilityHint='Pull down on the screen to view updated notifications'>
+                      accessibilityHint={t('notifScreen.pullDownToRefreshAccHint')}>
                     {/* rotating arrow icon */}
                     <RotateCw color={'#2D3782'} />
 
@@ -196,7 +196,7 @@ export function NotificationsScreen({ navigation }) {
                             </Text>
 
                             <Text style={styles.notificationItemTxt}>
-                                Notification created at: {"\n"}
+                                {t('notifScreen.notifCreatedAt')}: {"\n"}
                                 {new Date(item.created_at).toLocaleString('id', {timeZoneName: 'short'})}
                             </Text>
                         </View>
@@ -224,9 +224,9 @@ export function NotificationsScreen({ navigation }) {
                             (notifCategoryChosen == 'followers' && item.users_are_now_mutuals == false) &&
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
-                                                    accessibilityRole='button'
-                                                    accessibilityLabel={t('shared.followBack')}
-                                                    onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
+                                                  accessibilityRole='button'
+                                                  accessibilityLabel={t('shared.followBack')}
+                                                  onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
                                     <Text style={styles.notificationItemBtnTxt}>
                                         {t('shared.followBack')}
                                     </Text>

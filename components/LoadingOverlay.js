@@ -1,4 +1,4 @@
-import { Text, View, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 export function LoadingOverlay() {
     return(
