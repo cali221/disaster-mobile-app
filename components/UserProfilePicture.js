@@ -7,7 +7,7 @@ export function UserProfilePicture(props) {
                                                backgroundColor: props.bgColor,
                                                borderRadius: props.width/2}]}>
             <Image source={{uri: props.imgUrl}} 
-                   style={styles.avatarImg} />
+                   style={[styles.avatarImg, {borderRadius: props.width/2}]} />
         </View>
     )
 }
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
+        padding: 10,
         elevation: 2
     },
     // the avatar image

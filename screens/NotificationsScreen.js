@@ -225,10 +225,10 @@ export function NotificationsScreen({ navigation }) {
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
                                                     accessibilityRole='button'
-                                                    accessibilityLabel={t('notifScreen.followBack')}
+                                                    accessibilityLabel={t('shared.followBack')}
                                                     onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
                                     <Text style={styles.notificationItemBtnTxt}>
-                                        {t('notifScreen.followBack')}
+                                        {t('shared.followBack')}
                                     </Text>
                                 </TouchableOpacity>
                             ) 

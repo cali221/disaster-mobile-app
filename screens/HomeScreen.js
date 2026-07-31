@@ -40,7 +40,6 @@ Notifications.setNotificationHandler({
   })
 });
 
-// TODO: handle overlapping markers
 export function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
@@ -66,6 +65,12 @@ export function HomeScreen({ navigation }) {
       responseListener.remove();
     };
   }, []);
+
+
+  // TODO: handle overlapping markers
+  // possible approach: find coordinate duplicates, offset coordinates to cluster around the actual coordinates
+  // useEffect(()=>{
+  // }, [disastersLast24h])
 
   useEffect(()=>{
     // function to get recent disasters (last 24 hours) around user's watched areas

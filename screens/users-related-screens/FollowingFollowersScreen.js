@@ -3,37 +3,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useContext } from 'react';
 import { showErrorToast } from '../../utils/show-toast';
-import { UserProfilePicture } from '../../components/UserProfilePicture';
 import { supabase } from '../../lib/supabase';
+import { UsersList } from '../../components/UsersList';
+import { addFollow, removeFollow } from '../../utils/users-utilities';
 
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [followData, setFollowData] = useState([]);
 
-    // function to get following
-    const getFollowing = async(userId) => {
-        const { data, error } = await supabase.schema('users')
-                                              .from('user_1_is_following_user_2')
-                                              .select(`profiles_public_data!user_1_is_following_user_2_user2_fkey (user_id, username, avatar_img_url)`)
-                                              .eq('user1', userId);
-    
-        if(error){
-             console.error(error)
-            throw error;
-        }
-        else{
-            return data;
-        }
-    };
-    
-    // function to get followers
-    const getFollowers = async(userId) => {
-        const { data, error } = await supabase.schema('users')
-                                              .from('user_1_is_following_user_2')
-                                              .select(`profiles_public_data!user_1_is_following_user_2_user1_fkey (user_id, username, avatar_img_url)`)
-                                              .eq('user2', userId);
-    
+    // function to get following and followers data of user
+    const getUserFollowData = async(userId) => {
+        const { data, error } = await supabase.schema('public')
+                                              .rpc('get_user_follow_data', {user_id_input: userId});
+
         if(error){
             throw error;
         }
@@ -41,22 +24,59 @@ export function FollowingFollowersScreen({ navigation, route }) {
             return data;
         }
     };
+
+    const handleActionButtonPressOnUsersList = async(userId, item) => {
+        // if user is already follwowing the user, unfollow
+        if(item.user_is_following == false){
+            // insert follow data to DB
+            await addFollow(userId, item.user_id);
+
+            // update state
+            const indexToEdit = followData.findIndex(u => u.user_id === item.user_id);
+            if(indexToEdit !== -1){
+                const newFollowDataArr = [...followData];
+                newFollowDataArr[indexToEdit] = {...newFollowDataArr[indexToEdit], user_is_following: true};
+                setFollowData(newFollowDataArr);
+            }
+        }
+        // if user hasn't followed the user, follow
+        else if(item.user_is_following == true){
+           // remove follow data from DB
+           await removeFollow(userId, item.user_id);
+
+           // update state
+           const indexToEdit = followData.findIndex(u => u.user_id === item.user_id);
+           
+           if(indexToEdit !== -1){
+                const newFollowDataArr = [...followData];
+                newFollowDataArr[indexToEdit] = {...newFollowDataArr[indexToEdit], user_is_following: false};
+                setFollowData(newFollowDataArr);
+            }
+        }
+        else{
+            console.log(item);
+        }
+    }
 
     useEffect(()=>{
         // fetch following/followers data
         const fetchFollowingOrFollowers = async (userId) => {
             try{
-                if(route.params.screenTitle == t('profileScreen.following')){
-                    const fetchedFollowingData = await getFollowing(userId);
-                    setFollowData(fetchedFollowingData.map(follower => follower.profiles_public_data));
+                const fetchedFollowData = await getUserFollowData(userId);
 
+                /* if viewing following screen, filter to only show 
+                   users the authenticated user is following */
+                if(route.params.screenTitle == t('profileScreen.following')){
+                    setFollowData(fetchedFollowData.filter((item) => item.user_is_following == true));
                 }
+                /* if viewing followers screen, filter to only show 
+                   users following the authenticated users */
                 else if(route.params.screenTitle == t('profileScreen.followers')){
-                    const fetchedFollowersData = await getFollowers(userId);
-                    setFollowData(fetchedFollowersData.map(follower => follower.profiles_public_data));
+                    setFollowData(fetchedFollowData.filter((item) => item.is_following_user == true));
                 }
             }
             catch(error){
+                console.error(error)
                 showErrorToast(t('followingFollowersScreen.failedToFetch', 
                                  {followingOrFollowers: route.params.screenTitle}),
                                `${error.message ?? JSON.stringify(error)}`);
@@ -70,25 +90,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
 
     return(
         <View style={styles.screenContainer}>
-            {/* scroll view listing followers/following */}
-            <ScrollView style={styles.listScrollView}
-                        contentContainerStyle={styles.listScrollViewContentContainer}>
-               {
-                followData.map((user, i) => (
-                    /* container of each following/follower data item 
-                       containing username and profile picture */ 
-                    <View key={i} style={styles.followDataItemContainer}>
-                        <UserProfilePicture width={100} 
-                                            height={100} 
-                                            bgColor='#D2DAE4' 
-                                            imgUrl={user.avatar_img_url} />
-                        <Text style={styles.usernameTxt}>
-                            @{user.username}
-                        </Text>
-                    </View>
-                ))
-               }
-            </ScrollView>
+            <UsersList data={followData} handleActionButtonPress={handleActionButtonPressOnUsersList} />
 
             {/* container of the button to find other users, 'sticky' at the bottom of screen */}
             <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom}]}>
