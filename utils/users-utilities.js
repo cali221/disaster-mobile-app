@@ -18,87 +18,49 @@ export async function addFollow(user1_id, user2_id){
     }
 };
 
-// function to get followers count
-export async function getFollowersCount(userId){
-    const { count, error } = await supabase.schema('users')
-                                           .from('user_1_is_following_user_2')
-                                           .select('*', { count: 'exact', head: true })
-                                           .eq('user2', userId)
-        
-    if(error){
-        throw error;
-    }
-    else{
-        return count;
-    }
-};
-
-// function to get following count
-export async function getFollowingCount(userId){
-    const { count, error } = await supabase.schema('users')
-                                           .from('user_1_is_following_user_2')
-                                           .select('*', { count: 'exact', head: true })
-                                           .eq('user1', userId)
-
-                            
-    if(error){
-        throw error;
-    }
-    else{
-        return count;
-    }
-};
-
-// function to fetch user's profile data
-export async function getUserProfileData(userId){
-    const { data, error } = await supabase.schema('public')
-                                          .rpc('get_user_profile_data', {user_id_input: userId})
-                                          .single();
-
-    if(error){
-        throw error;
-    }
-    else{
-        return data;
-    }
-};
-
-// function to get following
-export async function getFollowing(userId){
-    const { data, error } = await supabase.schema('users')
-                                          .from('user_1_is_following_user_2')
-                                          .select(`profiles_public_data!user_1_is_following_user_2_user2_fkey (user_id, username, avatar_img_url)`)
-                                          .eq('user1', userId);
-
-    if(error){
-         console.error(error)
-        throw error;
-    }
-    else{
-        return data;
-    }
-};
-
-
-// function to get followers
-export async function getFollowers(userId){
-    const { data, error } = await supabase.schema('users')
-                                          .from('user_1_is_following_user_2')
-                                          .select(`profiles_public_data!user_1_is_following_user_2_user1_fkey (user_id, username, avatar_img_url)`)
-                                          .eq('user2', userId);
-
-    if(error){
-        throw error;
-    }
-    else{
-        return data;
-    }
-};
-
 // function to get leaderboard for user
 export async function getLeaderboard(userId){
     const { data, error } = await supabase.schema('public')
                                           .rpc('get_leaderboard_for_user', {user_id_input: userId});
+
+    if(error){
+        throw error;
+    }
+    else{
+        return data;
+    }
+};
+
+// moved sorting logic to Supabase function
+// function to sort badges array so that earned badges are at the start of array
+// export function sortBadgesArrByEarnedStatus(arr){
+//     try{
+//         return arr.sort((a, b)=> b.earned - a.earned);
+//     }
+//     catch(error){
+//         return {arr, error};
+//     }
+// };
+
+// function to fetch user's profile data
+export async function getUserProfileData(userId) {
+    const { data, error } = await supabase.schema('public')
+                                          .rpc('get_user_profile_data', {user_id_input: userId})
+                                          .single();
+    if(error){
+        throw error;
+    }
+    else{
+        return data;
+    }
+};
+
+// function to get user's trusted contacts
+export async function getTrustedContacts(userId) {
+    const { data, error } = await supabase.schema('users')
+                                            .from('users_trusted_contacts')
+                                            .select()
+                                            .eq('user_id', userId);
 
     if(error){
         throw error;

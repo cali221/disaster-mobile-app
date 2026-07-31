@@ -31,7 +31,8 @@ export function BottomModalBase(props) {
                 </View>
 
                 <ScrollView style={styles.contentScrollView}
-                            contentContainerStyle={styles.contentScrollViewContentContainer}
+                            contentContainerStyle={[styles.contentScrollViewContentContainer, 
+                                                    {paddingBottom: insets.bottom + 30}]}
                             accessibilityRole='scrollbar'>
                     {/* content of the modal */}
                     {props.children}
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 50,
         paddingHorizontal: 30,
         paddingTop: 35,
-        maxHeight: (Dimensions.get('window').height * 0.7) - 50,
+        maxHeight: (Dimensions.get('window').height * 0.8) - 50,
         elevation: 2
     },
     // the modal header with title and close button

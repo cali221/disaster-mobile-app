@@ -3,33 +3,41 @@ import { Text,
          StyleSheet, 
          TouchableOpacity, 
          ScrollView,
+         RefreshControl,
          Image,
          TextInput } from 'react-native';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback  } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { showErrorToast } from '../utils/show-toast';
-import { getLeaderboard, getUserProfileData } from '../utils/users-utilities';
+import { getLeaderboard } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
-import { ChevronRight, RotateCw, Trophy } from 'lucide-react-native';
+import { ChevronRight, RotateCw } from 'lucide-react-native';
 import { CenterModalBase } from '../components/modals/CenterModalBase';
 import { BottomModalBase } from '../components/modals/BottomModalBase';
+import { supabase } from '../lib/supabase';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getTrustedContacts } from '../utils/users-utilities';
+import { LeaderboardList } from '../components/LeaderboardList';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const isFocused = useIsFocused();
-    const { user, signOut } = useContext(AuthContext);
+    const { user, signOut, fetchAndSetProfileData, setLoggedInUser, userProfile } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
-    const [shouldShowBadgeModal, setShoudlShowBadgeModal] = useState(false);
+    const [shouldShowBadgeModal, setShouldShowBadgeModal] = useState(false);
     const [shouldShowAddContactModal, setShouldShowAddContactModal] = useState(false);
     const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
-    const [userProfile, setUserProfile] = useState(null);
     const [leaderboardTop3, setLeaderboardTop3] = useState([]);
     const [badgeModalData, setBadgeModalData] = useState(null);
-    
+    const [trustedContacts, setTrustedContacts] = useState([]);
+    const [newContactPhoneNum, setNewContactPhoneNum] = useState('');
+    const [newContactName, setNewContactName] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+
     const insets = useSafeAreaInsets();
 
     // function to handle showing badge modal
@@ -38,19 +46,21 @@ export function ProfileScreen({ navigation, route }) {
         setBadgeModalData({
             ...badge
         });
-        setShoudlShowBadgeModal(true);
+        setShouldShowBadgeModal(true);
     };
 
     // function to handle hiding badge modal
     const hideBadgeModal = () => {
-        setShoudlShowBadgeModal(false);
+        setShouldShowBadgeModal(false);
         setBadgeModalData(null);
     };
 
-    // function to sort badges array so that earned badges are at the start of array
-    const sortBadgesArrByEarnedStatus = (arr) => {
-        return arr.sort((a, b)=> b.earned - a.earned);
-    };
+    // close modal to add new trusted contact
+    const handleClosingNewTrustedContactModal = () => {
+        setShouldShowAddContactModal(false); 
+        setNewContactName(''); 
+        setNewContactPhoneNum('');
+    }
 
     // handle language change
     const handleLangChange = (langCode) => {
@@ -63,26 +73,26 @@ export function ProfileScreen({ navigation, route }) {
             setCurrentLang(langCode);
         }
         catch(error){
-            showErrorToast(t('profileScreen.failedToChangeLang'), `${error.message ?? error}`);
+            showErrorToast(t('profileScreen.failedToChangeLang'), `${error.message ?? JSON.stringify(error)}`);
         }  
     };
 
     // handle signing out
-    const callSignOut = async () => {
+    const handleSignOut = async () => {
         setIsLoading(true);
 
         try{
-          await signOut();
+            await signOut();
         }
         catch(error){
-          showErrorToast(t('profileScreen.failedToSignOut'), `${error.message ?? error}`);
-        };
+            showErrorToast(t('profileScreen.failedToSignOut'), `${error.message ?? JSON.stringify(error)}`);
+        }
 
         setIsLoading(false);
     };
 
     // handle getting leaderboard
-    const callGetLeaderboard = async (userId) => {
+    const getLeaderboardTop3 = async (userId) => {
         try{
             // leaderboard data (ordered from highest to lowest rank)
             const leaderboardData = await getLeaderboard(userId);
@@ -93,53 +103,142 @@ export function ProfileScreen({ navigation, route }) {
             if(top3Data){
                 return top3Data;
             }
-        }
-        catch(error){
-            showErrorToast((t('profileScreen.failedToGetTop3Leaderboard')), `${error.message ?? error}`);
-        }
-    };
-
-     // function to handle getting profile data of user
-    const getProfileData = async(userId) => {
-        try{
-            const fetchedUserData = await getUserProfileData(userId);
-
-            if(fetchedUserData){
-                return fetchedUserData;
+            else{
+                throw new Error(t('shared.somethingWentWrong'));
             }
         }
         catch(error){
-            showErrorToast(t('profileScreen.failedToFetchUserData'), `${error.message ?? error}`)
+            showErrorToast((t('profileScreen.failedToGetTop3Leaderboard')), `${error.message ?? JSON.stringify(error)}`);
         }
     };
 
-    useEffect(()=>{
-        /* fetch user profile data and sort badges array */
-        if(user && isFocused == true){
-            setIsLoading(true);
+    const handleLeaderboardRefresh = async(userId) => {
+        setIsLoading(true);
 
-            getProfileData(user.id).then((data)=>{
-                /* set user profile state using the fetched data with sorted badges array 
-                   where earned badges occupy the first indexes */
-                setUserProfile({...data,  
-                                user_badges: sortBadgesArrByEarnedStatus(data.user_badges)
-                               });
-            });
-            
-            callGetLeaderboard(user.id).then((data)=>{
-                setLeaderboardTop3([...data]);
-            });
+        try{
+            const fetchedData = await getLeaderboardTop3(userId);
+            setLeaderboardTop3(fetchedData);
+        }
+        catch(error){
+            showErrorToast(t('profileScreen.failedToRefreshLeaderboard'), `${error.message ?? JSON.stringify(error)}`);
+        }
+
+        setIsLoading(false);
+    };
+
+    // function add a trusted contact
+    const addTrustedContact = async(userId, phoneNumToAdd, contactNameToAdd) => {
+        try{
+            if(newContactName && newContactPhoneNum){
+                const newContactObj = {
+                    user_id: userId,
+                    phone_num: phoneNumToAdd,
+                    contact_name: contactNameToAdd
+                };
+
+                const { error } = await supabase.schema('users')
+                                                .from('users_trusted_contacts')
+                                                .insert(newContactObj);
+
+                if(error){
+                    if(error.code == 23505){
+                        throw new Error(t('profileScreen.alreadySavedNumber'));
+                    }
+                    else{
+                        throw error;
+                    }
+                }
+                else{
+                    // save to local storage, to be removed when signed out
+                    await AsyncStorage.setItem('trustedContacts', JSON.stringify([...trustedContacts, newContactObj]));
+
+                    // add to array state
+                    setTrustedContacts([...trustedContacts, newContactObj]);
+
+                    // close modal
+                    setShouldShowAddContactModal(false);
+                }
+            }
+            else{
+                throw new Error(t('profileScreen.phoneNumAndNameCantBeEmpty'));
+            }
+        }
+        catch(error){
+             showErrorToast(t('profileScreen.failedToAddContact'),  
+                              `${error.message ?? JSON.stringify(error)}`);
+        };
+    };
+
+    // function to remove trusted contact
+    const removeTrustedContact = async(userId, phoneNumToRemove) => {
+        try{
+            const { error } = await supabase.schema('users')
+                                            .from('users_trusted_contacts')
+                                            .delete()
+                                            .eq('user_id', userId)
+                                            .eq('phone_num', phoneNumToRemove);
+
+            if(error){
+                showErrorToast(t('profileScreen.failedToRemoveContact'), 
+                               `${error.message ?? JSON.stringify(error)}`);
+            }
+            else{
+                // get new trusted contact array with the contact removed
+                const newTrustedContactsArr = trustedContacts.filter((item) => (item.phone_num != phoneNumToRemove));
+
+                // remove the contact from state array and async storage
+                await AsyncStorage.setItem('trustedContacts', JSON.stringify(newTrustedContactsArr));
+
+                // update the state array
+                setTrustedContacts(newTrustedContactsArr);
+            }
+        }
+        catch(error){
+            showErrorToast(t('profileScreen.failedToRemoveContact'), 
+                           `${error.message ?? JSON.stringify(error)}`);
+        }
+    };
+
+    // function to fetch screen's data
+    const fetchScreenData = async(userId) => {
+        try{
+            await fetchAndSetProfileData(user.id);
+        }
+        catch(error){
+            setLoggedInUser(null);
+        };
+
+        const userTrustedContactData = await getTrustedContacts(userId);
+        if(userTrustedContactData){
+            await AsyncStorage.setItem('trustedContacts', JSON.stringify(userTrustedContactData));
+            setTrustedContacts(userTrustedContactData);
+        };        
+
+        const leaderboardTop3Data = await getLeaderboardTop3(userId);
+        if(leaderboardTop3Data){
+            setLeaderboardTop3(leaderboardTop3Data);
+        };
+    };
+
+    // handle pull to refresh (re-fetch screen data)
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+
+        fetchScreenData(user.id);
+        
+        setRefreshing(false);
+    }, [user]);
+
+    useEffect(()=>{
+        if(user && isFocused == true){
+            setIsLoading(true); 
+    
+            // fetch sreeen's data
+            fetchScreenData(user.id)
 
             setIsLoading(false);
         }
     }, [user, isFocused]);
-
-    useEffect(()=>{
-        if(userProfile?.user_badges){
-            setUserProfile({...userProfile,  
-                            user_badges: sortBadgesArrByEarnedStatus(userProfile.user_badges)});
-        }
-    }, [userProfile?.user_badges])
     
     return(
         <View style={styles.screenContainer}>
@@ -147,7 +246,11 @@ export function ProfileScreen({ navigation, route }) {
                                                                             paddingRight: insets.right }]}
                         contentContainerStyle={[styles.screenScrollContainerContent, 
                                                 {paddingBottom: insets.bottom + 80}]}
-                        nestedScrollEnabled={true}>
+                        nestedScrollEnabled={true}
+                        refreshControl={ <RefreshControl refreshing={refreshing} 
+                                                         onRefresh={onRefresh}
+                                                         colors={['#2D3782']}
+                                                         progressBackgroundColor='#9ec110' />}>
 
                 <View style={styles.contentWrapper}>
                 {
@@ -167,7 +270,7 @@ export function ProfileScreen({ navigation, route }) {
                         
                             {/* username */}
                             <Text style={styles.usernameTxt}>
-                                @{userProfile.username ?? 'Unknown User'}
+                                @{userProfile?.username ?? 'Unknown User'}
                             </Text>
 
                             {/* following and followers buttons with the following/followers count */}
@@ -204,18 +307,18 @@ export function ProfileScreen({ navigation, route }) {
                             {/* level/league and xp overview */}
                             <View style={styles.levelXpOverviewSection}>
                                 {/* league/level image */}
-                                <Image source={{uri: userProfile.level_img_url}} style={styles.levelImg} />
+                                <Image source={{uri: userProfile?.level_img_url}} style={styles.levelImg} />
 
                                 {/* text container */}
                                 <View style={styles.levelXpOverviewTextContainer}>
                                     {/* user level/league name */}
                                     <Text style={styles.levelNameTxt}>
-                                        {userProfile.level_name}
+                                        {userProfile?.level_name}
                                     </Text>
 
                                     {/* user XP */}
                                     <Text style={styles.totalXpTxt}>
-                                        Total XP: {userProfile.xp}
+                                        Total XP: {userProfile?.xp}
                                     </Text>
                                 </View>
                             </View>
@@ -224,8 +327,8 @@ export function ProfileScreen({ navigation, route }) {
                                 <View style={styles.progressBar}>
                                     <View style={styles.unfilledBar}>
                                         <View style={[styles.filledBar, 
-                                                    {width: `${((userProfile.xp - userProfile.current_level_min_xp)/
-                                                                (userProfile.next_level_min_xp - userProfile.current_level_min_xp)) 
+                                                    {width: `${((userProfile?.xp - userProfile?.current_level_min_xp)/
+                                                                (userProfile?.next_level_min_xp - userProfile?.current_level_min_xp)) 
                                                                 * 100}%`}]}>
                                         </View>
                                     </View>
@@ -233,14 +336,14 @@ export function ProfileScreen({ navigation, route }) {
                                     {/* next level name at the end of progress bar */}
                                     <View style={styles.nextLevelContainer}>
                                         <Text style={styles.nextLevelTxt}>
-                                            {userProfile.next_level_name}
+                                            {userProfile?.next_level_name}
                                         </Text>
                                     </View>
                                 </View>
 
                                 {/* XP ratio text: xp gained by user after reaching current level / required XP to gain to reach next level */}
                                 <Text style={styles.xpRatioTxt}>
-                                    {userProfile.xp - userProfile.current_level_min_xp}/{userProfile.next_level_min_xp - userProfile.current_level_min_xp} Required XP
+                                    {userProfile?.xp - userProfile?.current_level_min_xp}/{userProfile?.next_level_min_xp - userProfile?.current_level_min_xp} Required XP
                                 </Text>
                             </View>
 
@@ -285,13 +388,7 @@ export function ProfileScreen({ navigation, route }) {
                                         <Text style={styles.headingTxts}>Leaderboard (Top 3)</Text>
 
                                         {/* refresh button */}
-                                        <TouchableOpacity onPress={()=>{callGetLeaderboard(user.id).
-                                                                        then((data)=>{
-                                                                            setIsLoading(true);
-                                                                            setLeaderboardTop3([...data]);
-                                                                            setIsLoading(false);
-                                                                            }
-                                                                        )}}>
+                                        <TouchableOpacity onPress={()=>{handleLeaderboardRefresh(user.id)}}>
                                             <RotateCw size={22} color={'#2D3782'} />
                                         </TouchableOpacity>
                                     </View>
@@ -305,39 +402,52 @@ export function ProfileScreen({ navigation, route }) {
                                     </TouchableOpacity>
                                 </View>
 
-                                <View style={styles.leaderboardList}>
-                                    {
-                                        (leaderboardTop3.map((item, index) => {
-                                            return(
-                                            <View key={index} style={[styles.leaderboardItem, 
-                                                                        index!=(leaderboardTop3.length - 1) && {borderBottomWidth: 2}]}>
-                                                <View style={styles.leaderboardItemTxtsContainer}>
-                                                    {/* username of the user */}
-                                                    <Text style={styles.leaderboardUsernameTxt}>
-                                                        @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
-                                                    </Text>
-
-                                                    {/* total XP of the user */}
-                                                    <Text style={styles.leaderboardXpTxt}>
-                                                        Total XP: {item.xp}
-                                                    </Text>
-                                                </View>
-
-                                                { index == 0 && (<Trophy size={30} fill={'#eba103'} color={'#2D3782'} />) }
-                                            </View>
-                                            )
-                                        }))
-                                    }
-                                </View>
+                                <LeaderboardList leaderboardData={leaderboardTop3}  />
                             </View>
 
                             <View style={styles.trustedContactSection}>
                                 {/* the trusted contacts section heading text */}
-                                <Text style={styles.headingTxts}>Trusted Contacts</Text>
+                                <Text style={styles.headingTxts}>
+                                    {t('profileScreen.trustedContacts')}
+                                </Text>
 
                                 <View style={styles.trustedContactList}>
-                                    <TouchableOpacity onPress={()=>{setShouldShowAddContactModal(true)}}>
-                                        <Text>{t('shared.add')}</Text>
+                                    {
+                                        (trustedContacts.map((item, index) => {
+                                            return(
+                                                <View key={index} style={[styles.trustedContactItem, 
+                                                                          index !== trustedContacts.length - 1 && {borderBottomWidth: 2}]}>
+                                                    
+                                                    <View style={styles.trustedContactItemTxts}>
+                                                        {/* contact name */}
+                                                        <Text style={styles.trustedContactNameTxt}>
+                                                            {item.contact_name}
+                                                        </Text>
+
+                                                        {/* contact number */}
+                                                        <Text style={styles.trustedContactNumTxt}>
+                                                            {item.phone_num} 
+                                                        </Text>
+                                                    </View>
+                                        
+                                                    {/* remove button */}
+                                                    <TouchableOpacity style={styles.trustedContactRemoveBtn}
+                                                                      onPress={()=>{removeTrustedContact(user.id, item.phone_num)}}>
+                                                        <Text style={styles.trustedContactRemoveBtnTxt}>
+                                                            {t('shared.remove')}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )
+                                        }))
+                                    }
+
+                                    {/* button to add trusted contact */}
+                                    <TouchableOpacity style={styles.trustedContactListAddBtn} 
+                                                      onPress={()=>{setShouldShowAddContactModal(true)}}>
+                                        <Text style={styles.trustedContactListAddBtnTxt}>
+                                            {t('shared.add')}
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -351,10 +461,7 @@ export function ProfileScreen({ navigation, route }) {
                     )
                 }
 
-                {/* buttons at the bottom of the screen: 
-                - account settings
-                - button to change language 
-                - button to sign out */}
+                {/* buttons at the bottom of the screen */}
                     <View style={styles.bottomButtonsContainer}>
                         {/* button for changing language
                             if current language is English, show button to change language to Indonesian,
@@ -391,7 +498,7 @@ export function ProfileScreen({ navigation, route }) {
                         </TouchableOpacity>
 
                         {/* button for signing out */}
-                        <TouchableOpacity onPress={()=>{callSignOut()}}
+                        <TouchableOpacity onPress={()=>{handleSignOut()}}
                                         style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
                                         accessibilityRole='button'>
                             <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
@@ -433,27 +540,40 @@ export function ProfileScreen({ navigation, route }) {
             {
                 shouldShowAddContactModal == true && (
                     <BottomModalBase title={t('profileScreen.addNewTrustedContact')} 
-                                     closeFunc={()=>{setShouldShowAddContactModal(false)}}>
+                                     closeFunc={()=>{handleClosingNewTrustedContactModal()}}>
                                     
                         
                         <View style={styles.addContactModalContentContainer}>
+                            {/* phone number input area */}
                             <View style={styles.addContactModaTextInputContainer}>
+                                {/* input label */}
                                 <Text style={styles.addContactModalTextInputLabelTxt}>
                                     {t('profileScreen.phoneNumber')}
                                 </Text>
 
-                                <TextInput style={styles.addContactModalTextInput}/>
+                                {/* text input */}
+                                <TextInput style={styles.addContactModalTextInput}
+                                           keyboardType='numeric'
+                                           onChangeText={setNewContactPhoneNum}/>
                             </View>
 
+                            {/* contact name input area */}
                             <View style={styles.addContactModaTextInputContainer}>
+                                {/* input label */}
                                 <Text style={styles.addContactModalTextInputLabelTxt}>
                                     {t('profileScreen.contactName')}
                                 </Text>
 
-                                <TextInput style={styles.addContactModalTextInput} />
+                                {/* text input */}
+                                <TextInput style={styles.addContactModalTextInput} 
+                                           onChangeText={setNewContactName} />
                             </View>
 
-                            <TouchableOpacity style={styles.addContactModalAddBtn}>
+                            {/* button to add contact */}
+                            <TouchableOpacity style={styles.addContactModalAddBtn}
+                                              onPress={async()=>{await addTrustedContact(user.id, 
+                                                                                         newContactPhoneNum, 
+                                                                                         newContactName)}}>
                                 <Text style={styles.addContactModalAddBtnTxt}>
                                     {t('shared.add')}
                                 </Text>
@@ -463,6 +583,11 @@ export function ProfileScreen({ navigation, route }) {
                 )
             }
 
+         {
+            isLoading == true && (
+                <LoadingOverlay />
+            )
+        }
         </View>
     )
 };
@@ -759,47 +884,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between'
     },
-    // the list showing leaderboard with top 3 users
-    leaderboardList: {
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 20,
-        width: '100%',
-        paddingHorizontal: 30,
-        paddingVertical: 10,
-        borderColor: 'grey',
-        borderWidth: 1,
-        elevation: 2,
-        backgroundColor: 'white',
-        minHeight: 100,
-        marginTop: 15
-    },
-    // container of each item in the leaderboard
-    leaderboardItem: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 12,
-        borderBottomColor: '#2D3782'
-    },
-    // container of texts for each leaderboard item
-    leaderboardItemTxtsContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        rowGap: 5
-    },
-    // username texts inside the leaderboard
-    leaderboardUsernameTxt: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#2D3782'
-    },
-    // XP texts inside the leaderboard
-    leaderboardXpTxt: {
-        fontSize: 15,
-        color: '#2D3782'
-    },
     /* container of leaderboard heading 
        text and refresh button */
     leaderboardHeadingAndRefreshBtn: {
@@ -846,19 +930,37 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         width: '100%'
     },
+    // container of list of trusted contacts
     trustedContactList: {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 20,
         width: '100%',
-        paddingHorizontal: 30,
-        paddingVertical: 10,
+        padding: 30,
         borderColor: 'grey',
         borderWidth: 1,
         elevation: 2,
         backgroundColor: 'white',
         minHeight: 100,
         marginTop: 15
+    },
+    // add button at the bottom of trusted contact list
+    trustedContactListAddBtn: {
+        backgroundColor: '#2D3782',
+        width: '100%',
+        paddingHorizontal: 30,
+        paddingVertical: 10,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 50
+    },
+    /* text inside the add button at 
+       the bottom of trusted contact list */
+    trustedContactListAddBtnTxt: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600'
     },
     // content container for modal for adding new trusted contact
     addContactModalContentContainer: {
@@ -900,6 +1002,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600'
     },
+    // container of tex input and its label on add contact modal
     addContactModaTextInputContainer: {
         display: 'flex',
         flexDirection: 'column',
@@ -907,5 +1010,45 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'flex-start'
+    },
+    // container of each item in the trusted contacts list
+    trustedContactItem: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 15
+    },
+    // container of texts in each trusted contact item
+    trustedContactItemTxts: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderBottomColor: '#2D3782',
+        rowGap: 5
+    },
+    // contact name text in the trusted contacts list
+    trustedContactNameTxt: {
+        color: '#2D3782',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    // contact number text in the trusted contacts list
+    trustedContactNumTxt: {
+        color: '#2D3782',
+        fontSize: 15
+    },
+    // button to remove trusted contact
+    trustedContactRemoveBtn: {
+        backgroundColor: '#9ec110',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 50,
+        maxWidth: 200
+    },
+    // text inside the button to remove trusted contact
+    trustedContactRemoveBtnTxt: {
+        color: '#2D3782',
+        fontSize: 15,
+        fontWeight: '600' 
     }
 });

@@ -2,14 +2,45 @@ import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useContext } from 'react';
-import { getFollowers, getFollowing } from '../../utils/users-utilities';
 import { showErrorToast } from '../../utils/show-toast';
 import { UserProfilePicture } from '../../components/UserProfilePicture';
+import { supabase } from '../../lib/supabase';
 
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [followData, setFollowData] = useState([]);
+
+    // function to get following
+    const getFollowing = async(userId) => {
+        const { data, error } = await supabase.schema('users')
+                                              .from('user_1_is_following_user_2')
+                                              .select(`profiles_public_data!user_1_is_following_user_2_user2_fkey (user_id, username, avatar_img_url)`)
+                                              .eq('user1', userId);
+    
+        if(error){
+             console.error(error)
+            throw error;
+        }
+        else{
+            return data;
+        }
+    };
+    
+    // function to get followers
+    const getFollowers = async(userId) => {
+        const { data, error } = await supabase.schema('users')
+                                              .from('user_1_is_following_user_2')
+                                              .select(`profiles_public_data!user_1_is_following_user_2_user1_fkey (user_id, username, avatar_img_url)`)
+                                              .eq('user2', userId);
+    
+        if(error){
+            throw error;
+        }
+        else{
+            return data;
+        }
+    };
 
     useEffect(()=>{
         // fetch following/followers data
@@ -28,7 +59,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
             catch(error){
                 showErrorToast(t('followingFollowersScreen.failedToFetch', 
                                  {followingOrFollowers: route.params.screenTitle}),
-                               `${error.message ?? error}`);
+                               `${error.message ?? JSON.stringify(error)}`);
             }
         };
 

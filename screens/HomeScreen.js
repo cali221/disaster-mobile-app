@@ -2,7 +2,6 @@ import { Text,
          TouchableOpacity, 
          View, 
          StyleSheet, 
-         ActivityIndicator, 
          ScrollView,
          Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -73,17 +72,17 @@ export function HomeScreen({ navigation }) {
         if(user_id){
           const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
                                                    {user_id_input: user_id});
-            
-        if(error){
-          showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
-                        `${error.message ?? error}`);
-        }
-        else{
-          if(data){
-            setDisastersSummaryFollowingWatchedAreas([...data]);
+              
+          if(error){
+            showErrorToast(t('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'), 
+                          `${error.message ?? JSON.stringify(error)}`);
           }
-        } 
-      }
+          else{
+            if(data){
+              setDisastersSummaryFollowingWatchedAreas([...data]);
+            }
+          } 
+        }
     };
 
     // function to fetch disasters greater than the time specified in parameter
@@ -95,7 +94,7 @@ export function HomeScreen({ navigation }) {
                                             .gt('datetime', gtTimestrFilter);
       
       if(error){
-        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), `${error.message ?? error}`);
+        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), `${error.message ?? JSON.stringify(error)}`);
       }
       else{
         if(data){
@@ -123,9 +122,12 @@ export function HomeScreen({ navigation }) {
 
                           setDisastersLast24h(disastersLast24h => [...disastersLast24h, payload.new]);
 
-                          /* re-fetch and update the summary of disasters near 
+                          if(user?.id){
+                            console.log('inside subscribe calliing fetch disaster');
+                            /* re-fetch and update the summary of disasters near 
                              user's watched areas on disaster insert */
-                          fetchRecentDisastersNearWatchedAreaSummary(user.id);
+                            fetchRecentDisastersNearWatchedAreaSummary(user?.id);
+                          }
                         }
                       ).subscribe();
 
@@ -156,7 +158,6 @@ export function HomeScreen({ navigation }) {
       };
     }
   }, [user])
-
 
   return(
     <View style={[styles.homescreenContainer, { paddingLeft: insets.left,

@@ -3,15 +3,12 @@ import { StyleSheet,
          View, 
          TouchableOpacity, 
          TextInput, 
-         ActivityIndicator, 
          ScrollView } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../contexts/AuthContext';
-import { registerForPushNotificationsAsync } from '../../utils/register-for-notifications';
 import { StatusBar } from 'expo-status-bar';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { showErrorToast } from '../../utils/show-toast';
@@ -36,36 +33,14 @@ export function SignInScreen({navigation}){
 
   // function to handle the sign in process (sign in -> get expo push token -> upsert expo push token)
   const handleSignIn = async (email, password) => {
+    setIsLoading(true);
+    
     try{
-      setIsLoading(true);
-
-      // sign in to supabase 
-      // user state in AuthContext will be updated and user.id will be obtained if successful
-      const userData = await signIn(email, password);
-
-      if(!userData?.id){
-        throw new Error('Unable to obtain user ID');
-      }
-
-      // get expo push token
-      const pushToken = await registerForPushNotificationsAsync();
-
-      /* if there is a token upsert to profiles table with the token, 
-          otherwise upsert with null push token */
-      if(pushToken && userData.id){
-        // store push token in async storage to delete later when signing out
-        await AsyncStorage.setItem('activePushToken', pushToken);
-
-        // check the push token in async storage
-        const value = await AsyncStorage.getItem('activePushToken');
-        console.log('Active push token in async storage: ' + value);
-
-        await upsertExpoPushToken(pushToken, userData.id);
-      }
+      await signIn(email, password);
     }
     catch(error){
-      showErrorToast(t('signInScreen.signInFailed'), `${error.message ?? error}`);
-    }
+      showErrorToast(t('signInScreen.signInFailed'), `${error.message ?? JSON.stringify(error)}`);
+    };
     
     setIsLoading(false);
   }

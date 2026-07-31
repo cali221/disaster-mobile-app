@@ -44,7 +44,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                                               .ilike('adm2_name', `%${query}%`);
 
         if(error){
-            showErrorToast(t('watchedAreasScreen.failedToFetchSearchRes'), `${error.message ?? error}`);
+            showErrorToast(t('watchedAreasScreen.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             if(data.length == 0){
@@ -71,7 +71,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                 showInfoToast(t('watchedAreasScreen.alreadyWatchingArea'), '')
             }
             else{
-                showErrorToast(t('watchedAreasScreen.failedToAddToWatchlist') `${error.message ?? error}`);
+                showErrorToast(t('watchedAreasScreen.failedToAddToWatchlist') `${error.message ?? JSON.stringify(error)}`);
             }
         }
         else{
@@ -92,7 +92,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                                         .eq('watched_area_id', idOfAreaToRemove);
 
         if(error){
-            showErrorToast(t('watchedAreasScreen.failedToRemoveWatchedArea'), `${error.message ?? error}`);
+            showErrorToast(t('watchedAreasScreen.failedToRemoveWatchedArea'), `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             // remove area from watched areas state
@@ -116,7 +116,7 @@ export function WatchedAreasSettingsScreen({navigation}) {
                                                     {user_id_input: user.id})
 
            if(error){
-            showErrorToast(t('watchedAreasScreen.failedToFetchWatchedAreas'), `${error.message ?? error}`);
+            showErrorToast(t('watchedAreasScreen.failedToFetchWatchedAreas'), `${error.message ?? JSON.stringify(error)}`);
            }
            else{
             setWatchedAreas(data);

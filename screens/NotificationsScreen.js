@@ -71,7 +71,7 @@ export function NotificationsScreen({ navigation }) {
                 showInfoToast('You already followed this user', '')
             }
             else{
-                showErrorToast('Failed to follow user', `${error.message ?? error}`)
+                showErrorToast('Failed to follow user', `${error.message ?? JSON.stringify(error)}`)
             }
         }
            
@@ -98,7 +98,7 @@ export function NotificationsScreen({ navigation }) {
                 }
             }
             catch(error){
-                showErrorToast(t('notifScreen.failedToFetchNotifs'), `${error.message ?? error}`);
+                showErrorToast(t('notifScreen.failedToFetchNotifs'), `${error.message ?? JSON.stringify(error)}`);
             }
         }
     }
