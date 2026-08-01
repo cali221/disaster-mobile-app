@@ -19,7 +19,7 @@ import { roundTo2DP } from '../utils/rounding';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
-import { BottomModalBase } from '../components/modals/BottomModalBase';
+import { BottomModalBase } from '../components/modals-base/BottomModalBase';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 

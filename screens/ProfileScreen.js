@@ -4,7 +4,6 @@ import { Text,
          TouchableOpacity, 
          ScrollView,
          RefreshControl,
-         Image,
          TextInput } from 'react-native';
 import { useContext, useEffect, useState, useCallback  } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,12 +15,14 @@ import { getLeaderboard } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
 import { ChevronRight, RotateCw } from 'lucide-react-native';
-import { CenterModalBase } from '../components/modals/CenterModalBase';
-import { BottomModalBase } from '../components/modals/BottomModalBase';
+import { BottomModalBase } from '../components/modals-base/BottomModalBase';
 import { supabase } from '../lib/supabase';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getTrustedContacts } from '../utils/users-utilities';
 import { LeaderboardList } from '../components/LeaderboardList';
+import { LevelXpOverviewSection } from '../components/levelXpOverviewSection';
+import { BadgesHorizontalScrollContainer } from '../components/BadgesHorizontalScrollContainer';
+import { BadgeDetailsModal } from '../components/modals/BadgeDetailsModal';
 
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
@@ -85,7 +86,8 @@ export function ProfileScreen({ navigation, route }) {
             await signOut();
         }
         catch(error){
-            showErrorToast(t('profileScreen.failedToSignOut'), `${error.message ?? JSON.stringify(error)}`);
+            showErrorToast(t('profileScreen.failedToSignOut'), 
+                           `${error.message ?? JSON.stringify(error)}`);
         }
 
         setIsLoading(false);
@@ -201,6 +203,7 @@ export function ProfileScreen({ navigation, route }) {
 
     // function to fetch screen's data
     const fetchScreenData = async(userId) => {
+        // fetch and update userProfile state 
         try{
             await fetchAndSetProfileData(user.id);
         }
@@ -242,8 +245,8 @@ export function ProfileScreen({ navigation, route }) {
     
     return(
         <View style={styles.screenContainer}>
-            <ScrollView style={[styles.notificationScreenScrollContainer, { paddingLeft: insets.left,
-                                                                            paddingRight: insets.right }]}
+            <ScrollView style={[styles.profileScreenScrollContainer, { paddingLeft: insets.left,
+                                                                       paddingRight: insets.right }]}
                         contentContainerStyle={[styles.screenScrollContainerContent, 
                                                 {paddingBottom: insets.bottom + 80}]}
                         nestedScrollEnabled={true}
@@ -277,15 +280,15 @@ export function ProfileScreen({ navigation, route }) {
                             <View style={styles.followingFollowersBtnsContainer}>
                                 {/* following button */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
-                                                onPress={()=>{
+                                                  onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
-                                                                            screenTitle: t('profileScreen.following'),
+                                                                            screenTitle: t('shared.following'),
                                                                             userId: user.id
                                                                         })
                                                 }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
-                                        {userProfile?.following_count} {t('profileScreen.following')}
+                                        {userProfile?.following_count} {t('shared.following')}
                                     </Text>
                                 </TouchableOpacity>
 
@@ -294,34 +297,20 @@ export function ProfileScreen({ navigation, route }) {
                                                 onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
-                                                                            screenTitle: t('profileScreen.followers'),
+                                                                            screenTitle: t('shared.followers'),
                                                                             userId: user.id
                                                                         })
                                                 }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
-                                        {userProfile?.followers_count} {t('profileScreen.followers')}
+                                        {userProfile?.followers_count} {t('shared.followers')}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
 
                             {/* level/league and xp overview */}
-                            <View style={styles.levelXpOverviewSection}>
-                                {/* league/level image */}
-                                <Image source={{uri: userProfile?.level_img_url}} style={styles.levelImg} />
-
-                                {/* text container */}
-                                <View style={styles.levelXpOverviewTextContainer}>
-                                    {/* user level/league name */}
-                                    <Text style={styles.levelNameTxt}>
-                                        {userProfile?.level_name}
-                                    </Text>
-
-                                    {/* user XP */}
-                                    <Text style={styles.totalXpTxt}>
-                                        Total XP: {userProfile?.xp}
-                                    </Text>
-                                </View>
-                            </View>
+                            <LevelXpOverviewSection levelImgUrl={userProfile?.level_img_url}
+                                                    levelName={userProfile?.level_name}
+                                                    xp={userProfile?.xp} />
 
                             <View style={styles.progressBarArea}>
                                 <View style={styles.progressBar}>
@@ -357,27 +346,9 @@ export function ProfileScreen({ navigation, route }) {
                                 </View>
 
                                 {/* horizontal scroll view for showing badges */}
-                                <ScrollView style={styles.badgesScrollView}
-                                            horizontal={true}
-                                            nestedScrollEnabled={true}
-                                            contentContainerStyle={styles.badgesScrollViewContentContainer}>
-                                    {
-                                        (userProfile?.user_badges?.map((item, index) => {
-                                            return(
-                                                // badge item container with badge image and name
-                                                <TouchableOpacity key={index} 
-                                                                  style={styles.badgeItemContainer}
-                                                                  onPress={()=>{showBadgeModal(item)}}>
-                                                    {/* the badge image, grayscale if unearned */}
-                                                    <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
-                                                                                                    item.earned == false && {filter: 'grayscale(100%)'}]}/>
-                                                    {/* the badge name */}
-                                                    <Text style={styles.badgeNameTxt}>{item.name}</Text>
-                                                </TouchableOpacity>
-                                            )
-                                        }))
-                                    }
-                                </ScrollView>
+                                <BadgesHorizontalScrollContainer badgesArr={userProfile?.user_badges} 
+                                                                 handleBadgePress={showBadgeModal} />
+
                             </View>
 
                             {/* leaderboard top 3 section */}
@@ -519,19 +490,8 @@ export function ProfileScreen({ navigation, route }) {
             {/* badge modal shown when shouldShowBadgeModal is true */}
             {
                 shouldShowBadgeModal == true && (
-                    <CenterModalBase title={badgeModalData.name} 
-                                     closeFunc={()=>{hideBadgeModal()}}>
-                        <View style={styles.badgeModalContentContainer}>
-                            {/* the badge's image */}
-                            <Image source={{uri: badgeModalData.badgeImgUrl}} 
-                                            style={[styles.badgeModalImg, 
-                                                    badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
-                            {/* the badge's description */}
-                            <Text style={styles.badgeModalDescTxt}>
-                                {badgeModalData.badgeDesc}
-                            </Text>
-                        </View>
-                    </CenterModalBase>
+                    <BadgeDetailsModal badgeModalData={badgeModalData} 
+                                       hideBadgeModalFunc={hideBadgeModal}/>
                 )
             }
 
@@ -599,7 +559,7 @@ const styles = StyleSheet.create({
         width: '100%'
     },
     // screen scroll view container
-    notificationScreenScrollContainer: {
+    profileScreenScrollContainer: {
         width: '100%',
         backgroundColor: 'white',
     },
@@ -736,81 +696,10 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'space-between'
     },
-    // the container of the badges scroll view content
-    badgesScrollViewContentContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        columnGap: 20
-    },
-    // scroll view for showing badges
-    badgesScrollView: {
-        marginTop: 15,
-        width: '100%'
-    },
-    // container of each badge item
-    badgeItemContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    // the badge image
-    badgeImg: {
-        flex: 1,
-        width: 110,
-        height: 110,
-        resizeMode: 'cover'
-    },
     // heading texts of the sections on the screen
     headingTxts: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#2D3782'
-    },
-    // text showing each badge's name
-    badgeNameTxt: {
-        fontSize: 15,
-        color: '#2D3782'
-    },
-    // section container for XP and level overview
-    levelXpOverviewSection: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        columnGap: 50,
-        borderRadius: 20,
-        width: '100%',
-        paddingHorizontal: 30,
-        paddingVertical: 10,
-        borderColor: 'grey',
-        borderWidth: 1,
-        elevation: 2,
-        backgroundColor: 'white'
-    },
-    // the level/league image
-    levelImg: {
-        width: 100,
-        height: 100,
-        resizeMode: 'cover'
-    },
-    // container of texts in the level and XP overview section
-    levelXpOverviewTextContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        rowGap: 20,
-        justifyContent: 'center',
-        alignItems: 'flex-start'
-    },
-    // the text showing the level/league name
-    levelNameTxt: {
-        fontSize: 17,
-        fontWeight: '600',
-        color: '#2D3782'
-    },
-    // the text showing total XP
-    totalXpTxt: {
-        fontSize: 15,
         color: '#2D3782'
     },
     // the progress bar section with progress bar and xp ratio text
@@ -903,25 +792,6 @@ const styles = StyleSheet.create({
     viewAllBtn: {
         display: 'flex',
         flexDirection: 'row'
-    },
-    // content/body container of badge modal
-    badgeModalContentContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        width: '100%'
-    },
-    // modal image shown on badge modal
-    badgeModalImg: {
-        width: 170,
-        height: 170
-    },
-    // description text shown on badge modal
-    badgeModalDescTxt: {
-        fontSize: 16,
-        color: '#2D3782',
-        textAlign: 'center'
     },
     // the trusted contact section container
     trustedContactSection: {

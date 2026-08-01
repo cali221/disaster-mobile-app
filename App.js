@@ -19,6 +19,7 @@ import { WatchedAreasSettingsScreen } from './screens/users-related-screens/Watc
 import { FollowingFollowersScreen } from './screens/users-related-screens/FollowingFollowersScreen';
 import { FindUsersScreen } from './screens/users-related-screens/FindUsersScreen';
 import { LeaderboardScreen } from './screens/users-related-screens/LeaderboardScreen';
+import { ProfileOfAnotherUserScreen } from './screens/users-related-screens/ProfileOfAnotherUserScreen'; 
 
 // main screens imports:
 import { ProfileScreen} from './screens/ProfileScreen';
@@ -179,6 +180,13 @@ function profileScreenStack(){
           (
             <>
               <Stack.Screen name='Profile' component={ProfileScreen} />
+
+              {/* handle screen titles in Profile screen based on route.params */}
+              <Stack.Screen name='Profile of Another User' 
+                            component={ProfileOfAnotherUserScreen}
+                            options={({ route }) => ({
+                              title: route.params.screenTitle,
+                            })} />
 
               <Stack.Screen name='Account Settings' 
                             component={AccountSettingsScreen} 

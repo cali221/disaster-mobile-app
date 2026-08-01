@@ -6,17 +6,20 @@ import { showErrorToast } from '../../utils/show-toast';
 import { supabase } from '../../lib/supabase';
 import { UsersList } from '../../components/UsersList';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [followData, setFollowData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useContext(AuthContext);
 
     // function to get following and followers data of user
-    const getUserFollowData = async(userId) => {
+    const getUserFollowData = async(authUserId, userToFindDataForId) => {
         const { data, error } = await supabase.schema('public')
-                                              .rpc('get_user_follow_data', {user_id_input: userId});
+                                              .rpc('get_user_follow_data', {user_id_to_find_data_for_input: userToFindDataForId, 
+                                                                            auth_user_id_input: authUserId});
 
         if(error){
             throw error;
@@ -28,20 +31,21 @@ export function FollowingFollowersScreen({ navigation, route }) {
 
     useEffect(()=>{
         // fetch following/followers data
-        const fetchFollowingOrFollowers = async (userId) => {
+        const fetchFollowingOrFollowers = async (authUserId, userToFindDataForId) => {
             setIsLoading(true);
+
             try{
-                const fetchedFollowData = await getUserFollowData(userId);
+                const fetchedFollowData = await getUserFollowData(authUserId, userToFindDataForId);
 
                 /* if viewing following screen, filter to only show 
                    users the authenticated user is following */
-                if(route.params.screenTitle == t('profileScreen.following')){
-                    setFollowData(fetchedFollowData.filter((item) => item.user_is_following == true));
+                if(route.params.screenTitle == t('shared.following')){
+                    setFollowData(fetchedFollowData.filter((item) => item.viewed_user_is_following == true));
                 }
                 /* if viewing followers screen, filter to only show 
                    users following the authenticated users */
-                else if(route.params.screenTitle == t('profileScreen.followers')){
-                    setFollowData(fetchedFollowData.filter((item) => item.is_following_user == true));
+                else if(route.params.screenTitle == t('shared.followers')){
+                    setFollowData(fetchedFollowData.filter((item) => item.is_following_user_viewed == true));
                 }
             }
             catch(error){
@@ -54,7 +58,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
         };
 
         if(route.params.userId && route.params.screenTitle){
-            fetchFollowingOrFollowers(route.params.userId)
+            fetchFollowingOrFollowers(user.id, route.params.userId)
         }
     }, [route.params])
 

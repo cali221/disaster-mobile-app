@@ -21,7 +21,7 @@ export function FindUsersScreen() {
         const {data, error} = await supabase.schema('public')
                                             .rpc('search_user_by_username', 
                                                  {search_query_input: query, 
-                                                  user_id_input: userId});
+                                                  auth_user_id_input: userId});
 
         if(error){
             console.error(error);

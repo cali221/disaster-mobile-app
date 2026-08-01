@@ -147,7 +147,6 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchAndSetProfileData = useCallback(async(userId) => {
-    console.log('fetchAndSetProfileData called');
     const profileData = await getUserProfileData(userId);
 
     if(profileData){

@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { Trophy } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export function LeaderboardList(props) {
+    const navigation = useNavigation();
     const { t, i18n } = useTranslation();
     const { user } = useContext(AuthContext);
     
@@ -18,7 +20,13 @@ export function LeaderboardList(props) {
                                               index!=(props.leaderboardData.length - 1) && {borderBottomWidth: 2}]}>
                         <View style={styles.leaderboardItemTxtsContainer}>
                             {/* username of the user */}
-                            <Text style={styles.leaderboardUsernameTxt}>
+                            <Text style={styles.leaderboardUsernameTxt} 
+                                  onPress={()=>{navigation.navigate('Profile of Another User', 
+                                                                    {
+                                                                        screenTitle: `@${item.username}`,
+                                                                        userId: item.user_id
+                                                                    }
+                                                                    )}}>
                                 @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
                             </Text>
 

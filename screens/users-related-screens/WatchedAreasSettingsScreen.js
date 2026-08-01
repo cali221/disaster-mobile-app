@@ -6,7 +6,6 @@ import { Text,
          StyleSheet, 
          ScrollView } from 'react-native';
 import { supabase } from '../../lib/supabase';
-import { useRoute } from '@react-navigation/native';
 import { AuthContext } from '../../contexts/AuthContext';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,9 +13,7 @@ import { showErrorToast, showSuccessToast, showInfoToast } from '../../utils/sho
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 
-export function WatchedAreasSettingsScreen({navigation}) {  
-    const route = useRoute();
-
+export function WatchedAreasSettingsScreen({navigation, route}) {  
     const { t, i18n } = useTranslation();
 
     const { user } = useContext(AuthContext);

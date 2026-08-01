@@ -5,8 +5,10 @@ import { AuthContext } from '../contexts/AuthContext';
 import { UserProfilePicture } from './UserProfilePicture';
 import { addFollow, removeFollow } from '../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
+import { useNavigation } from '@react-navigation/native';
 
 export function UsersList(props) {
+    const navigation = useNavigation();
     const { t, i18n } = useTranslation();
     const { user } = useContext(AuthContext);
 
@@ -16,7 +18,7 @@ export function UsersList(props) {
         props.setIsLoading(true);
 
         // if user is already follwowing the user, unfollow
-        if(item.user_is_following == false){
+        if(item.auth_user_is_following == false){
             // insert follow data to DB
             try{
                 await addFollow(userId, item.user_id);
@@ -25,7 +27,7 @@ export function UsersList(props) {
                 const indexToEdit = dataState.findIndex(u => u.user_id === item.user_id);
                 if(indexToEdit !== -1){
                     const newSearchResArr = [...dataState];
-                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], user_is_following: true};
+                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], auth_user_is_following: true};
                     setDataState(newSearchResArr);
                 }
             }
@@ -42,7 +44,7 @@ export function UsersList(props) {
             }
         }
         // if user hasn't followed the user, follow
-        else if(item.user_is_following == true){
+        else if(item.auth_user_is_following == true){
             try{
                 // remove follow data from DB
                 await removeFollow(userId, item.user_id);
@@ -52,7 +54,7 @@ export function UsersList(props) {
                 
                 if(indexToEdit !== -1){
                     const newSearchResArr = [...dataState];
-                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], user_is_following: false};
+                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], auth_user_is_following: false};
                     setDataState(newSearchResArr);
                 }
             }
@@ -74,19 +76,32 @@ export function UsersList(props) {
                        containing username and profile picture */ 
                     <View key={i} style={styles.dataItemContainer}>
                         <View style={styles.txtsAndPfpContainer}>
-                            <UserProfilePicture width={70} 
-                                                height={70} 
-                                                bgColor='#D2DAE4' 
-                                                imgUrl={item.avatar_img_url} />
+                            <TouchableOpacity onPress={()=>{navigation.navigate('Profile of Another User', 
+                                                                                {
+                                                                                    screenTitle: `@${item.username}`,
+                                                                                    userId: item.user_id
+                                                                                }
+                                                                               )}}>
+                                <UserProfilePicture width={70} 
+                                                    height={70} 
+                                                    bgColor='#D2DAE4' 
+                                                    imgUrl={item.avatar_img_url} />
+                            </TouchableOpacity>
 
                             <View style={styles.dataItemTxts}>
                                 {/* username */}
-                                <Text style={styles.usernameTxt}>
-                                    @{item.username}
+                                <Text style={styles.usernameTxt} 
+                                      onPress={()=>{navigation.navigate('Profile of Another User', 
+                                                                        {
+                                                                            screenTitle: `@${item.username}`,
+                                                                            userId: item.user_id
+                                                                        }
+                                                                        )}}>
+                                    @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
                                 </Text>
 
                                 {/* 'Follows You' text */}
-                                { item.is_following_user == true && (
+                                { item.is_following_auth_user == true && (
                                     <Text style={styles.followsYouTxt}>
                                         {t('shared.followsYou')}
                                     </Text>
@@ -96,21 +111,28 @@ export function UsersList(props) {
                         </View>
 
                         {/* action button for following/unfollowing */}
-                        <TouchableOpacity onPress={()=>{handleActionButtonPress(user.id, item, props.data, props.setData)}}
+                        {
+                            item.user_id !== user.id && (
+                                <TouchableOpacity onPress={()=>{handleActionButtonPress(user.id, 
+                                                                                        item, 
+                                                                                        props.data, 
+                                                                                        props.setData)}}
                                           style={styles.actionBtn}>
-                            <Text style={styles.actionBtnTxt}>
-                                {
-                                    (item.user_is_following == true) ? 
-                                    t('shared.unfollow')
-                                    :
-                                    (item.is_following_user == true) ? 
-                                    t('shared.followBack')
-                                    :
-                                    t('shared.follow')
-                                    
-                                }
-                            </Text>
-                        </TouchableOpacity>
+                                    <Text style={styles.actionBtnTxt}>
+                                        {
+                                            (item.auth_user_is_following == true) ? 
+                                            t('shared.unfollow')
+                                            :
+                                            (item.is_following_auth_user == true) ? 
+                                            t('shared.followBack')
+                                            :
+                                            t('shared.follow')
+                                            
+                                        }
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }
                     </View>
                 ))
             )}

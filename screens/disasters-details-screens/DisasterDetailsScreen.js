@@ -1,9 +1,6 @@
 import { Text, View } from 'react-native';
-import { useRoute } from '@react-navigation/native';
 
-export function DisasterDetailsScreen() {
-    const route = useRoute();
-
+export function DisasterDetailsScreen({route}) {
     return(
         <View>
             <Text>Disaster Details Screen Placeholder</Text>
