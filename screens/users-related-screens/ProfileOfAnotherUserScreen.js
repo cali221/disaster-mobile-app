@@ -169,6 +169,7 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
                     <View style={styles.followingFollowersBtnsContainer}>
                         {/* following button */}
                         <TouchableOpacity style={styles.followingFollowersBtns}
+                                          accessibilityRole='button'
                                           onPress={()=>{
                                             navigation.navigate('Following/Followers', 
                                                                 {
@@ -183,6 +184,7 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
 
                         {/* followers button */}
                         <TouchableOpacity style={styles.followingFollowersBtns}
+                                          accessibilityRole='button'
                                           onPress={()=>{
                                           navigation.navigate('Following/Followers', 
                                                               {
@@ -199,6 +201,7 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
                     {/* follow/unfollow button, depending on if authenticated user is 
                         already following the viewed user */}
                     <TouchableOpacity style={styles.followBtn}
+                                      accessibilityRole='button'
                                       onPress={()=>{handleFollowUnfollowButtonPress(user.id, route.params.userId)}}>
                         <Text style={styles.followBtnTxt}>
                             {authUserIsFollowing == true ? t('shared.unfollow') : t('shared.follow')}

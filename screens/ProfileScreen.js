@@ -280,13 +280,14 @@ export function ProfileScreen({ navigation, route }) {
                             <View style={styles.followingFollowersBtnsContainer}>
                                 {/* following button */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
+                                                  accessibilityRole='button'
                                                   onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
                                                                             screenTitle: t('shared.following'),
                                                                             userId: user.id
                                                                         })
-                                                }}>
+                                                  }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
                                         {userProfile?.following_count} {t('shared.following')}
                                     </Text>
@@ -294,13 +295,14 @@ export function ProfileScreen({ navigation, route }) {
 
                                 {/* followers count */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
-                                                onPress={()=>{
+                                                  accessibilityRole='button'
+                                                  onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
                                                                             screenTitle: t('shared.followers'),
                                                                             userId: user.id
                                                                         })
-                                                }}>
+                                                  }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
                                         {userProfile?.followers_count} {t('shared.followers')}
                                     </Text>
@@ -346,7 +348,8 @@ export function ProfileScreen({ navigation, route }) {
                                 </View>
 
                                 {/* horizontal scroll view for showing badges */}
-                                <BadgesHorizontalScrollContainer badgesArr={userProfile?.user_badges} 
+                                <BadgesHorizontalScrollContainer badgesArr={userProfile?.user_badges}
+                                                                 accessibilityRole='scrollbar' 
                                                                  handleBadgePress={showBadgeModal} />
 
                             </View>
@@ -359,12 +362,14 @@ export function ProfileScreen({ navigation, route }) {
                                         <Text style={styles.headingTxts}>Leaderboard (Top 3)</Text>
 
                                         {/* refresh button */}
-                                        <TouchableOpacity onPress={()=>{handleLeaderboardRefresh(user.id)}}>
+                                        <TouchableOpacity onPress={()=>{handleLeaderboardRefresh(user.id)}}
+                                                          accessibilityRole='button'>
                                             <RotateCw size={22} color={'#2D3782'} />
                                         </TouchableOpacity>
                                     </View>
 
                                     <TouchableOpacity style={styles.viewAllBtn}
+                                                      accessibilityRole='button'
                                                       onPress={()=>{navigation.navigate('Leaderboard')}}>
                                         <Text style={styles.viewAllTxt}>
                                             {t('profileScreen.viewAll')} 
@@ -403,6 +408,7 @@ export function ProfileScreen({ navigation, route }) {
                                         
                                                     {/* remove button */}
                                                     <TouchableOpacity style={styles.trustedContactRemoveBtn}
+                                                                      accessibilityRole='button'
                                                                       onPress={()=>{removeTrustedContact(user.id, item.phone_num)}}>
                                                         <Text style={styles.trustedContactRemoveBtnTxt}>
                                                             {t('shared.remove')}
@@ -415,6 +421,7 @@ export function ProfileScreen({ navigation, route }) {
 
                                     {/* button to add trusted contact */}
                                     <TouchableOpacity style={styles.trustedContactListAddBtn} 
+                                                      accessibilityRole='button'
                                                       onPress={()=>{setShouldShowAddContactModal(true)}}>
                                         <Text style={styles.trustedContactListAddBtnTxt}>
                                             {t('shared.add')}
@@ -441,7 +448,8 @@ export function ProfileScreen({ navigation, route }) {
                             currentLang == 'en' ? 
                             (
                                 <TouchableOpacity onPress={()=>{handleLangChange('id')}}
-                                                style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                                  accessibilityRole='button'
+                                                  style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
                                         {t('profileScreen.changeLangToId')}
                                     </Text>
@@ -451,7 +459,8 @@ export function ProfileScreen({ navigation, route }) {
                             currentLang == 'id' &&
                             (
                                 <TouchableOpacity onPress={()=>{handleLangChange('en')}}
-                                                style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
+                                                  accessibilityRole='button'
+                                                  style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
                                         {t('profileScreen.changeLangToEn')}
                                     </Text>
@@ -461,8 +470,8 @@ export function ProfileScreen({ navigation, route }) {
 
                         {/* button to go to account settings screen*/}
                         <TouchableOpacity onPress={()=>{navigation.navigate('Account Settings')}}
-                                        style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
-                                        accessibilityRole='button'>
+                                          style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
+                                          accessibilityRole='button'>
                             <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
                             {t('profileScreen.accountSettingsBtnTxt')}
                             </Text>
@@ -470,8 +479,8 @@ export function ProfileScreen({ navigation, route }) {
 
                         {/* button for signing out */}
                         <TouchableOpacity onPress={()=>{handleSignOut()}}
-                                        style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
-                                        accessibilityRole='button'>
+                                          style={[styles.bottomButtonsBase, styles.signOutBtnColor]}
+                                          accessibilityRole='button'>
                             <Text style={[styles.bottomButtonTextBase, styles.signOutBtnTxtColor]}>
                                 {t('profileScreen.signOutBtnTxt')}
                             </Text>
@@ -531,6 +540,7 @@ export function ProfileScreen({ navigation, route }) {
 
                             {/* button to add contact */}
                             <TouchableOpacity style={styles.addContactModalAddBtn}
+                                              accessibilityRole='button'
                                               onPress={async()=>{await addTrustedContact(user.id, 
                                                                                          newContactPhoneNum, 
                                                                                          newContactName)}}>

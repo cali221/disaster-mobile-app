@@ -14,8 +14,9 @@ export function BadgesHorizontalScrollContainer(props) {
                         return(
                             // badge item container with badge image and name
                             <TouchableOpacity key={index} 
-                                            style={styles.badgeItemContainer}
-                                            onPress={()=>{props?.handleBadgePress(item)}}>
+                                              accessibilityRole='button'
+                                              style={styles.badgeItemContainer}
+                                              onPress={()=>{props?.handleBadgePress(item)}}>
                                 {/* the badge image, grayscale if unearned */}
                                 <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
                                                                                 item.earned == false && {filter: 'grayscale(100%)'}]}/>

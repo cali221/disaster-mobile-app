@@ -21,6 +21,7 @@ export function LeaderboardList(props) {
                         <View style={styles.leaderboardItemTxtsContainer}>
                             {/* username of the user */}
                             <Text style={styles.leaderboardUsernameTxt} 
+                                  accessibilityRole='link'
                                   onPress={()=>{navigation.navigate('Profile of Another User', 
                                                                     {
                                                                         screenTitle: `@${item.username}`,

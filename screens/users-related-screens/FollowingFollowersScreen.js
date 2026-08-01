@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useContext } from 'react';
@@ -63,7 +63,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
     }, [route.params])
 
     return(
-        <View style={styles.screenContainer}>
+        <View style={[styles.screenContainer, {paddingLeft: insets.left, paddingRight: insets.right}]}>
             <UsersList data={followData} 
                        setData={setFollowData}
                        setIsLoading={setIsLoading} />
@@ -75,8 +75,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
                                   accessibilityRole='button'
                                   accessibilityLabel={'followingFollowersScreen.findUserBtnAccLbl'}
                                   onPress={()=>{navigation.navigate('Find Users')}}>
-                    <Text style={styles.findUsersBtnTxt}
-                          accessibilityHint='link'>
+                    <Text style={styles.findUsersBtnTxt}>
                         {t('followingFollowersScreen.findUsersToFollowBtnTxt')}
                     </Text>
                 </TouchableOpacity>

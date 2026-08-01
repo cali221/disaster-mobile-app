@@ -64,19 +64,20 @@ export function UsersList(props) {
         }
 
         // hide loading overlay on parent
-        props.setIsLoading(false);
+        props?.setIsLoading(false);
     };
         
     return(
         <ScrollView style={styles.listScrollView}
                     contentContainerStyle={styles.listScrollViewContentContainer}>
-            {props.data && 
-                (props.data.map((item, i) => (
+            {props?.data && 
+                (props?.data.map((item, i) => (
                     /* container of each following/follower data item 
                        containing username and profile picture */ 
                     <View key={i} style={styles.dataItemContainer}>
                         <View style={styles.txtsAndPfpContainer}>
-                            <TouchableOpacity onPress={()=>{navigation.navigate('Profile of Another User', 
+                            <TouchableOpacity accessibilityRole='button'
+                                              onPress={()=>{navigation.navigate('Profile of Another User', 
                                                                                 {
                                                                                     screenTitle: `@${item.username}`,
                                                                                     userId: item.user_id
@@ -91,6 +92,7 @@ export function UsersList(props) {
                             <View style={styles.dataItemTxts}>
                                 {/* username */}
                                 <Text style={styles.usernameTxt} 
+                                      accessibilityRole='link'
                                       onPress={()=>{navigation.navigate('Profile of Another User', 
                                                                         {
                                                                             screenTitle: `@${item.username}`,
@@ -113,7 +115,8 @@ export function UsersList(props) {
                         {/* action button for following/unfollowing */}
                         {
                             item.user_id !== user.id && (
-                                <TouchableOpacity onPress={()=>{handleActionButtonPress(user.id, 
+                                <TouchableOpacity accessibilityRole='button'
+                                                  onPress={()=>{handleActionButtonPress(user.id, 
                                                                                         item, 
                                                                                         props.data, 
                                                                                         props.setData)}}
