@@ -5,12 +5,13 @@ import { useEffect, useState, useContext } from 'react';
 import { showErrorToast } from '../../utils/show-toast';
 import { supabase } from '../../lib/supabase';
 import { UsersList } from '../../components/UsersList';
-import { addFollow, removeFollow } from '../../utils/users-utilities';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [followData, setFollowData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     // function to get following and followers data of user
     const getUserFollowData = async(userId) => {
@@ -25,42 +26,10 @@ export function FollowingFollowersScreen({ navigation, route }) {
         }
     };
 
-    const handleActionButtonPressOnUsersList = async(userId, item) => {
-        // if user is already follwowing the user, unfollow
-        if(item.user_is_following == false){
-            // insert follow data to DB
-            await addFollow(userId, item.user_id);
-
-            // update state
-            const indexToEdit = followData.findIndex(u => u.user_id === item.user_id);
-            if(indexToEdit !== -1){
-                const newFollowDataArr = [...followData];
-                newFollowDataArr[indexToEdit] = {...newFollowDataArr[indexToEdit], user_is_following: true};
-                setFollowData(newFollowDataArr);
-            }
-        }
-        // if user hasn't followed the user, follow
-        else if(item.user_is_following == true){
-           // remove follow data from DB
-           await removeFollow(userId, item.user_id);
-
-           // update state
-           const indexToEdit = followData.findIndex(u => u.user_id === item.user_id);
-           
-           if(indexToEdit !== -1){
-                const newFollowDataArr = [...followData];
-                newFollowDataArr[indexToEdit] = {...newFollowDataArr[indexToEdit], user_is_following: false};
-                setFollowData(newFollowDataArr);
-            }
-        }
-        else{
-            console.log(item);
-        }
-    }
-
     useEffect(()=>{
         // fetch following/followers data
         const fetchFollowingOrFollowers = async (userId) => {
+            setIsLoading(true);
             try{
                 const fetchedFollowData = await getUserFollowData(userId);
 
@@ -81,6 +50,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
                                  {followingOrFollowers: route.params.screenTitle}),
                                `${error.message ?? JSON.stringify(error)}`);
             }
+            setIsLoading(false);
         };
 
         if(route.params.userId && route.params.screenTitle){
@@ -90,7 +60,9 @@ export function FollowingFollowersScreen({ navigation, route }) {
 
     return(
         <View style={styles.screenContainer}>
-            <UsersList data={followData} handleActionButtonPress={handleActionButtonPressOnUsersList} />
+            <UsersList data={followData} 
+                       setData={setFollowData}
+                       setIsLoading={setIsLoading} />
 
             {/* container of the button to find other users, 'sticky' at the bottom of screen */}
             <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom}]}>
@@ -105,6 +77,13 @@ export function FollowingFollowersScreen({ navigation, route }) {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* loading ovelay, shown only when isLoading is true */}
+            {
+                isLoading == true && (
+                    <LoadingOverlay />
+                )
+            }
         </View>
     )
 };
@@ -118,35 +97,25 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         backgroundColor: 'white',
-        alignContent: 'space-between'
-    },
-    // the scroll view for showing following/followers list
-    listScrollView: {
-        backgroundColor: 'white',
-        width: '100%'
-    },
-    /* content container inside the scroll view for 
-       showing following/followers list */
-    listScrollViewContentContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        width: '100%',
-        padding: 30
+        alignContent: 'space-between',
+        paddingHorizontal: 30
     },
     /* container of the find users to follow button 
        at bottom of screen ('sticky') */
     findUsersBtnContainer: {
         backgroundColor: 'white',
-        height: 200,
-        width: '100%',
+        height: 180,
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         borderWidth: 1.5,
         borderColor: 'black',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0
     },
     // the 'Find Users to Follow' button
     findUsersBtn: {

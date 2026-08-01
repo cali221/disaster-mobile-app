@@ -3,11 +3,68 @@ import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { UserProfilePicture } from './UserProfilePicture';
+import { addFollow, removeFollow } from '../utils/users-utilities';
+import { showErrorToast, showInfoToast } from '../utils/show-toast';
 
 export function UsersList(props) {
     const { t, i18n } = useTranslation();
     const { user } = useContext(AuthContext);
-    
+
+    // function handling action button press on UsersList
+    const handleActionButtonPress = async(userId, item, dataState, setDataState) => {
+        // show loading overlay on parent
+        props.setIsLoading(true);
+
+        // if user is already follwowing the user, unfollow
+        if(item.user_is_following == false){
+            // insert follow data to DB
+            try{
+                await addFollow(userId, item.user_id);
+
+                // update state
+                const indexToEdit = dataState.findIndex(u => u.user_id === item.user_id);
+                if(indexToEdit !== -1){
+                    const newSearchResArr = [...dataState];
+                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], user_is_following: true};
+                    setDataState(newSearchResArr);
+                }
+            }
+            catch(error){
+                if(error.code == 23514){
+                    showErrorToast(t('shared.failedToFollow'), t('shared.cantFollowSelf'));
+                }
+                else if(error.code == 23505){
+                    showInfoToast(t('shared.alreadyFollowed'), '');
+                }
+                else{
+                    showErrorToast(t('shared.failedToFollow'), `${error.message ?? JSON.stringify(error)}`);
+                }
+            }
+        }
+        // if user hasn't followed the user, follow
+        else if(item.user_is_following == true){
+            try{
+                // remove follow data from DB
+                await removeFollow(userId, item.user_id);
+
+                // update state
+                const indexToEdit = dataState.findIndex(u => u.user_id === item.user_id);
+                
+                if(indexToEdit !== -1){
+                    const newSearchResArr = [...dataState];
+                    newSearchResArr[indexToEdit] = {...newSearchResArr[indexToEdit], user_is_following: false};
+                    setDataState(newSearchResArr);
+                }
+            }
+            catch(error){
+                showErrorToast(t('shared.failedToUnfollow'), `${error.message ?? JSON.stringify(error)}`);
+            }
+        }
+
+        // hide loading overlay on parent
+        props.setIsLoading(false);
+    };
+        
     return(
         <ScrollView style={styles.listScrollView}
                     contentContainerStyle={styles.listScrollViewContentContainer}>
@@ -17,16 +74,18 @@ export function UsersList(props) {
                        containing username and profile picture */ 
                     <View key={i} style={styles.dataItemContainer}>
                         <View style={styles.txtsAndPfpContainer}>
-                            <UserProfilePicture width={80} 
-                                                height={80} 
+                            <UserProfilePicture width={70} 
+                                                height={70} 
                                                 bgColor='#D2DAE4' 
                                                 imgUrl={item.avatar_img_url} />
 
                             <View style={styles.dataItemTxts}>
+                                {/* username */}
                                 <Text style={styles.usernameTxt}>
                                     @{item.username}
                                 </Text>
 
+                                {/* 'Follows You' text */}
                                 <Text style={styles.followsYouTxt}>
                                     {
                                         item.is_following_user == true && t('shared.followsYou')
@@ -35,7 +94,8 @@ export function UsersList(props) {
                             </View>
                         </View>
 
-                        <TouchableOpacity onPress={()=>{props.handleActionButtonPress(user.id, item)}}
+                        {/* action button for following/unfollowing */}
+                        <TouchableOpacity onPress={()=>{handleActionButtonPress(user.id, item, props.data, props.setData)}}
                                           style={styles.actionBtn}>
                             <Text style={styles.actionBtnTxt}>
                                 {
@@ -58,7 +118,7 @@ export function UsersList(props) {
 }
 
 const styles = StyleSheet.create({
-     // the screen container
+    // the screen container
     screenContainer: {
         display: 'flex',
         flexDirection: 'column',
@@ -79,8 +139,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        width: '100%',
-        padding: 30
+        width: '100%'
     },
     // container of each follow data item
     dataItemContainer: {
@@ -88,18 +147,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: 'white',
         width: '100%',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        justifyContent: 'space-between',
         columnGap: 20,
         paddingVertical: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#2D3782' 
+        borderBottomColor: '#2D3782',
+        rowGap: 20 
     },
     // text showing username of user in follow data
     usernameTxt: {
-        fontSize: 17,
+        fontSize: 15,
         fontWeight: '600',
-        color: '#2D3782'
+        color: '#2D3782',
+        width: '100%',
+        maxWidth: 90
     },
     // container of data item texts and PFP
     txtsAndPfpContainer: {
@@ -107,7 +169,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        columnGap: 10
+        columnGap: 10,
+        flex: 1
     },
     // container of data item texts (username and 'Follows You' text)
     dataItemTxts:{
@@ -117,23 +180,25 @@ const styles = StyleSheet.create({
     },
     // 'Follows You' text, shown conditionally
     followsYouTxt: {
+        fontSize: 15,
         color: '#2D3782'
     },
     // action button for each data item 
     actionBtn: {
         backgroundColor: '#2D3782',
-        padding: 10,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        width: 130,
-        borderRadius: 100
+        borderRadius: 50,
+        paddingVertical: 7,
+        paddingHorizontal: 10,
+        width: 120
     },
     // text inside action button
     actionBtnTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 15,
         textAlign: 'center'
     }
 });

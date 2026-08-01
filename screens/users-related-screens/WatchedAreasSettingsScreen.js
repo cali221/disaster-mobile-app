@@ -4,8 +4,7 @@ import { Text,
          View, 
          TextInput, 
          StyleSheet, 
-         ScrollView, 
-         ActivityIndicator } from 'react-native';
+         ScrollView } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useRoute } from '@react-navigation/native';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -44,11 +43,11 @@ export function WatchedAreasSettingsScreen({navigation}) {
                                               .ilike('adm2_name', `%${query}%`);
 
         if(error){
-            showErrorToast(t('watchedAreasScreen.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
+            showErrorToast(t('shared.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             if(data.length == 0){
-                showInfoToast(t('watchedAreasScreen.noSearchRes'), '')
+                showInfoToast(t('shared.noSearchRes'), '')
             }
             // set search results using the results obtained
             setLocSearchResults(data);
@@ -141,8 +140,8 @@ export function WatchedAreasSettingsScreen({navigation}) {
             <View style={styles.searchArea}>
                 {/* search input field*/}
                 <TextInput onChangeText={setLocSearchQuery}
-                        value={locSearchQuery}
-                        style={styles.searchTextInput} /> 
+                           value={locSearchQuery}
+                           style={styles.searchTextInput} /> 
 
                 {/* search button */}
                 <TouchableOpacity onPress={()=>{searchLoc(locSearchQuery)}}

@@ -82,29 +82,3 @@ export async function getTrustedContacts(userId) {
         return data;
     }
 };
-
-// export async function handleActionButtonPressOnUsersList(userId, item){
-//     if(item.user_is_following == false){
-//         const {error} = supabase.schema('users').from('user_1_is_following_user_2').insert(
-//             {
-//                 user1: userId,
-//                 user2: item.user_id
-//             }
-//         );
-
-//         if(error){
-//             throw error;
-//         }
-//     }
-//     else if(item.user_is_following == true){
-//         const {error} = supabase.schema('users').from('user_1_is_following_user_2').delete(
-//             {
-//                 user1: userId,
-//                 user2: item.user_id
-//             }
-//         );
-//         if(error){
-//             throw error;
-//         }
-//     }
-// };
