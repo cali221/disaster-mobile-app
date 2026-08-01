@@ -86,11 +86,12 @@ export function UsersList(props) {
                                 </Text>
 
                                 {/* 'Follows You' text */}
-                                <Text style={styles.followsYouTxt}>
-                                    {
-                                        item.is_following_user == true && t('shared.followsYou')
-                                    }
-                                </Text>
+                                { item.is_following_user == true && (
+                                    <Text style={styles.followsYouTxt}>
+                                        {t('shared.followsYou')}
+                                    </Text>
+                                )
+                                }
                             </View>
                         </View>
 
