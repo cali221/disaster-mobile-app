@@ -41,7 +41,7 @@ export function FindUsersScreen() {
 
     return(
         <View style={styles.screenContainer}>
-            {/* containerr of search text input and button */}
+            {/* container of search text input and button */}
             <View style={styles.searchContainer}>
                 {/* search text input*/}
                 <TextInput style={styles.searchTextInput}
@@ -78,7 +78,11 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         padding: 30,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 30,
+        alignItems: 'center'
     },
     // text input for search bar
     searchTextInput: {

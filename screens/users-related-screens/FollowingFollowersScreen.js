@@ -63,19 +63,21 @@ export function FollowingFollowersScreen({ navigation, route }) {
     }, [route.params])
 
     return(
-        <View style={[styles.screenContainer, {paddingLeft: insets.left, paddingRight: insets.right}]}>
+        <View style={styles.screenContainer}>
             <UsersList data={followData} 
                        setData={setFollowData}
-                       setIsLoading={setIsLoading} />
+                       setIsLoading={setIsLoading}
+                       listPaddingVal={30} />
 
             {/* container of the button to find other users, 'sticky' at the bottom of screen */}
-            <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom}]}>
+            <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom + 50}]}>
                 {/* button to find other users */}
                 <TouchableOpacity style={styles.findUsersBtn}
                                   accessibilityRole='button'
                                   accessibilityLabel={'followingFollowersScreen.findUserBtnAccLbl'}
                                   onPress={()=>{navigation.navigate('Find Users')}}>
-                    <Text style={styles.findUsersBtnTxt}>
+                    <Text style={styles.findUsersBtnTxt}
+                          accessibilityHint='link'>
                         {t('followingFollowersScreen.findUsersToFollowBtnTxt')}
                     </Text>
                 </TouchableOpacity>
@@ -100,14 +102,12 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         backgroundColor: 'white',
-        alignContent: 'space-between',
-        paddingHorizontal: 30
+        alignContent: 'space-between'
     },
     /* container of the find users to follow button 
        at bottom of screen ('sticky') */
     findUsersBtnContainer: {
         backgroundColor: 'white',
-        height: 180,
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         borderWidth: 1.5,
@@ -115,10 +115,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0
+        width: '100%',
+        height: 180
     },
     // the 'Find Users to Follow' button
     findUsersBtn: {

@@ -69,7 +69,8 @@ export function UsersList(props) {
         
     return(
         <ScrollView style={styles.listScrollView}
-                    contentContainerStyle={styles.listScrollViewContentContainer}>
+                    contentContainerStyle={[styles.listScrollViewContentContainer, 
+                                           {padding: props?.listPaddingVal ?? 0}]}>
             {props?.data && 
                 (props?.data.map((item, i) => (
                     /* container of each following/follower data item 
