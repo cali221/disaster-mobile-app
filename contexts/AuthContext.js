@@ -162,7 +162,6 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(event);
-
       setLoggedInUser(session?.user);
     
       if(event !== 'SIGNED_OUT' && session?.user?.id){
@@ -175,6 +174,7 @@ const AuthProvider = ({ children }) => {
         }
       }
       else{
+        setUser(null);
         setLoggedInUserProfile(null);
       }
     });

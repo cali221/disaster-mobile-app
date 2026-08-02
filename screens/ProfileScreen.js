@@ -86,7 +86,7 @@ export function ProfileScreen({ navigation, route }) {
             await signOut();
         }
         catch(error){
-            showErrorToast(t('profileScreen.failedToSignOut'), 
+            showErrorToast(t('authWords.failedToSignOut'), 
                            `${error.message ?? JSON.stringify(error)}`);
         }
 
