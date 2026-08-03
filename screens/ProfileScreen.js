@@ -74,7 +74,8 @@ export function ProfileScreen({ navigation, route }) {
             setCurrentLang(langCode);
         }
         catch(error){
-            showErrorToast(t('profileScreen.failedToChangeLang'), `${error.message ?? JSON.stringify(error)}`);
+            showErrorToast(t('profileScreen.failedToChangeLang'), 
+                           `${error.message ?? JSON.stringify(error)}`);
         }  
     };
 

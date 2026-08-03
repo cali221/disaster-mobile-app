@@ -5,7 +5,7 @@ export function UserProfilePicture(props) {
         <View style={[styles.avatarContainer, {width: props.width, 
                                                height: props.height, 
                                                backgroundColor: props.bgColor,
-                                               borderRadius: props.width/2}]}>
+                                               borderRadius: props.pfpBorderRadius ? props.pfpBorderRadius: props.width/2}]}>
             <Image source={{uri: props.imgUrl}} 
                    style={[styles.avatarImg, {borderRadius: props.width/2}]} />
         </View>

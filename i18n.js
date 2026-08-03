@@ -13,7 +13,6 @@ const languageDetector = {
       const chosenLang = await AsyncStorage.getItem('chosenLanguage');
 
       if(chosenLang){
-        console.log(chosenLang)
         return callback(chosenLang);
       }
       else{
