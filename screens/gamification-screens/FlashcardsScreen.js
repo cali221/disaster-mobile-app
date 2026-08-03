@@ -20,13 +20,18 @@ export function FlashcardsScreen() {
         if(deckArr.length > 0){
             let newDeckArr;
             // TODO: add SM-2 logic and inserting/updating DB
+            // update profile flashcard reviwed number, update users flashcard data
 
-            // TODO: need to check if logic is correct(?)
+            // TODO: need to check if logic is correct(?) -> https://super-memory.com/english/ol/sm2.htm
+            /* if recall ease value is less than 4, push the card to 
+               the end of array to be reviewed again after 
+               the current repetition session(?) or does it mean let the card be reviewed on the next day? */
             if(recallEaseVal < 4){
                 const reviewedCard = deckArr[0];
                 newDeckArr = deckArr.filter((item, index) => index !== 0);
                 newDeckArr.push(reviewedCard);
             }
+            // otherwise remove it from cards to review
             else{
                 newDeckArr = deckArr.filter((item, index) => index !== 0);
             }
