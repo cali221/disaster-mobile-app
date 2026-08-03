@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#2D3782',
         width: '100%',
-        maxWidth: 90
+        maxWidth: 100
     },
     // container of data item texts and PFP
     txtsAndPfpContainer: {

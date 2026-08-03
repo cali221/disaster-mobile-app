@@ -20,12 +20,11 @@ export function FindUsersScreen() {
 
         const {data, error} = await supabase.schema('public')
                                             .rpc('search_user_by_username', 
-                                                 {search_query_input: query, 
-                                                  auth_user_id_input: userId});
+                                                 {search_query_input: query});
 
         if(error){
             console.error(error);
-            showErrorToast(t('shared.failedToFetchSearchRes', `${error.message ?? JSON.stringify(error)}`));
+            showErrorToast(t('shared.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             if(data.length == 0){

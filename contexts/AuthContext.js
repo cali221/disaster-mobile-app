@@ -35,7 +35,7 @@ const AuthProvider = ({ children }) => {
       password: password,
       options: {
         data: {
-          username: username
+          username: username.trim()
         },
       },
     });
@@ -74,6 +74,8 @@ const AuthProvider = ({ children }) => {
         console.log('No active push token in async storage');
     };
 
+    // TODO: remove getting item and console logs, just rmeove item (these are only for checking)
+
     // get trusted contacts from async storage
     const trustedContactsInAsyncStorage = await AsyncStorage.getItem('trustedContacts');
 
@@ -86,6 +88,9 @@ const AuthProvider = ({ children }) => {
     else{
         console.log('No trusted contacts in async storage');
     }
+
+    // reset language to English (also changes language in AsyncStorage)
+    i18n.changeLanguage('en');
 
     // sign out
     const { error } = await supabase.auth.signOut();

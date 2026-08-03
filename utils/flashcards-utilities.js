@@ -4,9 +4,9 @@
 
 import { supabase } from "../lib/supabase"; 
 
-export async function fetchFlashcardsToReview(userId){
+export async function fetchFlashcardsToReview(){
     const { data, error } = supabase.schema('public')
-                                    .rpc('get_flashcards_to_review', {user_id_input: userId});
+                                    .rpc('get_flashcards_to_review_for_auth_user');
 
     if(error){
         throw error;

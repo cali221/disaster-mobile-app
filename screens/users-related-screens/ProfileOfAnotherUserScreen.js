@@ -150,8 +150,8 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
     return(
         <View style={[styles.screenContainer, { paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
-            <ScrollView style={[styles.screenScrollContainer, { paddingBottom: insets.bottom + 70 }]}
-                        contentContainerStyle={styles.screenScrollContentContainer}>
+            <ScrollView style={styles.screenScrollContainer}
+                        contentContainerStyle={[styles.screenScrollContentContainer, {paddingBottom: insets.bottom + 70 }]}>
 
                 <View style={styles.contentWrapper}>
                     {/* profile picture */}
@@ -213,9 +213,16 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
                                             levelName={userData?.level_name} 
                                             xp={userData?.xp} />
 
-                   {/* horizontal scroll view showing the viewed user's badges */}
-                   <BadgesHorizontalScrollContainer badgesArr={userData?.user_badges} 
-                                                    handleBadgePress={showBadgeModal} />
+                   {/* badges section */}
+                   <View style={styles.badgesSectionContainer}>
+                    <Text style={styles.badgesHeadingTxt}>
+                        {t('profileOfAnotherUserScreen.badges')}
+                    </Text>
+
+                    {/* horizontal scroll view showing the viewed user's badges */}
+                    <BadgesHorizontalScrollContainer badgesArr={userData?.user_badges} 
+                                                        handleBadgePress={showBadgeModal} />
+                   </View>
                 </View>
             </ScrollView>
 
@@ -241,7 +248,8 @@ const styles = StyleSheet.create({
     // container of the whole screen
     screenContainer: {
         height: '100%', 
-        width: '100%'
+        width: '100%',
+        backgroundColor: 'white'
     },
     // container of scroll view containing screen's content
     screenScrollContainer: {
@@ -308,5 +316,17 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '600',
         fontSize: 16
+    },
+    badgesSectionContainer: {
+        display: 'flex', 
+        width: '100%', 
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
+    },
+    badgesHeadingTxt: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#2D3782'
     }
 });

@@ -11,9 +11,9 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 export function AccountSettingsScreen() {
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
-    const { user, signOut } = useContext(AuthContext);
+    const { user, userProfile, signOut } = useContext(AuthContext);
     const [ passwordVal, setPasswordVal ] = useState('');
-    const [ usernameVal, setUsernameVal ] = useState(user?.user_metadata?.username ?? '');
+    const [ usernameVal, setUsernameVal ] = useState(userProfile?.username ?? '');
     const [ emailVal, setEmailVal ] = useState(user?.user_metadata?.email ?? '');
     const [ isLoading, setIsLoading ] = useState(false);
 
@@ -21,13 +21,14 @@ export function AccountSettingsScreen() {
     const changeUsername = async(newUsername, authUserId) => {
         const { data, error } = await supabase.schema('users')
                                               .from('profiles_public_data')
-                                              .update({ username: newUsername })
+                                              .update({ username: newUsername.trim() })
                                               .eq('user_id', authUserId)
         if(error){
-            setUsernameVal(user?.user_metadata?.username ?? '');
-
             if(error.code == 23505){
                 throw new Error(t('authWords.usernameTaken'));
+            }
+            else if(error.code == 23514){
+                throw new Error(t('authWords.invalidUsername'));
             }
             else{
                 throw error;
@@ -46,6 +47,10 @@ export function AccountSettingsScreen() {
 
     // function to handle changing email
     const changeEmail = async(newEmail) => {
+        if(newEmail == ''){
+            throw new Error(t('authWords.emailCantBeEmpty'));
+        }
+
         const { data, error } = await supabase.auth.updateUser({
             email: newEmail
         });
@@ -70,7 +75,7 @@ export function AccountSettingsScreen() {
     const handleSaveChanges = async() => {
         try{
             // if username is changed in text input, change username
-            if(usernameVal != user?.user_metadata?.username){
+            if(usernameVal != userProfile?.username){
                 await changeUsername(usernameVal, user.id);
             }
             
@@ -89,7 +94,7 @@ export function AccountSettingsScreen() {
         }
         catch(error){
             // reset states of the text input to the default values
-            setUsernameVal(user?.user_metadata?.username ?? '');
+            setUsernameVal(userProfile?.username ?? 'kms');
             setEmailVal(user?.user_metadata?.email ?? '');
             setPasswordVal('');
 
@@ -128,7 +133,7 @@ export function AccountSettingsScreen() {
     }
 
     return(
-        <View style={styles.screenContainer}>
+        <View style={[styles.screenContainer, {marginLeft: insets.left, paddingRight: insets.right}]}>
             <ScrollView style={styles.screenScrollContainer}
                         contentContainerStyle={styles.screenScrollContentContainer}>
                  {/* username input area */}
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
     screenScrollContainer: {
         width: '100%'
     },
-    // content container inside scrll container
+    // content container inside scroll container
     screenScrollContentContainer: {
       padding: 30,
       display: 'flex',
@@ -217,11 +222,11 @@ const styles = StyleSheet.create({
     /* container of the two buttons at the 
        bottom of the screen (always visible) */
     bottomButtonsContainer: {
-        backgroundColor: 'white',
+        backgroundColor: '#F4F4F4',
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         borderWidth: 1.5,
-        borderColor: 'black',
+        borderColor: '#2D3782',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -261,7 +266,8 @@ const styles = StyleSheet.create({
         height: 45,
         width: '100%',
         borderRadius: 30,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        color: 'black'
     },
     // container of text input and its label
     newValInputContainer: {

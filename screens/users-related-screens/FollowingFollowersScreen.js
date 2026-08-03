@@ -16,10 +16,10 @@ export function FollowingFollowersScreen({ navigation, route }) {
     const { user } = useContext(AuthContext);
 
     // function to get following and followers data of user
-    const getUserFollowData = async(authUserId, userToFindDataForId) => {
+    const getUserFollowData = async(userToFindDataForId) => {
         const { data, error } = await supabase.schema('public')
-                                              .rpc('get_user_follow_data', {user_id_to_find_data_for_input: userToFindDataForId, 
-                                                                            auth_user_id_input: authUserId});
+                                              .rpc('get_user_follow_data', 
+                                                   {user_id_to_find_data_for_input: userToFindDataForId});
 
         if(error){
             throw error;
@@ -31,11 +31,11 @@ export function FollowingFollowersScreen({ navigation, route }) {
 
     useEffect(()=>{
         // fetch following/followers data
-        const fetchFollowingOrFollowers = async (authUserId, userToFindDataForId) => {
+        const fetchFollowingOrFollowers = async (userToFindDataForId) => {
             setIsLoading(true);
 
             try{
-                const fetchedFollowData = await getUserFollowData(authUserId, userToFindDataForId);
+                const fetchedFollowData = await getUserFollowData(userToFindDataForId);
 
                 /* if viewing following screen, filter to only show 
                    users the authenticated user is following */
@@ -63,14 +63,15 @@ export function FollowingFollowersScreen({ navigation, route }) {
     }, [route.params])
 
     return(
-        <View style={styles.screenContainer}>
+        <View style={[styles.screenContainer, { paddingLeft: insets.left, 
+                                                paddingRight: insets.right }]}>
             <UsersList data={followData} 
                        setData={setFollowData}
                        setIsLoading={setIsLoading}
                        listPaddingVal={30} />
 
             {/* container of the button to find other users, 'sticky' at the bottom of screen */}
-            <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom + 50}]}>
+            <View style={[styles.findUsersBtnContainer, {paddingBottom: insets.bottom + 30}]}>
                 {/* button to find other users */}
                 <TouchableOpacity style={styles.findUsersBtn}
                                   accessibilityRole='button'
@@ -107,16 +108,17 @@ const styles = StyleSheet.create({
     /* container of the find users to follow button 
        at bottom of screen ('sticky') */
     findUsersBtnContainer: {
-        backgroundColor: 'white',
+        backgroundColor: '#F4F4F4',
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         borderWidth: 1.5,
-        borderColor: 'black',
+        borderColor: '#2D3782',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        height: 180
+        height: 200,
+        paddingTop: 30
     },
     // the 'Find Users to Follow' button
     findUsersBtn: {
