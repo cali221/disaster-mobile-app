@@ -2,16 +2,17 @@
  * flashcards related functions
  */
 
-import { supabase } from "../lib/supabase"; 
-
-export async function fetchFlashcardsToReview(){
-    const { data, error } = supabase.schema('public')
-                                    .rpc('get_flashcards_to_review_for_auth_user');
-
-    if(error){
-        throw error;
+export async function getCardUpdatedVals(cardReps, cardInterval, cardEaseFactor, recallEaseVal){
+    // if recall quality is less than 3, 'reset' the card but don't change ease the factor
+    if(recallEaseVal < 3){
+        return {
+            repetition: 0,
+            interval: 1,
+            cardEaseFactor: cardEaseFactor 
+        }
     }
     else{
-        return data;
+        
     }
-};
+    
+}

@@ -15,12 +15,22 @@ export function FlashcardsScreen() {
     const flashcardEaseValRangeArr = [...Array(5 + 1).keys()];
     const currentLang = i18n.resolvedLanguage;
 
-    const handleEaseValButtonPress = async() => {
+    const handleEaseValButtonPress = async(recallEaseVal) => {
         // if array is not empty, remove last item, update state and stop showing answer
         if(deckArr.length > 0){
+            let newDeckArr;
             // TODO: add SM-2 logic and inserting/updating DB
 
-            const newDeckArr = deckArr.filter((item, index) => index !== deckArr.length - 1)
+            // TODO: need to check if logic is correct(?)
+            if(recallEaseVal < 4){
+                const reviewedCard = deckArr[0];
+                newDeckArr = deckArr.filter((item, index) => index !== 0);
+                newDeckArr.push(reviewedCard);
+            }
+            else{
+                newDeckArr = deckArr.filter((item, index) => index !== 0);
+            }
+
             setDeckArr(newDeckArr);
             setIsShowingAns(false);
         }
@@ -86,18 +96,18 @@ export function FlashcardsScreen() {
                                     {t('flashcardScreen.youMayNeedToScroll')}
                                 </Text>
 
-                                {/* the flashcar's content text */}
+                                {/* the flashcard's content text */}
                                 <Text style={styles.flashcardContentTxt}>
                                     { isShowingAns == false ? 
                                             (
                                                 currentLang  == 'id' ?
-                                                deckArr[deckArr.length - 1]?.front_idn : 
-                                                deckArr[deckArr.length - 1]?.front
+                                                deckArr[0]?.front_idn : 
+                                                deckArr[0]?.front
                                             ) : 
                                             (
                                                 currentLang  == 'id' ?
-                                                deckArr[deckArr.length - 1]?.back_idn : 
-                                                deckArr[deckArr.length - 1]?.back
+                                                deckArr[0]?.back_idn : 
+                                                deckArr[0]?.back
                                             )
                                     }
                                 </Text>
@@ -110,7 +120,7 @@ export function FlashcardsScreen() {
                                        paddingRight: insets.right + 30}]}>
                             {isShowingAns == true ? (
                                 /* if showing answer, show the recall ease option 
-                                    buttons and the explanation texts */
+                                   buttons and the explanation texts */
                                 <View style={styles.flashcardBtnsAndExplanationTxtsContainer}>
 
                                     <View style={styles.flashcardBtnsExplanationTxtsContainer}>
@@ -129,8 +139,8 @@ export function FlashcardsScreen() {
                                             (flashcardEaseValRangeArr?.map((item, index) => {
                                                 return(
                                                     <TouchableOpacity style={styles.flashcardEaseValBtn}
-                                                                        key={index}
-                                                                        onPress={()=>{handleEaseValButtonPress()}}>
+                                                                      key={index}
+                                                                      onPress={()=>{handleEaseValButtonPress(item)}}>
                                                         <Text style={styles.flashcardEaseValBtnTxt}>{item}</Text>
                                                     </TouchableOpacity>
                                                 )
