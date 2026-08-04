@@ -11,7 +11,7 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export function FlashcardsScreen() {
     const insets = useSafeAreaInsets();
-    const { user, userProfile } = useContext(AuthContext);
+    const { user, userProfile, fetchAndSetProfileData } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
     const [ isShowingAns, setIsShowingAns ]= useState(false);
     const [ deckArr, setDeckArr ] = useState([]);
@@ -41,7 +41,7 @@ export function FlashcardsScreen() {
         }
     };
 
-    /* function to handle recall easy value button press. 
+    /* function to handle recall ease value button press. 
 
        Behavior based on SM-2 algorithm described on https://super-memory.com/english/ol/sm2.htm 
        and observations made after trying the SuperMemo 2.s Shareware,
@@ -155,7 +155,11 @@ export function FlashcardsScreen() {
         setIsLoading(false);
     }, []);
 
-    // TODO: need to add useEffect to re-fetch user profile when deckArray changes
+    /* if deck array state changes, refetch and update user profile so 
+       that the updated user avatar is shown */
+    useEffect(()=>{
+        fetchAndSetProfileData(user.id);
+    }, [deckArr]);
 
     return(
         <View style={[styles.screenContainer, 
@@ -173,7 +177,7 @@ export function FlashcardsScreen() {
                                                     width={120} 
                                                     height={120} 
                                                     bgColor='#D2DAE4' 
-                                                    pfpBorderRadius={20} />
+                                                    pfpBorderRadius={30} />
                                 <Text style={styles.avatarExplanationTxt}>
                                     {t('flashcardScreen.keepReviewing')}
                                 </Text>
