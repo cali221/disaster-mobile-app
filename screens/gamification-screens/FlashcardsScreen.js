@@ -158,8 +158,6 @@ export function FlashcardsScreen() {
     // TODO: need to add useEffect to re-fetch user profile when deckArray changes
 
     return(
-        /* TODO: need to add attribution for SM-2:
-           https://supermemopedia.com/wiki/Licensing_SuperMemo_Algorithm?__cf_chl_tk=elpcKHpx6jfSSo34cfrjTTBGziYDCdEAIBrgPQDaq.c-1781093381-1.0.1.1-bXfY9SDKYXCChrbYv59xRgzJW..W7FcfhJZep4Cm5Fk */
         <View style={[styles.screenContainer, 
                       {paddingLeft: insets.left, 
                        paddingRight: insets.right}]}>
