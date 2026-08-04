@@ -1,44 +1,132 @@
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useContext } from 'react';
 import { supabase } from '../../lib/supabase';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserProfilePicture } from '../../components/UserProfilePicture';
+import { showErrorToast } from '../../utils/show-toast';
+import { getCardUpdatedValsUsingSM2 } from '../../utils/flashcards-utilities';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 export function FlashcardsScreen() {
     const insets = useSafeAreaInsets();
-    const { userProfile } = useContext(AuthContext);
+    const { user, userProfile } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
     const [ isShowingAns, setIsShowingAns ]= useState(false);
     const [ deckArr, setDeckArr ] = useState([]);
     const flashcardEaseValRangeArr = [...Array(5 + 1).keys()];
     const currentLang = i18n.resolvedLanguage;
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleEaseValButtonPress = async(recallEaseVal) => {
-        // if array is not empty, remove last item, update state and stop showing answer
-        if(deckArr.length > 0){
-            let newDeckArr;
-            // TODO: add SM-2 logic and inserting/updating DB
-            // update profile flashcard reviwed number, update users flashcard data
+    // function to increment the user's total number of flashcard review by 1
+    const updateUserFlashcardReviewNumber = async() => {
+        const { data, error } = await supabase.schema('public')
+                                              .rpc('increment_auth_user_flashcard_review_times');
 
-            // TODO: need to check if logic is correct(?) -> https://super-memory.com/english/ol/sm2.htm
-            /* if recall ease value is less than 4, push the card to 
-               the end of array to be reviewed again after 
-               the current repetition session(?) or does it mean let the card be reviewed on the next day? */
-            if(recallEaseVal < 4){
-                const reviewedCard = deckArr[0];
-                newDeckArr = deckArr.filter((item, index) => index !== 0);
-                newDeckArr.push(reviewedCard);
-            }
-            // otherwise remove it from cards to review
-            else{
-                newDeckArr = deckArr.filter((item, index) => index !== 0);
-            }
-
-            setDeckArr(newDeckArr);
-            setIsShowingAns(false);
+        if(error){
+            throw error;
         }
+    };
+
+    // function to upsert card to users_flashcards junction table
+    const updateUserFlashcardsData = async(newUserFlashcardObj) => {        
+        const {data, error} = await supabase.schema('users')
+                                            .from('users_flashcards')
+                                            .upsert(newUserFlashcardObj, 
+                                                   {onConflict: 'user_id, flashcard_id'});
+
+        if(error){
+            throw error;
+        }
+    };
+
+    /* function to handle recall easy value button press. 
+
+       Behavior based on SM-2 algorithm described on https://super-memory.com/english/ol/sm2.htm 
+       and observations made after trying the SuperMemo 2.s Shareware,
+       downloaded from https://supermemopedia.com/wiki/Download_SuperMemo 
+       (the software download link is shown as 'SuperMemo 2 for DOS' on the web page).
+       SuperMemo 2 uses SM-2 algorithm as implied on 
+       https://supermemo.guru/wiki/Algorithm_SM-2 */
+    const handleEaseValButtonPress = async(cardReps, 
+                                           cardInterval, 
+                                           cardEaseFactor, 
+                                           recallEaseVal) => {
+        setIsLoading(true);
+
+        try{
+            // if array is not empty, remove last item, update state and stop showing answer
+            if(deckArr.length > 0){
+                // initialize new deck array as a copy of the deck array
+                let newDeckArr = [...deckArr];
+
+                // the card that was just reviwed
+                const reviewedCard = deckArr[0];
+
+                // update profile flashcard reviewed number (increment by 1)
+                await updateUserFlashcardReviewNumber();
+                
+                // get card's new stats using SM-2
+                const {newCardInterval, 
+                       newCardReps, 
+                       newCardEF, 
+                       newDueDate} = getCardUpdatedValsUsingSM2(cardReps, 
+                                                                cardInterval, 
+                                                                cardEaseFactor, 
+                                                                recallEaseVal);
+
+                /* if the card was not reviewed as a part of repetition after session, 
+                   upsert the updated card's stats for the user */
+                if(reviewedCard.is_repeating == false){
+                    // new user's card data to upsert
+                    const newUserFlashcardObj = {
+                        user_id: user.id,
+                        flashcard_id: reviewedCard.flashcard_id,
+                        card_interval: newCardInterval,
+                        card_repetition: newCardReps,
+                        card_ease_factor: newCardEF,
+                        due_at: newDueDate
+                    };
+
+                    // upsert user's flashcard data
+                    await updateUserFlashcardsData(newUserFlashcardObj);
+                };
+
+                /* update the reviewed card in the deck new array accordingly,
+                   if recall ease value quality is less than 4, 
+                   repeat again after the session but the later repetitions 
+                   won't contribute to the card's stats for the user */
+                newDeckArr[0] = {...reviewedCard,
+                                 is_repeating: recallEaseVal < 4 ? true : false, 
+                                 card_interval: newCardInterval,
+                                 card_repetition: newCardReps,
+                                 card_ease_factor: newCardEF,
+                                 due_at: newDueDate}
+
+                /* if the recall ease value is less than 4,
+                   push the reviewed card (with updated stats)
+                   to the end of array to be reviewed again after
+                   the session */
+                if(recallEaseVal < 4){
+                    newDeckArr.push(newDeckArr[0]);
+                }
+                
+                // remove the reviewed card from the deck
+                newDeckArr = newDeckArr.filter((card, index) => index !== 0);
+
+                console.log(newDeckArr)
+
+                setDeckArr(newDeckArr);
+                setIsShowingAns(false);
+            }
+        }
+        catch(error){
+            showErrorToast(t('flashcardScreen.failedToProcessFlashcard'), 
+                           `${error.message ?? JSON.stringify(error)}`);
+        };
+
+        setIsLoading(false);
     }
 
     useEffect(()=>{
@@ -51,16 +139,27 @@ export function FlashcardsScreen() {
                 throw error;
             }
             else{
-                setDeckArr(data);
+                /* add is_repeeating property to track if the card is reviewed 
+                   in a new session or if it's a card repeated after session because 
+                   its last recall ease value was rated < 4 */
+                const deck = data.map((card) => {return {...card, is_repeating: false}})
+                setDeckArr(deck);
             }
         };
+        
+        setIsLoading(true);
 
         // fetch flashcards to review for authenticated user
         fetchFlashcard();
+        
+        setIsLoading(false);
     }, []);
 
+    // TODO: need to add useEffect to re-fetch user profile when deckArray changes
+
     return(
-        
+        /* TODO: need to add attribution for SM-2:
+           https://supermemopedia.com/wiki/Licensing_SuperMemo_Algorithm?__cf_chl_tk=elpcKHpx6jfSSo34cfrjTTBGziYDCdEAIBrgPQDaq.c-1781093381-1.0.1.1-bXfY9SDKYXCChrbYv59xRgzJW..W7FcfhJZep4Cm5Fk */
         <View style={[styles.screenContainer, 
                       {paddingLeft: insets.left, 
                        paddingRight: insets.right}]}>
@@ -101,21 +200,43 @@ export function FlashcardsScreen() {
                                     {t('flashcardScreen.youMayNeedToScroll')}
                                 </Text>
 
-                                {/* the flashcard's content text */}
-                                <Text style={styles.flashcardContentTxt}>
-                                    { isShowingAns == false ? 
-                                            (
-                                                currentLang  == 'id' ?
-                                                deckArr[0]?.front_idn : 
-                                                deckArr[0]?.front
-                                            ) : 
-                                            (
-                                                currentLang  == 'id' ?
-                                                deckArr[0]?.back_idn : 
-                                                deckArr[0]?.back
-                                            )
-                                    }
-                                </Text>
+                                <View style={styles.flashcardContentTxtContainer}>
+                                    {/* the flashcard's content text */}
+                                    <Text style={styles.flashcardContentTxt}>
+                                        { isShowingAns == false ? 
+                                                (
+                                                    currentLang  == 'id' ?
+                                                    deckArr[0]?.front_idn : 
+                                                    deckArr[0]?.front
+                                                ) : 
+                                                (
+                                                    currentLang  == 'id' ?
+                                                    deckArr[0]?.back_idn : 
+                                                    deckArr[0]?.back
+                                                )
+                                        }
+                                    </Text>
+                                </View>
+
+                                {/* SM-2 attribution text following requirements shown on 
+                                    https://supermemopedia.com/wiki/Licensing_SuperMemo_Algorithm?__cf_chl_tk=elpcKHpx6jfSSo34cfrjTTBGziYDCdEAIBrgPQDaq.c-1781093381-1.0.1.1-bXfY9SDKYXCChrbYv59xRgzJW..W7FcfhJZep4Cm5Fk */}
+                                <View style={styles.algAttrTxtsContainer}>
+                                    <Text style={styles.algAttributionTxt}>
+                                        Algorithm SM-2, (C) Copyright SuperMemo World, 1991. 
+                                    </Text>
+
+                                     <Text onPress={() => {Linking.openURL('https://www.supermemo.com')}}
+                                           style={styles.algAttributionTxtLinks}
+                                           accessibilityRole='link'>
+                                        https://www.supermemo.com 
+                                    </Text>
+
+                                    <Text onPress={() => {Linking.openURL('https://www.supermemo.eu')}}
+                                          style={styles.algAttributionTxtLinks}
+                                          accessibilityRole='link'>
+                                        https://www.supermemo.eu
+                                    </Text>
+                                </View>
                             </View>
                         </ScrollView>
 
@@ -145,8 +266,13 @@ export function FlashcardsScreen() {
                                                 return(
                                                     <TouchableOpacity style={styles.flashcardEaseValBtn}
                                                                       key={index}
-                                                                      onPress={()=>{handleEaseValButtonPress(item)}}>
-                                                        <Text style={styles.flashcardEaseValBtnTxt}>{item}</Text>
+                                                                      onPress={()=>{handleEaseValButtonPress(deckArr[0].card_repetition, 
+                                                                                                             deckArr[0].card_interval, 
+                                                                                                             deckArr[0].card_ease_factor,
+                                                                                                             item)}}>
+                                                        <Text style={styles.flashcardEaseValBtnTxt}>
+                                                            {item}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                 )
                                             }))
@@ -174,6 +300,12 @@ export function FlashcardsScreen() {
                             {t('flashcardScreen.noFlashcardToReview')} 🎉
                         </Text>
                     </View>
+                )
+            }
+            {/* loading overlay to show when isLoading is true */}
+            {
+                isLoading == true && (
+                    <LoadingOverlay />
                 )
             }
     </View>    
@@ -267,9 +399,40 @@ const styles = StyleSheet.create({
     },
     // flashcard content text
     flashcardContentTxt: {
-        marginTop: 20,
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    // container oof flashcard content text
+    flashcardContentTxtContainer: {
+        borderWidth: 2,
+        borderRadius: 20,
+        width: '100%',
+        padding: 15,
+        elevation: 3,
+        marginVertical: 20,
+        backgroundColor: '#2D3782',
+        borderColor: '#D2DAE4',
+        elevation: 5
+    },
+    // container of SM-2 attributions texts
+    algAttrTxtsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        rowGap: 3
+    },
+    // SM-2 attribution text
+    algAttributionTxt: {
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 15,
+    },
+    // SM-2 attribution text links
+    algAttributionTxtLinks: {
+        color: 'dodgerblue',
+        textDecorationLine: 'underline',
+        fontSize: 15
     },
     /* bottom section containing the show answer button 
        or flashcard buttons and explanation texts */
