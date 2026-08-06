@@ -105,24 +105,26 @@ export function WatchedAreasSettingsScreen({navigation, route}) {
     useEffect(()=>{
         // function for getting areas on user's watchlist
         const getAreasWatched = async() => {
-            setIsLoading(true);
+            if(user?.id){
+                setIsLoading(true);
 
-           const {data, error} = await supabase.schema('public')
-                                               .rpc('get_user_watched_areas',
-                                                    {user_id_input: user.id})
+                const {data, error} = await supabase.schema('public')
+                                                    .rpc('get_user_watched_areas',
+                                                         {user_id_input: user.id})
 
-           if(error){
-            showErrorToast(t('watchedAreasScreen.failedToFetchWatchedAreas'), `${error.message ?? JSON.stringify(error)}`);
-           }
-           else{
-            setWatchedAreas(data);
-           }
+                if(error){
+                    showErrorToast(t('watchedAreasScreen.failedToFetchWatchedAreas'), `${error.message ?? JSON.stringify(error)}`);
+                }
+                else{
+                    setWatchedAreas(data);
+                }
 
-           setIsLoading(false);
+                setIsLoading(false);
+            }
         };
         
         getAreasWatched();
-    }, [])
+    }, [user?.id])
         
     return(
         <ScrollView style={styles.watchedAreasScreen} 

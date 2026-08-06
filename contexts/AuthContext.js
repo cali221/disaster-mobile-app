@@ -11,11 +11,10 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const { t, i18n } = useTranslation();
+  // authenticated user 
   const [user, setUser] = useState(null);
 
-  /* separate user profile satate from auth user state to prevent 
-     unnecessary re-renders on screen that don't use profile data
-     and keep management simpler */
+  // profile data of the authenticated user
   const [userProfile, setUserProfile] = useState(null);
 
   // function to update user state
@@ -155,12 +154,11 @@ const AuthProvider = ({ children }) => {
     const profileData = await getUserProfileData(userId);
 
     if(profileData){
-      setLoggedInUserProfile(profileData)
+      setLoggedInUserProfile(profileData);
     }
     else{
       throw new Error(t('shared.userProfileDataNotFound'));
     }
-    
   }, []);
 
   // add listener for auth state change and update user state accordingly
@@ -169,19 +167,20 @@ const AuthProvider = ({ children }) => {
       console.log(event);
       setLoggedInUser(session?.user);
     
-      if(event !== 'SIGNED_OUT' && session?.user?.id){
-        try{
-          fetchAndSetProfileData(session.user.id);
-        }
-        catch(error){
-          console.error(error)
-          setLoggedInUserProfile(null);
-        }
-      }
-      else{
-        setUser(null);
-        setLoggedInUserProfile(null);
-      }
+      // No need to fetch after auth state change, only fetch on screen where it's needed(?)
+      // if(event !== 'SIGNED_OUT' && session?.user?.id){
+      //   try{
+      //     fetchAndSetProfileData(session.user.id);
+      //   }
+      //   catch(error){
+      //     console.error(error)
+      //     setLoggedInUserProfile(null);
+      //   }
+      // }
+      // else{
+      //   setUser(null);
+      //   setLoggedInUserProfile(null);
+      // }
     });
   }, []);
 

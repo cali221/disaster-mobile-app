@@ -231,7 +231,7 @@ export function ProfileScreen({ navigation, route }) {
         fetchScreenData(user.id);
         
         setRefreshing(false);
-    }, [user]);
+    }, [user?.id]);
 
     useEffect(()=>{
         if(user && isFocused == true){

@@ -23,22 +23,28 @@ export function LeaderboardScreen() {
             setLeaderboardData(fetchedData);
         }
         catch(error){
-            showErrorToast(t('leaderboardScreen.failedToRefreshLeaderboardData',  `${error.message ?? JSON.stringify(error)}`));
+            showErrorToast(t('leaderboardScreen.failedToRefreshLeaderboardData', 
+                              `${error.message ?? JSON.stringify(error)}`));
         }
 
         setIsLoading(false);
     }
 
     useEffect(()=>{
-        setIsLoading(true);
-        try{
-            getLeaderboard(user.id).then((data)=>{setLeaderboardData(data)});
+        if(user?.id){
+            setIsLoading(true);
+
+            try{
+                getLeaderboard(user.id).then((data)=>{setLeaderboardData(data)});
+            }
+            catch(error){
+                showErrorToast(t('leaderboardScreen.failedToFetchLeaderboardData',  
+                            `${error.message ?? JSON.stringify(error)}`));
+            }
+            
+            setIsLoading(false);
         }
-        catch(error){
-            showErrorToast(t('leaderboardScreen.failedToFetchLeaderboardData',  `${error.message ?? JSON.stringify(error)}`));
-        }
-        setIsLoading(false);
-    }, []);
+    }, [user?.id]);
 
     return(
         <View style={styles.screenContainer}>

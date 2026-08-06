@@ -18,6 +18,8 @@ export function FindUsersScreen() {
     const searchUser = async(query, userId) => {
         setIsLoading(true);
 
+        /* get users with username like the query, including data about 
+           follow relationship  between them and the authenticated user */
         const {data, error} = await supabase.schema('public')
                                             .rpc('search_user_by_username', 
                                                  {search_query_input: query});

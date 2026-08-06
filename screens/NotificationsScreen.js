@@ -110,12 +110,12 @@ export function NotificationsScreen({ navigation }) {
         handleFetchNotifications();
         
         setRefreshing(false);
-    }, [user, notifCategoryChosen]);
+    }, [user?.id, notifCategoryChosen]);
 
     // fetch notification on first load and user/notification category change
     useEffect(()=>{
         handleFetchNotifications();
-    }, [user, notifCategoryChosen]);
+    }, [user?.id, notifCategoryChosen]);
 
     return(
         <View style={[styles.notificationScreenContainer, { paddingLeft: insets.left,

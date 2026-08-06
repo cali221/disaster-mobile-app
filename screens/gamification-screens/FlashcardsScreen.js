@@ -115,8 +115,6 @@ export function FlashcardsScreen() {
                 // remove the reviewed card from the deck
                 newDeckArr = newDeckArr.filter((card, index) => index !== 0);
 
-                console.log(newDeckArr)
-
                 setDeckArr(newDeckArr);
                 setIsShowingAns(false);
             }
@@ -151,6 +149,7 @@ export function FlashcardsScreen() {
 
         // fetch flashcards to review for authenticated user
         fetchFlashcard();
+        fetchAndSetProfileData();
         
         setIsLoading(false);
     }, []);
