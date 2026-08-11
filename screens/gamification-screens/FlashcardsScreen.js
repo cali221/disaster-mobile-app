@@ -149,7 +149,9 @@ export function FlashcardsScreen() {
 
         // fetch flashcards to review for authenticated user
         fetchFlashcard();
-        fetchAndSetProfileData();
+
+        // fetch the user's profile data (to get current avatar)
+        fetchAndSetProfileData(user.id);
         
         setIsLoading(false);
     }, []);
