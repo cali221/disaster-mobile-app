@@ -29,6 +29,7 @@
     },
     "plugins": [
       "expo-sqlite",
+      "expo-audio",
       "expo-notifications",
       "@maplibre/maplibre-react-native"
     ],
