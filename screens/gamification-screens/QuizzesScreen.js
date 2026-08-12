@@ -45,13 +45,12 @@ export function QuizzesScreen() {
             }
             else{
                 if(data){
-                    console.log(data);
                     setAvailableCategories(data);
                 }
             }
            }
            catch(error){
-                showErrorToast('Failed to fetch quiz categories', 
+                showErrorToast(t('quizScreen.failedToFetchCategories'), 
                                `${error.message ?? JSON.stringify(error)}`);
            };
 
@@ -85,7 +84,7 @@ export function QuizzesScreen() {
                 };
             }
             catch(error){
-                showErrorToast('Failed to fetch question and answers data', 
+                showErrorToast(t('quizScreen.failedToFetchQsAndAs'), 
                                `${error.message ?? JSON.stringify(error)}`);
             };
 
@@ -134,7 +133,6 @@ export function QuizzesScreen() {
         // if there is no more questions to be shown afterwards, set quiz as finished
         if(newQuestionsAndAnswersArr.length == 0){
             setQuizIsFinished(true);
-            console.log(newScore);
 
             if(newScore == 100){
                 const {data, error} = await supabase.schema('users')
