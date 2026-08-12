@@ -4,6 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { showErrorToast } from '../../utils/show-toast';
+import { useAudioPlayer } from 'expo-audio';
+
+const correctAnsSoundSource = require('../../assets/audio/correct-answer-sound/538147__fupicat__correct-bell.wav');
+const wrongAnsSoundSource = require('../../assets/audio/wrong-answer-sound/648462__andreas__wrong-answer.mp3');
 
 export function QuizzesScreen() {
     const { t, i18n } = useTranslation();
@@ -12,6 +16,9 @@ export function QuizzesScreen() {
     const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] = useState([]);
     const [score, setScore] = useState(0);
     const currentLang = i18n.resolvedLanguage;
+    const correctAnsPlayer = useAudioPlayer(correctAnsSoundSource);
+    const wrongAnsPlayer = useAudioPlayer(wrongAnsSoundSource);
+    
 
     useEffect(()=>{
         // fetch all quiz categories
@@ -73,15 +80,19 @@ export function QuizzesScreen() {
 
     const handleAnsBtnPress = (correctAnsWasPicked) => {
         if(correctAnsWasPicked == true){
-            alert('correct')
+          correctAnsPlayer.seekTo(0);
+          correctAnsPlayer.play();
         }
         else{
-            alert('incorrect')
+            wrongAnsPlayer.seekTo(0);
+            wrongAnsPlayer.play();
         }
 
+        // new Q and A array with the first item removed
         const newQuestionsAndAnswersArr = quizQuestionsAndAnswers.filter((item, index) => index !== 0);
-        setQuizQuestionsAndAnswers(newQuestionsAndAnswersArr);
 
+        // update the corresponding state with the new array
+        setQuizQuestionsAndAnswers(newQuestionsAndAnswersArr);
     };
 
     return(
