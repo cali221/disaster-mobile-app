@@ -8,13 +8,13 @@ import { showErrorToast } from '../../utils/show-toast';
 import { useAudioPlayer } from 'expo-audio';
 import { QuizAnswerResultOverlay } from '../../components/QuizAnswerResultOverlay';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-
+import { roundTo2DP } from '../../utils/rounding';
 const correctAnsSoundSource = require('../../assets/audio/correct-answer-sound/538147__fupicat__correct-bell.wav');
 const wrongAnsSoundSource = require('../../assets/audio/wrong-answer-sound/648462__andreas__wrong-answer.mp3');
 
 export function QuizzesScreen() {
     const { t, i18n } = useTranslation();
-    const { user, userProfile, fetchAndSetProfileData } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [availableCatergories, setAvailableCategories] = useState([]);
     const [chosenCategory, setChosenCategory] = useState(null);
     const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] = useState([]);
@@ -134,29 +134,53 @@ export function QuizzesScreen() {
         if(newQuestionsAndAnswersArr.length == 0){
             setQuizIsFinished(true);
 
-            if(newScore == 100){
-                const {data, error} = await supabase.schema('users')
-                                                    .from('profiles_public_data')
-                                                    .select('has_gotten_100_in_a_quiz')
-                                                    .eq('user_id', user.id)
-                                                    .single();
+            // fetch user's XP and check if they've ever gotten 100 before
+            const {data, error} = await supabase.schema('users')
+                                                .from('profiles_public_data')
+                                                .select('has_gotten_100_in_a_quiz, xp')
+                                                .eq('user_id', user.id)
+                                                .single();
 
-                if(error){
-                    showErrorToast(t('quizScreen.failedToFetchProfileData'), 
-                                     `${error.message ?? JSON.stringify(error)}`);
+            if(error){
+                showErrorToast(t('quizScreen.failedToFetchProfileData'), 
+                               `${error.message ?? JSON.stringify(error)}`);
+            }
+            else{
+                let newXp = 0;
+
+                if(newScore == 100){
+                    newXp = 70;
+                }
+                else if(newScore < 100 && newScore >= 70){
+                    newXp = 55
+                }
+                else if(newScore < 70){
+                    newXp = 20
+                };
+
+                let error = null;
+
+                if(data?.has_gotten_100_in_a_quiz == false){
+                    const res = await supabase.schema('users')
+                                          .from('profiles_public_data')
+                                          .update({ has_gotten_100_in_a_quiz: true, 
+                                                    xp: data?.xp + newXp })
+                                          .eq('user_id', user.id);
+
+                    error = res?.error;
                 }
                 else{
-                    if(data?.has_gotten_100_in_a_quiz == false){
-                        const { error } = await supabase.schema('users')
-                                                        .from('profiles_public_data')
-                                                        .update({ has_gotten_100_in_a_quiz: true })
-                                                        .eq('user_id', user.id);
+                    const res = await supabase.schema('users')
+                                          .from('profiles_public_data')
+                                          .update({ xp: data?.xp + newXp })
+                                          .eq('user_id', user.id);
 
-                        if(error){
-                            showErrorToast(t('quizScreen.failedToUpdateProfile'), 
-                                        `${error.message ?? JSON.stringify(error)}`);
-                        }
-                    }
+                    error = res?.error;
+                }
+
+                if(error){
+                    showErrorToast(t('quizScreen.failedToUpdateProfile'), 
+                                    `${error.message ?? JSON.stringify(error)}`);
                 }
             }
         }
@@ -209,7 +233,7 @@ export function QuizzesScreen() {
                                         </Text>
 
                                         <Text style={styles.quizHeadingTxt}>
-                                            {t('quizScreen.score')}: {score}
+                                            {t('quizScreen.score')}: {roundTo2DP(score)}
                                         </Text>
                                     </View>
 
@@ -248,7 +272,7 @@ export function QuizzesScreen() {
 
                                     {/* final score text */}
                                     <Text style={styles.finalScoreTxt}>
-                                        {t('quizScreen.finalScore')}: {score}
+                                        {t('quizScreen.finalScore')}: {roundTo2DP(score)}
                                     </Text>
 
                                     {/* button to go back to categories menu */}
