@@ -1,8 +1,9 @@
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useEffect, useState, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../../lib/supabase';
 import { showErrorToast } from '../../utils/show-toast';
 import { useAudioPlayer } from 'expo-audio';
 import { QuizAnswerResultOverlay } from '../../components/QuizAnswerResultOverlay';
@@ -13,6 +14,7 @@ const wrongAnsSoundSource = require('../../assets/audio/wrong-answer-sound/64846
 
 export function QuizzesScreen() {
     const { t, i18n } = useTranslation();
+    const { user, userProfile, fetchAndSetProfileData } = useContext(AuthContext);
     const [availableCatergories, setAvailableCategories] = useState([]);
     const [chosenCategory, setChosenCategory] = useState(null);
     const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] = useState([]);
@@ -96,7 +98,9 @@ export function QuizzesScreen() {
     }, [chosenCategory]);
 
     // function to handle answer button press
-    const handleAnsBtnPress = (correctAnsWasPicked) => {
+    const handleAnsBtnPress = async(correctAnsWasPicked) => {
+        let newScore;
+
         // update number of questions shown
         const newNumberOfQsShown = numberOfQuestionsShown + 1;
         setNumberOfQuestionsShown(newNumberOfQsShown);
@@ -104,7 +108,7 @@ export function QuizzesScreen() {
         // if the answer picked is true:
         if(correctAnsWasPicked == true){
           // add score
-          const newScore = score + (100/numberOfQuestions);
+          newScore = score + (100/numberOfQuestions);
           setScore(newScore);
 
           // show correct answer overlay
@@ -130,8 +134,34 @@ export function QuizzesScreen() {
         // if there is no more questions to be shown afterwards, set quiz as finished
         if(newQuestionsAndAnswersArr.length == 0){
             setQuizIsFinished(true);
+            console.log(newScore);
+
+            if(newScore == 100){
+                const {data, error} = await supabase.schema('users')
+                                                    .from('profiles_public_data')
+                                                    .select('has_gotten_100_in_a_quiz')
+                                                    .eq('user_id', user.id)
+                                                    .single();
+
+                if(error){
+                    showErrorToast(t('quizScreen.failedToFetchProfileData'), 
+                                     `${error.message ?? JSON.stringify(error)}`);
+                }
+                else{
+                    if(data?.has_gotten_100_in_a_quiz == false){
+                        const { error } = await supabase.schema('users')
+                                                        .from('profiles_public_data')
+                                                        .update({ has_gotten_100_in_a_quiz: true })
+                                                        .eq('user_id', user.id);
+
+                        if(error){
+                            showErrorToast(t('quizScreen.failedToUpdateProfile'), 
+                                        `${error.message ?? JSON.stringify(error)}`);
+                        }
+                    }
+                }
+            }
         }
-        
         // update the corresponding state with the new array
         setQuizQuestionsAndAnswers(newQuestionsAndAnswersArr);
     };
