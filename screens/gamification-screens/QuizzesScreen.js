@@ -160,15 +160,17 @@ export function QuizzesScreen() {
 
                 let error = null;
 
+                // if user has never gotten 100 before, update that and the xp
                 if(data?.has_gotten_100_in_a_quiz == false){
                     const res = await supabase.schema('users')
-                                          .from('profiles_public_data')
-                                          .update({ has_gotten_100_in_a_quiz: true, 
-                                                    xp: data?.xp + newXp })
-                                          .eq('user_id', user.id);
+                                              .from('profiles_public_data')
+                                              .update({ has_gotten_100_in_a_quiz: true, 
+                                                        xp: data?.xp + newXp })
+                                              .eq('user_id', user.id);
 
                     error = res?.error;
                 }
+                // otherwise just update the xp
                 else{
                     const res = await supabase.schema('users')
                                           .from('profiles_public_data')
