@@ -206,7 +206,7 @@ export function ProfileScreen({ navigation, route }) {
     const fetchScreenData = async(userId) => {
         // fetch and update userProfile state 
         try{
-            await fetchAndSetProfileData(user.id);
+            await fetchAndSetProfileData(userId);
         }
         catch(error){
             setLoggedInUser(null);
@@ -238,7 +238,7 @@ export function ProfileScreen({ navigation, route }) {
             setIsLoading(true); 
     
             // fetch sreeen's data
-            fetchScreenData(user.id)
+            fetchScreenData(user?.id)
 
             setIsLoading(false);
         }

@@ -28,7 +28,7 @@ export function LeaderboardList(props) {
                                                                         userId: item.user_id
                                                                     }
                                                                     )}}>
-                                @{item.username} {item.user_id == user.id && `(${t('shared.you')})`}
+                                @{item.username} {item.user_id == user?.id && `(${t('shared.you')})`}
                             </Text>
 
                             {/* total XP of the user */}

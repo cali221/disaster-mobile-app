@@ -421,7 +421,8 @@ const styles = StyleSheet.create({
     headingAndQuestionAnswersContainer: {
         display: 'flex',
         alignItems: 'flex-start',
-        rowGap: 35
+        rowGap: 35,
+        width: '100%'
     },
     // container of heading texts shown on ongoing quiz
     headingTxtsContainer: {
@@ -454,18 +455,18 @@ const styles = StyleSheet.create({
     // button for picking answer
     answerBtn: {
         backgroundColor: '#2D3782',
-        width: '100%',
         paddingHorizontal: 20,
         paddingVertical: 15,
         borderRadius: 50,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        width: '100%'
     },
     // text inside answer button
     answerBtnTxt: {
         color: 'white',
-        fontSize: '17',
+        fontSize: 17,
         fontWeight: '600',
         textAlign: 'center'
     },
@@ -504,7 +505,7 @@ const styles = StyleSheet.create({
     // text inside button to go back to categories menu
     goBackToCategoriesBtnTxt: {
         color: 'white',
-        fontSize: '16',
+        fontSize: 16,
         fontWeight: '600'
     }
 });
