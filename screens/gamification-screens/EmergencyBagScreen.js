@@ -9,12 +9,28 @@ import { Check } from 'lucide-react-native';
 
 export function EmergencyBagScreen() {
     const insets = useSafeAreaInsets();
+    const { user } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
     const currentLang = i18n.resolvedLanguage;
     const [emergencyBagData, setEmergencyBagData] = useState([]);
 
     const handleCheckboxToggle = (itemId, userId) => {
-        
+        // get the index of the toggled item
+        const itemToggledIndex = emergencyBagData.findIndex(item => item.item_id === itemId);
+
+        // if toggle item is found handle update
+        // TODO: continue
+        if(itemToggledIndex != -1){
+            if(emergencyBagData[itemToggledIndex].is_checked == false){
+                alert('this is unchecked')
+            }
+            else if(emergencyBagData[itemToggledIndex].is_checked == true){
+                alert('this is checked')
+            }
+        }
+        else{
+            showErrorToast(t('emergencyBagScreen.itemNotFound'), '');
+        }
     };
 
     useEffect(() => {
@@ -23,15 +39,18 @@ export function EmergencyBagScreen() {
                                                 .rpc('get_auth_uuser_emergency_bag_data');
 
             if(error){
-                showErrorToast('Failed to fetch emergency bag data', `${error.message ?? JSON.stringify(error)}`);
+                showErrorToast(t('emergencyBagScreen.failedToFecthEmergencyBagData'), 
+                               `${error.message ?? JSON.stringify(error)}`);
             }
             else{
                 setEmergencyBagData(data);
             }
         };
 
-        fetchUserEmergencyBagData();
-    }, []);
+        if(user?.id){
+            fetchUserEmergencyBagData();
+        }
+    }, [user?.id]);
 
     return(
         <View style={styles.screenContainer}>
@@ -43,13 +62,15 @@ export function EmergencyBagScreen() {
                 {
                     emergencyBagData?.map((item, index) => (
                         <View key={index} style={styles.emergencyBagItemContainer}>
-                            <TouchableOpacity style={styles.checkboxCircle}>
+                            <TouchableOpacity style={styles.checkboxCircle}
+                                              onPress={()=>{handleCheckboxToggle(item?.item_id, user?.id)}}>
                                 {
                                     item.is_checked == true && (
                                         <Check color='white' />
                                     )
                                 }
                             </TouchableOpacity>
+
                             <Text style={styles.itemNameTxt}>
                                 {currentLang == 'id' ? 
                                  item.item_name_idn :
@@ -99,8 +120,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         backgroundColor: '#D2DAE4',
         borderRadius: 20,
-        elevation: 2,
-        width: '100%'
+        elevation: 2
     },
     // explanation text about XP and checklist
     xpExplanationTxt: {
@@ -121,6 +141,7 @@ const styles = StyleSheet.create({
     itemNameTxt: {
         color: '#2D3782',
         fontSize: 15,
-        fontWeight: '600'
+        fontWeight: '600',
+        width: '100%'
     }
 })
