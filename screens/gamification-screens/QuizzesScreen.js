@@ -138,7 +138,7 @@ export function QuizzesScreen() {
             const {data, error} = await supabase.schema('users')
                                                 .from('profiles_public_data')
                                                 .select('has_gotten_100_in_a_quiz, xp')
-                                                .eq('user_id', user.id)
+                                                .eq('user_id', user?.id)
                                                 .single();
 
             if(error){
@@ -166,16 +166,16 @@ export function QuizzesScreen() {
                                               .from('profiles_public_data')
                                               .update({ has_gotten_100_in_a_quiz: true, 
                                                         xp: data?.xp + newXp })
-                                              .eq('user_id', user.id);
+                                              .eq('user_id', user?.id);
 
                     error = res?.error;
                 }
                 // otherwise just update the xp
                 else{
                     const res = await supabase.schema('users')
-                                          .from('profiles_public_data')
-                                          .update({ xp: data?.xp + newXp })
-                                          .eq('user_id', user.id);
+                                              .from('profiles_public_data')
+                                              .update({ xp: data?.xp + newXp })
+                                              .eq('user_id', user?.id);
 
                     error = res?.error;
                 }
@@ -250,12 +250,12 @@ export function QuizzesScreen() {
                                             quizQuestionsAndAnswers[0].quiz_answers.map((item, index) => {
                                                 return(
                                                     <TouchableOpacity key={index}
-                                                                    onPress={()=>{handleAnsBtnPress(item.is_correct_ans)}}
-                                                                    style={styles.answerBtn}>
+                                                                      onPress={()=>{handleAnsBtnPress(item.is_correct_ans)}}
+                                                                      style={styles.answerBtn}>
                                                         <Text style={styles.answerBtnTxt}>
                                                             {currentLang == 'id' ? 
-                                                            item.answer_text_idn :
-                                                            item.answer_text}
+                                                             item.answer_text_idn :
+                                                             item.answer_text}
                                                         </Text>
                                                     </TouchableOpacity>
                                                 )
@@ -420,9 +420,10 @@ const styles = StyleSheet.create({
        containing quiz question and answers */
     headingAndQuestionAnswersContainer: {
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         rowGap: 35,
-        width: '100%'
+        width: '100%',
+        maxWidth: 350
     },
     // container of heading texts shown on ongoing quiz
     headingTxtsContainer: {
