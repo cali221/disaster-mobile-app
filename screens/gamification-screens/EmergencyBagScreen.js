@@ -112,10 +112,7 @@ export function EmergencyBagScreen() {
                       paddingRight: insets.right}]}>
             <ScrollView style={styles.itemsListScrollView}
                         contentContainerStyle={[styles.itemsListScrollViewContentContainer,
-                                                {paddingLeft: insets.left + 30,
-                                                 paddingRight: insets.right + 30,
-                                                 paddingBottom: insets.bottom + 100,
-                                                 paddingTop: insets.top + 30}
+                                                {paddingBottom: insets.bottom + 100}
                         ]}>
                 {/* explanation text about how the feature affects XP */}
                 <Text style={styles.xpExplanationTxt}>
@@ -181,7 +178,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         rowGap: 25,
-        maxWidth: 350
+        maxWidth: 350,
+        paddingHorizontal: 30,
+        paddingTop: 30
     },
     // container of each emergency bag item in the list
     emergencyBagItemContainer: {
@@ -191,7 +190,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         columnGap: 20,
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 15,
         backgroundColor: '#D2DAE4',
         borderRadius: 20,
         elevation: 2,
@@ -217,6 +216,8 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         fontSize: 15,
         fontWeight: '600',
-        width: '100%'
+        display: 'flex',
+        flexWrap: 'wrap',
+        flex: 1
     }
-})
+});
