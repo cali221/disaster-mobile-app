@@ -76,33 +76,35 @@ export function FlashcardsScreen() {
                                                                 cardEaseFactor, 
                                                                 recallEaseVal);
 
+                /* update the reviewed card in the deck new array accordingly,
+                   if recall ease value quality is less than 4, 
+                   repeat again after the session but the later repetitions 
+                   won't contribute to the card's stats for the user */
+                newDeckArr[0] = {
+                    ...reviewedCard,
+                    is_repeating: recallEaseVal < 4 ? true : false, 
+                    card_interval: newCardInterval,
+                    card_repetition: newCardReps,
+                    card_ease_factor: newCardEF,
+                    due_at: newDueDate
+                };
+
                 /* if the card was not reviewed as a part of repetition after session, 
                    upsert the updated card's stats for the user */
                 if(reviewedCard.is_repeating == false){
                     // new user's card data to upsert
                     const newUserFlashcardObj = {
-                        user_id: user.id,
-                        flashcard_id: reviewedCard.flashcard_id,
-                        card_interval: newCardInterval,
-                        card_repetition: newCardReps,
-                        card_ease_factor: newCardEF,
-                        due_at: newDueDate
+                        card_interval: newDeckArr[0].card_interval, 
+                        card_repetition: newDeckArr[0].card_repetition, 
+                        card_ease_factor: newDeckArr[0].card_ease_factor, 
+                        due_at: newDeckArr[0].due_at,
+                        flashcard_id: newDeckArr[0].flashcard_id,
+                        user_id: user.id
                     };
 
                     // upsert user's flashcard data
                     await updateUserFlashcardsData(newUserFlashcardObj);
                 };
-
-                /* update the reviewed card in the deck new array accordingly,
-                   if recall ease value quality is less than 4, 
-                   repeat again after the session but the later repetitions 
-                   won't contribute to the card's stats for the user */
-                newDeckArr[0] = {...reviewedCard,
-                                 is_repeating: recallEaseVal < 4 ? true : false, 
-                                 card_interval: newCardInterval,
-                                 card_repetition: newCardReps,
-                                 card_ease_factor: newCardEF,
-                                 due_at: newDueDate}
 
                 /* if the recall ease value is less than 4,
                    push the reviewed card (with updated stats)
@@ -110,7 +112,7 @@ export function FlashcardsScreen() {
                    the session */
                 if(recallEaseVal < 4){
                     newDeckArr.push(newDeckArr[0]);
-                }
+                };
                 
                 // remove the reviewed card from the deck
                 newDeckArr = newDeckArr.filter((card, index) => index !== 0);
