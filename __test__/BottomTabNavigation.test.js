@@ -142,7 +142,7 @@ describe('Navigation when logged in', ()=>{
 
     it('shows notifications screen when user is not null and user navigated to notifications screen', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
+            <AuthContext.Provider value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
                 <Navigation />
             </AuthContext.Provider>
         )
@@ -219,7 +219,7 @@ describe('Navigation when logged out', ()=>{
 
     it('shows sign in screen when user is null and navigated to notifiations screen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
+            <AuthContext.Provider value={{user: null, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
                 <Navigation />
             </AuthContext.Provider>
         );

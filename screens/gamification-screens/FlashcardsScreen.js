@@ -56,7 +56,7 @@ export function FlashcardsScreen() {
         setIsLoading(true);
 
         try{
-            // if array is not empty, remove last item, update state and stop showing answer
+            // if array is not empty, update card data and stop showing answer
             if(deckArr.length > 0){
                 // initialize new deck array as a copy of the deck array
                 let newDeckArr = [...deckArr];

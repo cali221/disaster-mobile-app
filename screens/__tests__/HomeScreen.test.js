@@ -89,6 +89,11 @@ jest.mock('@supabase/supabase-js', () => {
                             error: null
                         }
                     }
+                    else{
+                        return {
+                            data: []
+                        }
+                    }
                 }),
                 auth: {
                     onAuthStateChange: jest.fn().mockReturnThis()
@@ -97,6 +102,9 @@ jest.mock('@supabase/supabase-js', () => {
         })
     }
 });
+
+const setLoggedInUser = jest.fn();
+const fetchAndSetProfileData = jest.fn();
 
 describe('Home Screen', () => {
     const testUser = { id: 'some-user-id' };
@@ -293,7 +301,7 @@ describe('Home Screen', () => {
 
     it('should navigate to flashcards screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
+            <AuthContext value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
                 <Navigation />
             </AuthContext>
         );
