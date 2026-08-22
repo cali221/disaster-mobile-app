@@ -195,7 +195,9 @@ export function HomeScreen({ navigation }) {
                 <Marker key={index} 
                         testID='marker-on-map'
                         lngLat={[disaster['longitude'], disaster['latitude']]} 
-                        onPress={()=>{navigation.navigate('Disaster Details', {disasterId: disaster['id']})}}
+                        onPress={()=>{navigation.navigate('Disaster Details',
+                                                          {disasterId: disaster['id']}
+                        )}}
                         accessibilityRole='button'
                         accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
                   <MapDisasterLegend disasterType={disaster['disaster_type']} />
@@ -255,7 +257,9 @@ export function HomeScreen({ navigation }) {
                     <TouchableOpacity style={styles.disasterSummaryDetailsBtn}
                                       accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}
                                       accessibilityRole='button'
-                                      onPress={()=>{navigation.navigate('Disaster Details', {disasterId: summary.disaster_id})}}>
+                                      onPress={()=>{navigation.navigate('Disaster Details', 
+                                                                        {disasterId: summary.disaster_id})
+                                                   }}>
                       <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('shared.details')}</Text>
                     </TouchableOpacity>
                   </View>
