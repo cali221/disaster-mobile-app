@@ -7,6 +7,9 @@ import { roundTo2DP } from '../../utils/rounding';
 import { useTranslation } from 'react-i18next';
 import { capitalizeFirstLetter } from '../../utils/text-formatting';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MapDisasterLegend } from '../../components/MapDisasterLegend';
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import * as mapStyle from '../../assets/map-style/style.json';
 
 export function DisasterDetailsScreen({route}) {
     const insets = useSafeAreaInsets();
@@ -46,50 +49,65 @@ export function DisasterDetailsScreen({route}) {
         disasterObj ? (
             <View style={styles.screenContainer}>
                 {/* crowdsourced reports map placeholder */}
-                <View style={{width: '100%', height: 250, backgroundColor: 'plum'}}></View>
+                {/* <View style={{width: '100%', height: 250, backgroundColor: 'plum'}}></View> */}
+
+                <Map style={{width: '100%', height: 250}} 
+                     mapStyle={mapStyle}
+                     compassPosition={{top: 20, left: 20}}
+                     onStartShouldSetResponder={()=>{return true}}>
+                    <Camera maxZoom={14} 
+                            zoom={10} 
+                            bounds={(disasterObj?.general?.latitude && 
+                                     disasterObj?.general?.longitude) ? 
+                                    [(disasterObj?.general?.longitude - 5), 
+                                     (disasterObj?.general?.latitude - 5), 
+                                     (disasterObj?.general?.longitude + 5), 
+                                     (disasterObj?.general?.latitude + 5)] : 
+                                    [93, -12, 142, 10]} />
+
+
+                    {/* marker showing the disaster */}
+                    <Marker testID='disaster-marker-on-map'
+                            lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
+                        <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
+                    </Marker>
+
+                    {/* TODO: map crowdsourced report as markers 
+                        (different appearance from disaster marker) */}
+                </Map>
 
                 <ScrollView contentContainerStyle={[styles.disasterInformationContainer, 
                                                     {paddingBottom: insets.bottom + 70,
                                                      paddingLeft: insets.left + 30,
-                                                     paddingRight: insets.right + 30}]}
-                            >
+                                                     paddingRight: insets.right + 30,
+                                                     paddingTop: 20}]}
+                            style={styles.disasterInformationScrollView}>
                     {/* title text */}
-                    {disasterObj?.area?.contained_in_area == null ? 
-                    (
-                        /* title text, if no information about if it's contained in an area or not, 
-                           just show disaster type */
-                        <Text>
-                            { 
-                                i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
-                                capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
-                                capitalizeFirstLetter(disasterObj?.general?.disaster_type)
-                            }
-                        </Text>
-                    ):
-                    (
-                        /* if there is information about if the disaster is contained in area,
-                            show the title accordingly */
-                        disasterObj?.area?.contained_in_area == true ? 
-                        (
-                            <Text>
-                                {t('disasterDetailsScreen.titleWhenInAreaIsTrue', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
-                                                                                        capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
-                                                                                        capitalizeFirstLetter(disasterObj?.general?.disaster_type),
-                                                                                    cityOrRegency: disasterObj?.area?.city_or_regency,
-                                                                                    province: disasterObj?.area?.province})}
-                            </Text>
-                        ):
-                        (
-                            <Text>
-                                {t('disasterDetailsScreen.titleWhenInAreaIsFalse', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
+                    <Text style={styles.disasterTitleTxt}>
+                        {
+                          /* if no information about if it's contained in an area or not, 
+                            just show disaster type */
+                          disasterObj?.area?.contained_in_area == null ?       
+                          i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
+                          capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
+                          capitalizeFirstLetter(disasterObj?.general?.disaster_type) :
+                          /* if there is information about if the disaster is contained in area,
+                             show the title accordingly */
+                           disasterObj?.area?.contained_in_area == true ? 
+                           t('disasterDetailsScreen.titleWhenInAreaIsTrue', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
+                                                                                    capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
+                                                                                    capitalizeFirstLetter(disasterObj?.general?.disaster_type),
+                                                                              cityOrRegency: disasterObj?.area?.city_or_regency,
+                                                                              province: disasterObj?.area?.province}) :
+
+                           t('disasterDetailsScreen.titleWhenInAreaIsFalse', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
                                                                                         capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
                                                                                         capitalizeFirstLetter(disasterObj?.general?.disaster_type),
                                                                                     distFromArea: roundTo2DP((disasterObj?.area?.dist_in_m_from_area)/1000),
                                                                                     cityOrRegency: disasterObj?.area?.city_or_regency,
-                                                                                    province: disasterObj?.area?.province})}
-                            </Text>
-                        )
-                    )}
+                                                                                    province: disasterObj?.area?.province})
+                        }
+                    </Text>
 
                     {/* disaster time */}
                     <Text>
@@ -237,7 +255,8 @@ export function DisasterDetailsScreen({route}) {
                         disasterObj?.general.disaster_type == 'haze' ?
                         (
                             <View>
-                               {/* visibility */}
+                               {/* visibility, with number and status pairs according to documentation on:
+                                   https://docs.petabencana.id/master-1/general/supported-hazards */}
                                {
                                     disasterObj?.visibility && (
                                         <Text>
@@ -254,7 +273,8 @@ export function DisasterDetailsScreen({route}) {
                                     )
                                 }
                                 
-                                {/* air quality */}
+                                {/* air quality, with number and status pairs according to documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
                                     disasterObj?.airQualityStatus && (
                                         <Text>
@@ -277,6 +297,8 @@ export function DisasterDetailsScreen({route}) {
                         disasterObj?.general.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
                         (
                             <View>
+                                {/* the impact status, with number and status pairs according to documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 <Text>
                                     {t('disasterDetailsScreen.impact')}:{' '}
                                     {disasterObj?.impactStatus == 0 ? t('disasterDetailsScreen.low'): 
@@ -298,7 +320,8 @@ export function DisasterDetailsScreen({route}) {
                                     )
                                 }
 
-                                {/* volanic signs that were observed */}
+                                {/* volanic signs that were observed, with number and status pairs according to documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
                                     (disasterObj?.signsStatusObserved !== null && disasterObj?.signsStatusObserved.length > 0) &&
                                     (
@@ -355,13 +378,27 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        rowGap: 20
+        flexDirection: 'column'
     },
+    // scroll view containing the disaster information
+    disasterInformationScrollView: {
+        backgroundColor: 'white',
+        width: '100%'
+    },
+    /* the content container for 
+       disaster information scroll view */
     disasterInformationContainer: {
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white'
+    },
+    // the disaster title text
+    disasterTitleTxt: {
+        fontSize: 20,
+        color: '#2D3782',
+        fontWeight: '600',
+        textAlign: 'center'
     }
 });
