@@ -46,7 +46,7 @@ export function DisasterDetailsScreen({route}) {
         disasterObj ? (
             <View style={styles.screenContainer}>
                 {/* crowdsourced reports map placeholder */}
-                <View style={{width: '100%', height: 300, backgroundColor: 'red'}}></View>
+                <View style={{width: '100%', height: 250, backgroundColor: 'plum'}}></View>
 
                 <ScrollView contentContainerStyle={[styles.disasterInformationContainer, 
                                                     {paddingBottom: insets.bottom + 70,
@@ -57,7 +57,7 @@ export function DisasterDetailsScreen({route}) {
                     {disasterObj?.area?.contained_in_area == null ? 
                     (
                         /* title text, if no information about if it's contained in an area or not, 
-                            just show disaster type */
+                           just show disaster type */
                         <Text>
                             { 
                                 i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
@@ -89,136 +89,201 @@ export function DisasterDetailsScreen({route}) {
                                                                                     province: disasterObj?.area?.province})}
                             </Text>
                         )
-                    )
-                }
+                    )}
 
-                {/* disaster time */}
-                <Text>
-                    {new Date(disasterObj?.general?.datetime).toLocaleString('id', {timeZoneName: 'short'})}
-                </Text>
+                    {/* disaster time */}
+                    <Text>
+                        {new Date(disasterObj?.general?.datetime).toLocaleString('id', {timeZoneName: 'short'})}
+                    </Text>
 
-                {/* image */}
-                {
-                    disasterObj?.general?.img_url && (
-                        <Image source={{uri: disasterObj?.general?.img_url}} 
-                               style={{width: '100%', aspectRatio: 1}}
-                               resizeMode='contain' />
-                    )
-                }
+                    {/* image */}
+                    {
+                        disasterObj?.general?.img_url && (
+                            <Image source={{uri: disasterObj?.general?.img_url}} 
+                                style={{width: '100%', aspectRatio: 1}}
+                                resizeMode='contain' />
+                        )
+                    }
                 
-                {
-                    disasterObj?.general?.description && (
-                        <Text>
-                            {disasterObj?.general?.description}
-                        </Text>
-                    )
-                }
+                    {/* disaster description */}
+                    {
+                        disasterObj?.general?.description && (
+                            <Text>
+                                {disasterObj?.general?.description}
+                            </Text>
+                        )
+                    }
 
-                {/* add details text according to types, 
-                    for types that have no details data, 
-                    show explanation text*/}
-                {
-                    // earthquake details texts
-                    disasterObj?.general?.disaster_type == 'earthquake' ? 
-                    (
-                        <View>
-                            {/* magnitude */}
-                            {
-                                disasterObj?.magnitude && (
-                                    <Text>
-                                        {t('disasterDetailsScreen.magnitude')}: {disasterObj?.magnitude}
-                                    </Text>
-                                )
-                            }
-                            
-                            {/* earthquake depth */}
-                            {
-                                disasterObj?.depthInKm && (
-                                    <Text>
-                                        {t('disasterDetailsScreen.depth')}: {disasterObj?.depthInKm} km
-                                    </Text>
-                                )
-                            }
+                    {/* add details text according to types, 
+                        for types that have no details data, 
+                        show explanation text */}
+                    {
+                        // earthquake details texts
+                        disasterObj?.general?.disaster_type == 'earthquake' ? 
+                        (
+                            <View>
+                                {/* magnitude */}
+                                {
+                                    disasterObj?.magnitude && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.magnitude')}: {disasterObj?.magnitude}
+                                        </Text>
+                                    )
+                                }
+                                
+                                {/* earthquake depth */}
+                                {
+                                    disasterObj?.depthInKm && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.depth')}: {disasterObj?.depthInKm} km
+                                        </Text>
+                                    )
+                                }
 
-                            {/* earthquake potential */}
-                            {
-                                disasterObj?.potentialText && (
-                                    <Text>
-                                        {t('disasterDetailsScreen.potential')}: {disasterObj?.potentialText}
-                                    </Text>
-                                )
-                            }
+                                {/* earthquake potential */}
+                                {
+                                    disasterObj?.potentialText && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.potential')}: {disasterObj?.potentialText}
+                                        </Text>
+                                    )
+                                }
 
-                            {/* earthquake center description */}
-                            {
-                                disasterObj?.earthquakeCenterText && (
-                                    <Text>
-                                        {t('disasterDetailsScreen.center')}: {disasterObj?.earthquakeCenterText}
-                                    </Text>
-                                )
-                            }
+                                {/* earthquake center description */}
+                                {
+                                    disasterObj?.earthquakeCenterText && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.center')}: {disasterObj?.earthquakeCenterText}
+                                        </Text>
+                                    )
+                                }
 
-                            {/* structural failure status, following documentation on:
-                                https://docs.petabencana.id/master-1/general/supported-hazards */}
-                            {
-                                disasterObj?.structureFailureStatus !== null && (
-                                    <Text>
-                                       {t('disasterDetailsScreen.structureFailureStatus')}:
-                                       {' '} 
-                                       {disasterObj?.structureFailureStatus == 0 ? 
-                                        t('disasterDetailsScreen.cracking'):
-                                        disasterObj?.structureFailureStatus == 1 ?
-                                        t('disasterDetailsScreen.partialCollapse'):
-                                        disasterObj?.structureFailureStatus == 2 && 
-                                        t('disasterDetailsScreen.totalCollapse')}
-                                    </Text>
-                                )
-                            }
-                            
-                            {/* accessibility failure status, following documentation on:
-                                https://docs.petabencana.id/master-1/general/supported-hazards */}
-                            {
-                                disasterObj?.accessibilityFailureStatus !== null && (
-                                    <Text>
-                                       {t('disasterDetailsScreen.accessibilityFailureStatus')}:  
-                                       {' '} 
-                                       {disasterObj?.accessibilityFailureStatus == 0 ? 
-                                        t('disasterDetailsScreen.noVehicleAccess'):
-                                        disasterObj?.accessibilityFailureStatus == 1 ?
-                                        t('disasterDetailsScreen.twoWheelsAccess'):
-                                        disasterObj?.accessibilityFailureStatus == 2 || 
-                                        disasterObj?.accessibilityFailureStatus == 3 ?
-                                        t('disasterDetailsScreen.fourWheelsAccess'):
-                                        disasterObj?.accessibilityFailureStatus == 4 && 
-                                        t('disasterDetailsScreen.largeVehicleAccess')}
-                                    </Text>
-                                )
-                            }
-                        </View>
-                    ):
-                    // flood details texts
-                    disasterObj?.general.disaster_type == 'flood' ?
-                    (
-                        <Text>Flood</Text>
-                    ):
-                    disasterObj?.general.disaster_type == 'haze' ?
-                    (
-                        <Text>Haze</Text>
-                    ):
-                    disasterObj?.general.disaster_type == 'wind' ?
-                    (
-                        <Text>Wind</Text>
-                    ):
-                    disasterObj?.general.disaster_type == 'volcano' ?
-                    (
-                        <Text>Flood</Text>
-                    ):
-                    (
-                        <Text>other</Text>
-                    )
+                                {/* structural failure status, following documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
+                                {
+                                    disasterObj?.structureFailureStatus !== null && (
+                                        <Text>
+                                        {t('disasterDetailsScreen.structureFailureStatus')}:
+                                        {' '} 
+                                        {disasterObj?.structureFailureStatus == 0 ? 
+                                            t('disasterDetailsScreen.cracking'):
 
-                }
-            </ScrollView>
+                                            disasterObj?.structureFailureStatus == 1 ?
+                                            t('disasterDetailsScreen.partialCollapse'):
+
+                                            disasterObj?.structureFailureStatus == 2 && 
+                                            t('disasterDetailsScreen.totalCollapse')}
+                                        </Text>
+                                    )
+                                }
+                                
+                                {/* accessibility failure status, following documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
+                                {
+                                    disasterObj?.accessibilityFailureStatus !== null && (
+                                        <Text>
+                                        {t('disasterDetailsScreen.accessibilityFailureStatus')}:  
+                                        {' '} 
+                                        {disasterObj?.accessibilityFailureStatus == 0 ? 
+                                            t('disasterDetailsScreen.noVehicleAccess'):
+
+                                            disasterObj?.accessibilityFailureStatus == 1 ?
+                                            t('disasterDetailsScreen.twoWheelsAccess'):
+
+                                            (disasterObj?.accessibilityFailureStatus == 2 || 
+                                             disasterObj?.accessibilityFailureStatus == 3) ?
+                                            t('disasterDetailsScreen.fourWheelsAccess'):
+
+                                            disasterObj?.accessibilityFailureStatus == 4 && 
+                                            t('disasterDetailsScreen.largeVehicleAccess')}
+                                        </Text>
+                                    )
+                                }
+                            </View>
+                        ):
+                        /* flood details texts, since depth is the only metric, 
+                           don't show details if there is no depth data */
+                        disasterObj?.general.disaster_type == 'flood' && disasterObj?.floodDepthInCm !== null ?
+                        (
+                            <View>
+                            {/* flood depth */}
+                            <Text>
+                                    {t('disasterDetailsScreen.depth')}: {disasterObj?.floodDepthInCm} cm
+                                </Text>
+
+                                {/* severity based on flood depth, following documentation on:
+                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
+                                <Text>
+                                    {t('disasterDetailsScreen.severity')}: {' '}
+                                    {disasterObj?.floodDepthInCm < 70 ? (
+                                        <Text>
+                                            {t('disasterDetailsScreen.minor')}
+                                        </Text>
+                                    ):
+                                    disasterObj?.floodDepthInCm >= 70 && disasterObj?.floodDepthInCm < 150?
+                                    (
+                                        <Text>
+                                            {t('disasterDetailsScreen.moderate')}
+                                        </Text>
+                                    ):
+                                    disasterObj?.floodDepthInCm >= 150 && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.severe')}
+                                        </Text>
+                                    )}
+                                </Text>
+                            </View>
+                        ):
+                        disasterObj?.general.disaster_type == 'haze' ?
+                        (
+                            <View>
+                               {/* visibility */}
+                               {
+                                    disasterObj?.visibility && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.visibility')}: {' '}
+                                            {disasterObj?.visibility == 0 ? 
+                                            t('disasterDetailsScreen.canSeeButNeedMask'):
+
+                                            disasterObj.visibility == 1 ? 
+                                            t('disasterDetailsScreen.canSeeButNotEnoughToDrive'):
+                                            
+                                            disasterObj?.visibility == 2 &&
+                                            t('disasterDetailsScreen.canBarelySeeCantGoOut')}
+                                        </Text>
+                                    )
+                                }
+                                
+
+                                {/* air quality */}
+                                {
+                                    disasterObj?.airQualityStatus && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.airQuality')}: {' '}
+                                            {(disasterObj?.airQualityStatus == 0 || disasterObj?.airQualityStatus == 1) ? 
+                                             t('disasterDetailsScreen.poor'):
+                                             disasterObj?.airQualityStatus == 2 ? 
+                                             t('disasterDetailsScreen.severe'):
+                                             (disasterObj?.airQualityStatus == 3 || disasterObj?.airQualityStatus == 4) &&
+                                             t('disasterDetailsScreen.hazardous')}
+                                        </Text>
+                                    )
+                                }
+                            </View>
+                        ):
+                        disasterObj?.general.disaster_type == 'wind' ?
+                        (
+                            <Text>Wind</Text>
+                        ):
+                        disasterObj?.general.disaster_type == 'volcano' ?
+                        (
+                            <Text>Flood</Text>
+                        ):
+                        (
+                            <Text>other</Text>
+                        )
+                    }
+                </ScrollView>
             </View>
         ):
         (
