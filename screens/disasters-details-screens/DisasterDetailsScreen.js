@@ -254,7 +254,6 @@ export function DisasterDetailsScreen({route}) {
                                     )
                                 }
                                 
-
                                 {/* air quality */}
                                 {
                                     disasterObj?.airQualityStatus && (
@@ -262,8 +261,10 @@ export function DisasterDetailsScreen({route}) {
                                             {t('disasterDetailsScreen.airQuality')}: {' '}
                                             {(disasterObj?.airQualityStatus == 0 || disasterObj?.airQualityStatus == 1) ? 
                                              t('disasterDetailsScreen.poor'):
+
                                              disasterObj?.airQualityStatus == 2 ? 
                                              t('disasterDetailsScreen.severe'):
+
                                              (disasterObj?.airQualityStatus == 3 || disasterObj?.airQualityStatus == 4) &&
                                              t('disasterDetailsScreen.hazardous')}
                                         </Text>
@@ -271,13 +272,66 @@ export function DisasterDetailsScreen({route}) {
                                 }
                             </View>
                         ):
-                        disasterObj?.general.disaster_type == 'wind' ?
+                        /* extreme wind details texts, since impact is the only metric, 
+                           don't show details if there is no impact data */
+                        disasterObj?.general.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
                         (
-                            <Text>Wind</Text>
+                            <View>
+                                <Text>
+                                    {t('disasterDetailsScreen.impact')}:{' '}
+                                    {disasterObj?.impactStatus == 0 ? t('disasterDetailsScreen.low'): 
+                                     disasterObj?.impactStatus == 1 ? t('disasterDetailsScreen.medium'):
+                                     disasterObj?.impactStatus == 2 && t('disasterDetailsScreen.high')}
+                                </Text>
+                            </View>
                         ):
                         disasterObj?.general.disaster_type == 'volcano' ?
                         (
-                            <Text>Flood</Text>
+                            <View>
+                                {/* number of people in the village */}
+                                {
+                                    disasterObj?.numberOfPeopleInVillage !== null && (
+                                        <Text>
+                                            {t('disasterDetailsScreen.numPeopleInVillage')}:{' '}
+                                            {disasterObj?.numberOfPeopleInVillage} 
+                                        </Text>
+                                    )
+                                }
+
+                                {/* volanic signs that were observed */}
+                                {
+                                    (disasterObj?.signsStatusObserved !== null && disasterObj?.signsStatusObserved.length > 0) &&
+                                    (
+                                       <View>
+                                        {/* the list heading */}
+                                        <Text>
+                                            {t('disasterDetailsScreen.volcanicSignsObserved')}:
+                                        </Text>
+
+                                        {/* the list of signs observed */}
+                                        {
+                                            disasterObj?.signsStatusObserved.map((item, index) => (
+                                                <Text key={index}>
+                                                    • {item == 0 ? t('disasterDetailsScreen.tempRise') : 
+                                                       item == 1 ? t('disasterDetailsScreen.droughtOrVegDeath') :
+                                                       item == 2 ? t('disasterDetailsScreen.unusualAnimalsBehavior') :
+                                                       item == 3 ? t('disasterDetailsScreen.freqEarthquakeTremors') :
+                                                       item == 4 && t('disasterDetailsScreen.freqRumblingSound')}
+                                                </Text>
+                                            )) 
+                                        }
+                                       </View>
+                                    )
+                                }
+
+                                {/* whether or not evacuation site is known */}
+                                {disasterObj?.knowWhereToEvacuate !== null && (
+                                    <Text>
+                                        {t('disasterDetailsScreen.knowWhereToEvacuate')}: {' '}
+                                        {disasterObj?.knowWhereToEvacuate == true ? t('shared.yes') : t('shared.no')}
+                                    </Text>
+                                )} 
+                            </View>
                         ):
                         (
                             <Text>other</Text>
