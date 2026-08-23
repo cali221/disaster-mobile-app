@@ -43,7 +43,8 @@ import { LandslideGuideScreen } from './screens/resources-screens/disaster-guide
 import { VolcanicEruptionGuideScreen } from './screens/resources-screens/disaster-guides/VolcanicEruptionGuideScreen';
 
 // crowdsourced reports screens imports:
-import { CreateReportScreen } from './screens/crowdsourced-reports-screens/CreateReportScreen';
+import { ReportMenuScreen } from './screens/crowdsourced-reports-screens/ReportMenuScreen';
+import { ReportFormScreen } from './screens/crowdsourced-reports-screens/ReportFormScreen';
 
 // gamification screens imports
 import { QuizzesScreen } from './screens/gamification-screens/QuizzesScreen';
@@ -125,9 +126,9 @@ function homeScreenStack(){
                             component={DisasterDetailsScreen}
                             options={{title: t('screenTitles.disasterDetailsScreenTitle')}} /> 
 
-              <Stack.Screen name='Create Report'
-                            component={CreateReportScreen}
-                            options={{title: t('screenTitles.createReportScreenTitle')}} />
+              <Stack.Screen name='Report Menu'
+                            component={ReportMenuScreen}
+                            options={{title: t('screenTitles.reportMenuScreenTitle')}} />
 
               <Stack.Screen name='Quizzes'
                             component={QuizzesScreen}

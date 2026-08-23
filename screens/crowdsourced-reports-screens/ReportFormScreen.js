@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 
-export function CreateReportScreen() {
+export function ReportFormScreen() {
     return(
         <View>
-            <Text>Create Report Screen Placeholder</Text>
+            <Text>Report Form Screen Placeholder</Text>
         </View>
     )
 }

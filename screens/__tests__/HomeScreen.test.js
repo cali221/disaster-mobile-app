@@ -208,10 +208,10 @@ describe('Home Screen', () => {
             await user.press(createReportBtn);
             await act(() => jest.runAllTimers());
             
-            // expect to be redirected to the disaster details screen
+            // expect to be redirected to the create report menu screen
             await expect(screen.getByRole('heading', 
-                                        {name: 'screenTitles.createReportScreenTitle'}))
-                            .toBeOnTheScreen();
+                                        {name: 'screenTitles.reportMenuScreenTitle'}))
+                               .toBeOnTheScreen();
         }
     });
 

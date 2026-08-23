@@ -174,7 +174,7 @@ export function HomeScreen({ navigation }) {
           <TouchableOpacity style={styles.experiencedDisasterBtn}
                             accessibilityLabel={t('homeScreen.experiencedDisasterBtnTxt')}
                             accessibilityRole='button'
-                            onPress={()=>{navigation.navigate('Create Report')}}>
+                            onPress={()=>{navigation.navigate('Report Menu')}}>
             <Text style={styles.experiencedDisasterBtnTxt}>
               {t('homeScreen.experiencedDisasterBtnTxt')}
             </Text>

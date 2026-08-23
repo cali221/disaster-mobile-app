@@ -81,7 +81,8 @@ export function DisasterDetailsScreen({route, navigation}) {
             setIsLoading(true);
 
             const { data, error } = await supabase.schema('public')
-                                                  .rpc('get_disaster_data_for_details_screen', {disaster_id_input: disasterId});
+                                                  .rpc('get_disaster_data_for_details_screen', 
+                                                       {disaster_id_input: disasterId});
                                             
             if(error){
                 showErrorToast('disasterDetailsScreen.failedToFetchDisasterDetails', 
@@ -97,7 +98,7 @@ export function DisasterDetailsScreen({route, navigation}) {
             setIsLoading(false);
         };
 
-        fetchDisasterDetails(route.params?.disasterId);
+        fetchDisasterDetails(route?.params?.disasterId);
 
     }, [route?.params?.disasterId]);
 
@@ -154,9 +155,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                            t('disasterDetailsScreen.titleWhenInAreaIsFalse', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
                                                                                         capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
                                                                                         capitalizeFirstLetter(disasterObj?.general?.disaster_type),
-                                                                                    distFromArea: roundTo2DP((disasterObj?.area?.dist_in_m_from_area)/1000),
-                                                                                    cityOrRegency: disasterObj?.area?.city_or_regency,
-                                                                                    province: disasterObj?.area?.province})
+                                                                                distFromArea: roundTo2DP((disasterObj?.area?.dist_in_m_from_area)/1000),
+                                                                                cityOrRegency: disasterObj?.area?.city_or_regency,
+                                                                                province: disasterObj?.area?.province})
                         }
                     </Text>
 
@@ -272,7 +273,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                         ):
                         /* flood details texts, since depth is the only metric, 
                            don't show details if there is no depth data */
-                        disasterObj?.general.disaster_type == 'flood' && disasterObj?.floodDepthInCm !== null ?
+                        disasterObj?.general?.disaster_type == 'flood' && disasterObj?.floodDepthInCm !== null ?
                         (
                             <View style={styles.disasterDetailsContainer}>
                                 {/* flood depth */}
@@ -303,7 +304,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 </Text>
                             </View>
                         ):
-                        disasterObj?.general.disaster_type == 'haze' ?
+                        disasterObj?.general?.disaster_type == 'haze' ?
                         (
                             <View style={styles.disasterDetailsContainer}>
                                {/* visibility, with number and status pairs according to documentation on:
@@ -345,7 +346,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                         ):
                         /* extreme wind details texts, since impact is the only metric, 
                            don't show details if there is no impact data */
-                        disasterObj?.general.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
+                        disasterObj?.general?.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
                         (
                             <View style={styles.disasterDetailsContainer}>
                                 {/* the impact status, with number and status pairs according to documentation on:
@@ -358,7 +359,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 </Text>
                             </View>
                         ):
-                        disasterObj?.general.disaster_type == 'volcano' ?
+                        disasterObj?.general?.disaster_type == 'volcano' ?
                         (
                             <View style={styles.disasterDetailsContainer}>
                                 {/* number of people in the village */}
