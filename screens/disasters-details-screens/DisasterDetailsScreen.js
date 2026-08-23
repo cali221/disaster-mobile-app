@@ -1,4 +1,9 @@
-import { Text, View, StyleSheet, Image, ScrollView } from 'react-native';
+import { Text, 
+         View, 
+         StyleSheet, 
+         Image, 
+         ScrollView, 
+         TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { showErrorToast } from '../../utils/show-toast';
@@ -11,11 +16,62 @@ import { MapDisasterLegend } from '../../components/MapDisasterLegend';
 import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 
-export function DisasterDetailsScreen({route}) {
+export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
     const [isLoading, setIsLoading] = useState(true);
     const [disasterObj, setDisasterObj] = useState(null);
     const { t, i18n } = useTranslation();
+
+    const handleEvacuationGuideBtnPress = (disasterType) => {
+        console.log(disasterType);
+
+        if(disasterType == 'earthquake'){
+            // navigate to earthquke guide screen
+            navigation.navigate('Resource Hub Screen Stack', 
+                                { screen: 'Earthquake Guide', 
+                                  initial: false, 
+                                  params: {}
+                                });
+        }
+        else if(disasterType == 'flood'){
+            // navigate to flood guide screen
+            navigation.navigate('Resource Hub Screen Stack', 
+                                { screen: 'Flood Guide', 
+                                  initial: false, 
+                                  params: {}
+                                });
+        }
+        else if(disasterType == 'tsunami'){
+            // navigate to tsunami screen
+             navigation.navigate('Resource Hub Screen Stack', 
+                                { screen: 'Tsunami Guide', 
+                                  initial: false, 
+                                  params: {}
+                                });
+        }
+        else if(disasterType == 'volcano'){
+            // navigate to volcano guide screen
+            navigation.navigate('Resource Hub Screen Stack', 
+                                { screen: 'Volcanic Eruption Guide', 
+                                  initial: false, 
+                                  params: {}
+                                });
+        }
+        else if(disasterType == 'landslide'){
+            // navigate to landslide guide screen
+            navigation.navigate('Resource Hub Screen Stack', 
+                                { screen: 'Landslide Guide', 
+                                  initial: false, 
+                                  params: {}
+                                });
+        }
+        else{
+            /* show toast informing the user, the application doesn't 
+               include guide for the disaster type */
+            showErrorToast(t('disasterDetailsScreen.disasterGuideUnavailable'), 
+                           t('disasterDetailsScreen.appDoesntIncluldeGuideForDisasterType'));
+        }
+    };
 
     useEffect(()=>{
         console.log(route.params.disasterId);
@@ -49,9 +105,9 @@ export function DisasterDetailsScreen({route}) {
         disasterObj ? (
             <View style={styles.screenContainer}>
                 {/* crowdsourced reports map placeholder */}
-                {/* <View style={{width: '100%', height: 250, backgroundColor: 'plum'}}></View> */}
+                {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
 
-                <Map style={{width: '100%', height: 250}} 
+                <Map style={{width: '100%', height: 200}} 
                      mapStyle={mapStyle}
                      compassPosition={{top: 20, left: 20}}
                      onStartShouldSetResponder={()=>{return true}}>
@@ -65,16 +121,11 @@ export function DisasterDetailsScreen({route}) {
                                      (disasterObj?.general?.latitude + 5)] : 
                                     [93, -12, 142, 10]} />
 
-
-                    {/* marker showing the disaster */}
                     <Marker testID='disaster-marker-on-map'
                             lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
                         <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                     </Marker>
-
-                    {/* TODO: map crowdsourced report as markers 
-                        (different appearance from disaster marker) */}
-                </Map>
+                </Map> 
 
                 <ScrollView contentContainerStyle={[styles.disasterInformationContainer, 
                                                     {paddingBottom: insets.bottom + 70,
@@ -86,7 +137,7 @@ export function DisasterDetailsScreen({route}) {
                     <Text style={styles.disasterTitleTxt}>
                         {
                           /* if no information about if it's contained in an area or not, 
-                            just show disaster type */
+                             just show disaster type */
                           disasterObj?.area?.contained_in_area == null ?       
                           i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
                           capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
@@ -110,7 +161,7 @@ export function DisasterDetailsScreen({route}) {
                     </Text>
 
                     {/* disaster time */}
-                    <Text>
+                    <Text style={styles.disasterTimeTxt}>
                         {new Date(disasterObj?.general?.datetime).toLocaleString('id', {timeZoneName: 'short'})}
                     </Text>
 
@@ -118,15 +169,15 @@ export function DisasterDetailsScreen({route}) {
                     {
                         disasterObj?.general?.img_url && (
                             <Image source={{uri: disasterObj?.general?.img_url}} 
-                                style={{width: '100%', aspectRatio: 1}}
-                                resizeMode='contain' />
+                                   style={{width: '100%', aspectRatio: 1}}
+                                   resizeMode='contain' />
                         )
                     }
                 
                     {/* disaster description */}
                     {
                         disasterObj?.general?.description && (
-                            <Text>
+                            <Text style={styles.descriptionTxt}>
                                 {disasterObj?.general?.description}
                             </Text>
                         )
@@ -139,11 +190,11 @@ export function DisasterDetailsScreen({route}) {
                         // earthquake details texts
                         disasterObj?.general?.disaster_type == 'earthquake' ? 
                         (
-                            <View>
+                            <View style={styles.disasterDetailsContainer}>
                                 {/* magnitude */}
                                 {
                                     disasterObj?.magnitude && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.magnitude')}: {disasterObj?.magnitude}
                                         </Text>
                                     )
@@ -152,7 +203,7 @@ export function DisasterDetailsScreen({route}) {
                                 {/* earthquake depth */}
                                 {
                                     disasterObj?.depthInKm && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.depth')}: {disasterObj?.depthInKm} km
                                         </Text>
                                     )
@@ -161,7 +212,7 @@ export function DisasterDetailsScreen({route}) {
                                 {/* earthquake potential */}
                                 {
                                     disasterObj?.potentialText && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.potential')}: {disasterObj?.potentialText}
                                         </Text>
                                     )
@@ -170,7 +221,7 @@ export function DisasterDetailsScreen({route}) {
                                 {/* earthquake center description */}
                                 {
                                     disasterObj?.earthquakeCenterText && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.center')}: {disasterObj?.earthquakeCenterText}
                                         </Text>
                                     )
@@ -180,7 +231,7 @@ export function DisasterDetailsScreen({route}) {
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
                                     disasterObj?.structureFailureStatus !== null && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                         {t('disasterDetailsScreen.structureFailureStatus')}:
                                         {' '} 
                                         {disasterObj?.structureFailureStatus == 0 ? 
@@ -199,7 +250,7 @@ export function DisasterDetailsScreen({route}) {
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
                                     disasterObj?.accessibilityFailureStatus !== null && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                         {t('disasterDetailsScreen.accessibilityFailureStatus')}:  
                                         {' '} 
                                         {disasterObj?.accessibilityFailureStatus == 0 ? 
@@ -223,15 +274,15 @@ export function DisasterDetailsScreen({route}) {
                            don't show details if there is no depth data */
                         disasterObj?.general.disaster_type == 'flood' && disasterObj?.floodDepthInCm !== null ?
                         (
-                            <View>
-                            {/* flood depth */}
-                            <Text>
+                            <View style={styles.disasterDetailsContainer}>
+                                {/* flood depth */}
+                                <Text style={styles.disasterDetailsTxt}>
                                     {t('disasterDetailsScreen.depth')}: {disasterObj?.floodDepthInCm} cm
                                 </Text>
 
                                 {/* severity based on flood depth, following documentation on:
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
-                                <Text>
+                                <Text style={styles.disasterDetailsTxt}>
                                     {t('disasterDetailsScreen.severity')}: {' '}
                                     {disasterObj?.floodDepthInCm < 70 ? (
                                         <Text>
@@ -254,12 +305,12 @@ export function DisasterDetailsScreen({route}) {
                         ):
                         disasterObj?.general.disaster_type == 'haze' ?
                         (
-                            <View>
+                            <View style={styles.disasterDetailsContainer}>
                                {/* visibility, with number and status pairs according to documentation on:
                                    https://docs.petabencana.id/master-1/general/supported-hazards */}
                                {
                                     disasterObj?.visibility && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.visibility')}: {' '}
                                             {disasterObj?.visibility == 0 ? 
                                             t('disasterDetailsScreen.canSeeButNeedMask'):
@@ -277,7 +328,7 @@ export function DisasterDetailsScreen({route}) {
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
                                     disasterObj?.airQualityStatus && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.airQuality')}: {' '}
                                             {(disasterObj?.airQualityStatus == 0 || disasterObj?.airQualityStatus == 1) ? 
                                              t('disasterDetailsScreen.poor'):
@@ -296,10 +347,10 @@ export function DisasterDetailsScreen({route}) {
                            don't show details if there is no impact data */
                         disasterObj?.general.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
                         (
-                            <View>
+                            <View style={styles.disasterDetailsContainer}>
                                 {/* the impact status, with number and status pairs according to documentation on:
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
-                                <Text>
+                                <Text style={styles.disasterDetailsTxt}>
                                     {t('disasterDetailsScreen.impact')}:{' '}
                                     {disasterObj?.impactStatus == 0 ? t('disasterDetailsScreen.low'): 
                                      disasterObj?.impactStatus == 1 ? t('disasterDetailsScreen.medium'):
@@ -309,11 +360,11 @@ export function DisasterDetailsScreen({route}) {
                         ):
                         disasterObj?.general.disaster_type == 'volcano' ?
                         (
-                            <View>
+                            <View style={styles.disasterDetailsContainer}>
                                 {/* number of people in the village */}
                                 {
                                     disasterObj?.numberOfPeopleInVillage !== null && (
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.numPeopleInVillage')}:{' '}
                                             {disasterObj?.numberOfPeopleInVillage} 
                                         </Text>
@@ -327,14 +378,14 @@ export function DisasterDetailsScreen({route}) {
                                     (
                                        <View>
                                         {/* the list heading */}
-                                        <Text>
+                                        <Text style={styles.disasterDetailsTxt}>
                                             {t('disasterDetailsScreen.volcanicSignsObserved')}:
                                         </Text>
 
                                         {/* the list of signs observed */}
                                         {
                                             disasterObj?.signsStatusObserved.map((item, index) => (
-                                                <Text key={index}>
+                                                <Text key={index} style={styles.disasterDetailsTxt}>
                                                     • {item == 0 ? t('disasterDetailsScreen.tempRise') : 
                                                        item == 1 ? t('disasterDetailsScreen.droughtOrVegDeath') :
                                                        item == 2 ? t('disasterDetailsScreen.unusualAnimalsBehavior') :
@@ -349,7 +400,7 @@ export function DisasterDetailsScreen({route}) {
 
                                 {/* whether or not evacuation site is known */}
                                 {disasterObj?.knowWhereToEvacuate !== null && (
-                                    <Text>
+                                    <Text style={styles.disasterDetailsTxt}>
                                         {t('disasterDetailsScreen.knowWhereToEvacuate')}: {' '}
                                         {disasterObj?.knowWhereToEvacuate == true ? t('shared.yes') : t('shared.no')}
                                     </Text>
@@ -361,8 +412,37 @@ export function DisasterDetailsScreen({route}) {
                         )
                     }
                 </ScrollView>
+
+                {/* menu at screen's bottom */}
+                <View style={[styles.bottomMenu, {paddingBottom: insets.bottom + 30,
+                                                  paddingLeft: insets.left + 30, 
+                                                  paddingRight: insets.right + 30,
+                                                  paddingTop: 30}]}>
+                    {/* button to view evacuation steps */}
+                    <TouchableOpacity style={styles.bottomMenuBtn}
+                                      onPress={()=>{handleEvacuationGuideBtnPress(disasterObj?.general?.disaster_type)}}>
+                        <Text style={styles.bottomMenuBtnTxt}>
+                            {t('disasterDetailsScreen.viewEvacuationSteps')}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* button to find useful locations */}
+                    {/* <TouchableOpacity style={styles.bottomMenuBtn}>
+                        <Text style={styles.bottomMenuBtnTxt}>
+                            {t('disasterDetailsScreen.findUsefulLocations')}
+                        </Text>
+                    </TouchableOpacity> */}
+
+                    {/* button to create report */}
+                    <TouchableOpacity style={styles.bottomMenuBtn}>
+                        <Text style={styles.bottomMenuBtnTxt}>
+                            {t('disasterDetailsScreen.reportExperience')} {'(+50xp)'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         ):
+        // loading overlay shown when isLoading is true
         (
             isLoading == true && (
                 <LoadingOverlay />
@@ -392,7 +472,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         width: '100%',
         alignItems: 'center',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        rowGap: 20
     },
     // the disaster title text
     disasterTitleTxt: {
@@ -400,5 +481,63 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         fontWeight: '600',
         textAlign: 'center'
+    },
+    // the disaster time text
+    disasterTimeTxt: {
+        fontSize: 17,
+        color: '#2D3782',
+        textAlign: 'center',
+        fontWeight: '600'
+    },
+    // container of disaster details texts
+    disasterDetailsContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        rowGap: 10
+    },
+    // the disaster details texts
+    disasterDetailsTxt: {
+        color: '#2D3782',
+        textAlign: 'center',
+        fontSize: 16
+    },
+    // disaster description text
+    descriptionTxt: {
+        fontSize: 16,
+        color: '#2D3782',
+        textAlign: 'center',
+        fontWeight: '600'
+    },
+    // the menu at the bottom of the screen
+    bottomMenu: {
+        backgroundColor: 'white',
+        width: '100%',
+        borderWidth: 2,
+        borderTopRightRadius: 30,
+        borderTopLeftRadius: 30,
+        borderColor: '#2D3782',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        rowGap: 20
+    },
+    // buttons in the bottom menu
+    bottomMenuBtn: {
+        backgroundColor: '#2D3782',
+        width: '90%',
+        paddingVertical: 8,
+        paddingHorizontal: 5,
+        borderRadius: 30,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    // text inside the buttons in the bottom menu
+    bottomMenuBtnTxt: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 16
     }
 });
