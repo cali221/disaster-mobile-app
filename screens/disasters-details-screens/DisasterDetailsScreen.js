@@ -8,18 +8,18 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { showErrorToast } from '../../utils/show-toast';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { roundTo2DP } from '../../utils/rounding';
 import { useTranslation } from 'react-i18next';
-import { capitalizeFirstLetter } from '../../utils/text-formatting';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
 import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
+import { getDisasterTitle } from '../../utils/get-disaster-title';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
     const [isLoading, setIsLoading] = useState(true);
     const [disasterObj, setDisasterObj] = useState(null);
+    const [disasterTitle, setDisasterTitle] = useState('');
     const { t, i18n } = useTranslation();
 
     const handleEvacuationGuideBtnPress = (disasterType) => {
@@ -76,30 +76,41 @@ export function DisasterDetailsScreen({route, navigation}) {
     useEffect(()=>{
         console.log(route.params.disasterId);
 
-        // fetch disaster details data
+        // fetch disaster details data and set the disaster title
         const fetchDisasterDetails = async(disasterId) => {
-            setIsLoading(true);
+            try{
+                setIsLoading(true);
 
-            const { data, error } = await supabase.schema('public')
-                                                  .rpc('get_disaster_data_for_details_screen', 
-                                                       {disaster_id_input: disasterId});
-                                            
-            if(error){
-                showErrorToast('disasterDetailsScreen.failedToFetchDisasterDetails', 
+                const { data, error } = await supabase.schema('public')
+                                                        .rpc('get_disaster_data_for_details_screen', 
+                                                            {disaster_id_input: disasterId});
+                                                
+                if(error){
+                    throw error;
+                }
+                else{
+                    if(data){
+                        console.log(data);
+                        setDisasterObj(data);
+                        setDisasterTitle(getDisasterTitle(data?.area?.contained_in_area,
+                                                        data?.area?.city_or_regency,
+                                                        data?.area?.province,
+                                                        data?.area?.dist_in_m_from_area,
+                                                        data?.general?.disaster_type,
+                                                        t,
+                                                        i18n));
+                    }
+                }
+
+                setIsLoading(false);
+            }
+            catch(error){
+                showErrorToast(t('disasterDetailsScreen.failedToGetDisasterData'), 
                                `${error.message ?? JSON.stringify(error)}`);
             }
-            else{
-                if(data){
-                    setDisasterObj(data);
-                    console.log(data);
-                }
-            }
-
-            setIsLoading(false);
         };
 
         fetchDisasterDetails(route?.params?.disasterId);
-
     }, [route?.params?.disasterId]);
 
     return( 
@@ -108,7 +119,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                 {/* crowdsourced reports map placeholder */}
                 {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
 
-                <Map style={{width: '100%', height: 200}} 
+                <Map style={{width: '100%', height: 250}} 
                      mapStyle={mapStyle}
                      compassPosition={{top: 20, left: 20}}
                      onStartShouldSetResponder={()=>{return true}}>
@@ -120,7 +131,8 @@ export function DisasterDetailsScreen({route, navigation}) {
                                      (disasterObj?.general?.latitude - 5), 
                                      (disasterObj?.general?.longitude + 5), 
                                      (disasterObj?.general?.latitude + 5)] : 
-                                    [93, -12, 142, 10]} />
+                                    [93, -12, 142, 10]}
+                            trackUserLocation='default' />
 
                     <Marker testID='disaster-marker-on-map'
                             lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
@@ -136,29 +148,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                             style={styles.disasterInformationScrollView}>
                     {/* title text */}
                     <Text style={styles.disasterTitleTxt}>
-                        {
-                          /* if no information about if it's contained in an area or not, 
-                             just show disaster type */
-                          disasterObj?.area?.contained_in_area == null ?       
-                          i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
-                          capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
-                          capitalizeFirstLetter(disasterObj?.general?.disaster_type) :
-                          /* if there is information about if the disaster is contained in area,
-                             show the title accordingly */
-                           disasterObj?.area?.contained_in_area == true ? 
-                           t('disasterDetailsScreen.titleWhenInAreaIsTrue', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
-                                                                                    capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
-                                                                                    capitalizeFirstLetter(disasterObj?.general?.disaster_type),
-                                                                              cityOrRegency: disasterObj?.area?.city_or_regency,
-                                                                              province: disasterObj?.area?.province}) :
-
-                           t('disasterDetailsScreen.titleWhenInAreaIsFalse', { disasterType: i18n.exists(`disasterNames.${disasterObj?.general?.disaster_type}`) ?  
-                                                                                        capitalizeFirstLetter(t(`disasterNames.${disasterObj?.general?.disaster_type}`)) : 
-                                                                                        capitalizeFirstLetter(disasterObj?.general?.disaster_type),
-                                                                                distFromArea: roundTo2DP((disasterObj?.area?.dist_in_m_from_area)/1000),
-                                                                                cityOrRegency: disasterObj?.area?.city_or_regency,
-                                                                                province: disasterObj?.area?.province})
-                        }
+                        {disasterTitle}
                     </Text>
 
                     {/* disaster time */}
@@ -409,9 +399,12 @@ export function DisasterDetailsScreen({route, navigation}) {
                             </View>
                         ):
                         (
+                            // TODO: add explanation
                             <Text>other</Text>
                         )
                     }
+
+                    {/* TODO: add data attribution here */}
                 </ScrollView>
 
                 {/* menu at screen's bottom */}

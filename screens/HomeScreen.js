@@ -100,7 +100,8 @@ export function HomeScreen({ navigation }) {
                                             .gt('datetime', gtTimestrFilter);
       
       if(error){
-        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'), `${error.message ?? JSON.stringify(error)}`);
+        showErrorToast(t('homeScreen.failedToFetchExistingDisastersToShowOnMap'),
+                       `${error.message ?? JSON.stringify(error)}`);
       }
       else{
         if(data){
