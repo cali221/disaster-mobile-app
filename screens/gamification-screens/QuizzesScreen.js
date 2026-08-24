@@ -58,7 +58,6 @@ export function QuizzesScreen() {
         };
 
         getCategories();
-       
     }, []);
 
     useEffect(()=>{
@@ -77,7 +76,6 @@ export function QuizzesScreen() {
                 }
                 else{
                     if(data){
-                        console.log(data);
                         setQuizQuestionsAndAnswers(data);
                         setNumberOfQuestions(data.length);
                     }
