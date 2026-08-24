@@ -14,6 +14,7 @@ import { MapDisasterLegend } from '../../components/MapDisasterLegend';
 import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
+import { DataAttributionSection } from '../../components/DataAttributionSection';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
@@ -160,7 +161,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                     {
                         disasterObj?.general?.img_url && (
                             <Image source={{uri: disasterObj?.general?.img_url}} 
-                                   style={{width: '100%', aspectRatio: 1}}
+                                   style={styles.disasterImg}
                                    resizeMode='contain' />
                         )
                     }
@@ -533,5 +534,11 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: '600',
         fontSize: 16
+    },
+    // disaster image
+    disasterImg: {
+        width: '100%', 
+        aspectRatio: 1,
+        borderRadius: 30
     }
 });

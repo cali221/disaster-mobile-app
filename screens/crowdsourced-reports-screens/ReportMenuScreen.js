@@ -34,7 +34,8 @@ export function ReportMenuScreen({navigation}) {
                                                                                      item?.disaster_type, 
                                                                                      t, 
                                                                                      i18n), 
-                                                           'datetime': item?.datetime}));
+                                                           'datetime': item?.datetime,
+                                                           'disaster_id': item.disaster_id}));
 
                     console.log(processed);
                     setRecentDisasters(processed);
@@ -63,6 +64,8 @@ export function ReportMenuScreen({navigation}) {
                     {t('reportMenuScreen.pickADisasterToCreateAReportFor')}
                 </Text>
 
+                {/* TODO: need to add data attribution texts(?) */}
+                {/* list of disasters in the last 3 days */}
                 {recentDisasters.map((item, index) => (
                     <View key={index} style={styles.disasterItemContainer}>
                         <View style={styles.disasterItemTextsContainer}>
@@ -80,8 +83,8 @@ export function ReportMenuScreen({navigation}) {
                         
                         {/* select button */}
                         <TouchableOpacity style={styles.selectBtn} 
-                                          onPress={()=>{navigation.navigate('Report Menu', 
-                                                                            {disasterId: item.disaster_id})}}>
+                                          onPress={()=>{navigation.navigate('Disaster Details', 
+                                                                            {disasterId: item?.disaster_id})}}>
                             <Text style={styles.selectBtnTxt}>
                                 {t('shared.select')}
                             </Text>

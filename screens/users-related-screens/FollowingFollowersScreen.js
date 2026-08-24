@@ -25,6 +25,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
             throw error;
         }
         else{
+            console.log(userToFindDataForId);
             return data;
         }
     };
@@ -49,7 +50,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
                 }
             }
             catch(error){
-                console.error(error)
+                console.error(error);
                 showErrorToast(t('followingFollowersScreen.failedToFetch', 
                                  {followingOrFollowers: route.params.screenTitle}),
                                `${error.message ?? JSON.stringify(error)}`);
@@ -58,7 +59,7 @@ export function FollowingFollowersScreen({ navigation, route }) {
         };
 
         if(route.params.userId && route.params.screenTitle){
-            fetchFollowingOrFollowers(user.id, route.params.userId)
+            fetchFollowingOrFollowers(route.params.userId)
         }
     }, [route.params])
 
