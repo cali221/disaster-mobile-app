@@ -94,6 +94,7 @@ export function ReportMenuScreen({navigation}) {
                 ))}
             </ScrollView>
 
+            {/* loading overlay shown when isLoading is true */}
             {
                 isLoading == true && (
                     <LoadingOverlay />

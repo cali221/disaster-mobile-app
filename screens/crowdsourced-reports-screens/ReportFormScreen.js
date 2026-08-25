@@ -1,16 +1,16 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Skull, Smile, Frown, Meh, MapPin, ChevronDown} from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
-import { showErrorToast, showInfoToast } from '../../utils/show-toast'; 
+import { showErrorToast, showInfoToast, showSuccessToast } from '../../utils/show-toast'; 
 import * as Location from 'expo-location';
 import { roundTo2DP } from '../../utils/rounding';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
 
-export function ReportFormScreen() {
+export function ReportFormScreen({route}) {
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
     const [locationText, setLocationText] = useState('Please pick a location');
@@ -18,6 +18,39 @@ export function ReportFormScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [shouldShowLocPickerModal, setShouldShowLocPickerModal] = useState(false);
     const [pickedSeverity, setPickedSeverity] = useState(null);
+    const [description, setDescription] = useState(null);
+
+    // function for submitting report
+    const submitReport = async(locationId, severity, description) => {
+        setIsLoading(true);
+
+
+        /* if there is no picked location or severity, 
+           inform user they are required */
+        if(!locationId || !severity){
+            showErrorToast(t('reportFormScreen.failedToSubmitReport'), 
+                           t('reportFormScreen.locationAndSeverityDataRequired'));
+            return;
+        };
+
+        // insert report data to database (database trigger handles XP and badges udpates)
+        const { error } = await supabase.schema('disasters_related_data')
+                                        .from('user_reports')
+                                        .insert({disaster_id: route?.params?.disasterId,
+                                                 description: description,
+                                                 severity_status_number: severity,
+                                                 location_id: pickedLocationObj?.ogc_fid});
+
+        if(error){
+            showErrorToast(t('reportFormScreen.failedToSubmitReport'), 
+                           `${error.message ?? JSON.stringify(error)}`);
+        }
+        else{
+            showSuccessToast(t('reportFormScreen.reportSubmitted'))
+        }
+
+        setIsLoading(false);
+    };
 
     // function for setting picked location
     const setPickedLocation = (locId, 
@@ -95,7 +128,7 @@ export function ReportFormScreen() {
       }
 
       setIsLoading(false);
-    }
+    };
     
     return(
         <View style={styles.screenContainer}>
@@ -217,7 +250,8 @@ export function ReportFormScreen() {
 
                     {/* description text input */}
                     <TextInput style={styles.descriptionTxtInput} 
-                               multiline={true} />
+                               multiline={true}
+                               onChangeText={setDescription} />
                 </View>
 
                 {/* section for submitting report */}
@@ -229,9 +263,10 @@ export function ReportFormScreen() {
                     </Text>
 
                     {/* button to submit report */}
-                    <TouchableOpacity style={styles.submitBtn}>
+                    <TouchableOpacity style={styles.submitBtn}
+                                      onPress={()=>{submitReport(pickedLocationObj?.ogc_fid, pickedSeverity, description)}}>
                         <Text style={styles.submitBtnTxt}>
-                            {t('shared.submit')}
+                            {t('shared.submit')} ({'+50 XP'})
                         </Text>
                     </TouchableOpacity>
                 </View>

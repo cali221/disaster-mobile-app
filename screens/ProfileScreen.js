@@ -27,7 +27,11 @@ import { BadgeDetailsModal } from '../components/modals/BadgeDetailsModal';
 export function ProfileScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const isFocused = useIsFocused();
-    const { user, signOut, fetchAndSetProfileData, setLoggedInUser, userProfile } = useContext(AuthContext);
+    const { user, 
+            signOut, 
+            fetchAndSetProfileData, 
+            setLoggedInUser, 
+            userProfile } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [shouldShowBadgeModal, setShouldShowBadgeModal] = useState(false);
     const [shouldShowAddContactModal, setShouldShowAddContactModal] = useState(false);
@@ -153,7 +157,8 @@ export function ProfileScreen({ navigation, route }) {
                 }
                 else{
                     // save to local storage, to be removed when signed out
-                    await AsyncStorage.setItem('trustedContacts', JSON.stringify([...trustedContacts, newContactObj]));
+                    await AsyncStorage.setItem('trustedContacts', 
+                                               JSON.stringify([...trustedContacts, newContactObj]));
 
                     // add to array state
                     setTrustedContacts([...trustedContacts, newContactObj]);

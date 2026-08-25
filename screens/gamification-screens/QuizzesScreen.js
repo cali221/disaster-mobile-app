@@ -156,7 +156,6 @@ export function QuizzesScreen() {
                     newXp = 55;
                 }
                 else if(newScore < 70){
-                    console.log('< 70')
                     newXp = 20;
                 };
 
@@ -174,8 +173,6 @@ export function QuizzesScreen() {
                 }
                 // otherwise just update the xp
                 else{
-                    console.log('called')
-                    console.log('xp to add:  ' + newXp);
                     const res = await supabase.schema('users')
                                               .from('profiles_public_data')
                                               .update({ xp: data?.xp + newXp })
