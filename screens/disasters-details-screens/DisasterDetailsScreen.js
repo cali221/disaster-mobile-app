@@ -728,6 +728,7 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         fontSize: 16
     },
+    // button to show/hide map
     toggleShowMapBtn: {
         display: 'flex',
         justifyContent: 'center',
@@ -738,22 +739,27 @@ const styles = StyleSheet.create({
         height: 30,
         elevation: 5
     },
+    /* content container for text and icon 
+       inside button to show/hide map */
     toggleShowMapBtnContentContainer: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center'
     },
+    // text inside button to show/hide map
     hideOrShowMapTxt: {
         fontSize: 17,
         color: '#2D3782',
         fontWeight: '600'
     },
+    // explanation text about map markings
     mapMarkingExplanationTxt: {
         color: '#2D3782',
         textAlign: 'center',
         width: '90%'
     },
+    // container of map and explanation text
     mapAndExplanationContainer: {
         width: '100%',
         paddingBottom: 10,
