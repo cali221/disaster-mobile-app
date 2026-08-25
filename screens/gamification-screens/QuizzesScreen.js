@@ -117,6 +117,9 @@ export function QuizzesScreen() {
         }
         // if the answer picked is false
         else{
+            // new score is the same as previous score
+            newScore = score;
+    
             /// show wrong answer overlay
             setShouldShowWrongAnsOverlay(true);
 
@@ -150,10 +153,11 @@ export function QuizzesScreen() {
                     newXp = 70;
                 }
                 else if(newScore < 100 && newScore >= 70){
-                    newXp = 55
+                    newXp = 55;
                 }
                 else if(newScore < 70){
-                    newXp = 20
+                    console.log('< 70')
+                    newXp = 20;
                 };
 
                 let error = null;
@@ -170,6 +174,8 @@ export function QuizzesScreen() {
                 }
                 // otherwise just update the xp
                 else{
+                    console.log('called')
+                    console.log('xp to add:  ' + newXp);
                     const res = await supabase.schema('users')
                                               .from('profiles_public_data')
                                               .update({ xp: data?.xp + newXp })

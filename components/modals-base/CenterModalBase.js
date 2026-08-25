@@ -13,7 +13,7 @@ export function CenterModalBase(props) {
                                             paddingRight: insets.right,
                                             paddingBottom: insets.bottom}]}>
             {/* the base of the modal */}
-            <View style={styles.modalBase}>
+            <View style={[styles.modalBase, {height: props?.modalHeight ? props.modalHeight : 'auto'}]}>
                 {/* the modal header with title and close button */}
                 <View style={styles.modalHeader}>
                     {/* modal title */}
@@ -61,14 +61,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         rowGap: 30,
         width: '75%',
-        borderRadius: 50,
+        borderRadius: 30,
         paddingHorizontal: 30,
         paddingTop: 35,
         paddingBottom: 50,
         backgroundColor: 'white',
         elevation: 2,
         maxWidth: 350,
-        maxHeight: (Dimensions.get('window').height * 0.6) - 50
+        maxHeight: (Dimensions.get('window').height) - 50
     },
     // the modal header with title and close button
     modalHeader: {

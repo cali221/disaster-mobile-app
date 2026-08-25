@@ -130,6 +130,10 @@ function homeScreenStack(){
                             component={ReportMenuScreen}
                             options={{title: t('screenTitles.reportMenuScreenTitle')}} />
 
+              <Stack.Screen name='Report Form'
+                            component={ReportFormScreen}
+                            options={{title: t('screenTitles.reportFormScreenTitle')}} />
+
               <Stack.Screen name='Quizzes'
                             component={QuizzesScreen}
                             options={{title: t('screenTitles.quizzesScreenTitle')}} />

@@ -80,7 +80,7 @@ export async function registerForPushNotificationsAsync(){
 
     // if final status is stil not granted, alert the user that it's needed to get notifications
     if (finalStatus !== 'granted') {
-        showInfoToast('Permission is needed to send push notifications.');
+        showInfoToast(t('permissions.permissionNeeded', 'permissions.permissionNeededToSendPushNotif'));
         return null;
     }
 

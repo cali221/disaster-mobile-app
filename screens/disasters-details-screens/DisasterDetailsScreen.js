@@ -406,8 +406,10 @@ export function DisasterDetailsScreen({route, navigation}) {
                             </View>
                         ):
                         (
-                            // TODO: add explanation
-                            <Text>other</Text>
+                           /* explanation text about details for the disaster type being unsupported */
+                            <Text style={styles.unsupportedDetailsTxt}>
+                                {t('disasterDetailsScreen.detailsUnsupportedForDisasterType')}
+                            </Text>
                         )
                     }
                     </View>
@@ -426,19 +428,24 @@ export function DisasterDetailsScreen({route, navigation}) {
                         </View>
 
                         {/* admin boundaries data attribution */}
-                        <View style={styles.dataAtrributionHeadingAndTextContainer}>
-                            <Text style={styles.sectionsHeadingTxt}> 
-                                {t('disasterDetailsScreen.adminBoundariesDataSource')}
-                            </Text>
+                        {
+                            (disasterObj?.area?.admin_boundaries_data_attribution && 
+                             disasterObj?.area?.admin_boundaries_data_attribution_idn) && (
+                                <View style={styles.dataAtrributionHeadingAndTextContainer}>
+                                    <Text style={styles.sectionsHeadingTxt}> 
+                                        {t('disasterDetailsScreen.adminBoundariesDataSource')}
+                                    </Text>
 
-                            <Text style={styles.adminBoundariesDatUsageExplanationTxt}>
-                                {t('disasterDetailsScreen.adminBoundariesDataUsageExplanation')}
-                            </Text>
+                                    <Text style={styles.adminBoundariesDatUsageExplanationTxt}>
+                                        {t('disasterDetailsScreen.adminBoundariesDataUsageExplanation')}
+                                    </Text>
 
-                            <DataAttributionSection attributionTxt={currentLang == 'id' ? 
-                                                                    disasterObj?.area?.admin_boundaries_data_attribution_idn : 
-                                                                    disasterObj?.area?.admin_boundaries_data_attribution} />
-                        </View>
+                                    <DataAttributionSection attributionTxt={currentLang == 'id' ? 
+                                                                            disasterObj?.area?.admin_boundaries_data_attribution_idn : 
+                                                                            disasterObj?.area?.admin_boundaries_data_attribution} />
+                                </View>
+                            )
+                        }
                     </View>
                 </ScrollView>
 
@@ -463,7 +470,8 @@ export function DisasterDetailsScreen({route, navigation}) {
                     </TouchableOpacity> */}
 
                     {/* button to create report */}
-                    <TouchableOpacity style={styles.bottomMenuBtn}>
+                    <TouchableOpacity style={styles.bottomMenuBtn}
+                                      onPress={()=>{navigation.navigate('Report Form', {disasterId: disasterObj?.general?.id})}}>
                         <Text style={styles.bottomMenuBtnTxt}>
                             {t('disasterDetailsScreen.reportExperience')} {'(+50xp)'}
                         </Text>
@@ -533,7 +541,7 @@ const styles = StyleSheet.create({
     /* container of the disaster details section 
        with the section heading and details */
     disasterDetailsSection: {
-        widht: '100%',
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         rowGap: 10
@@ -579,7 +587,8 @@ const styles = StyleSheet.create({
     bottomMenuBtnTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 16
+        fontSize: 16,
+        textAlign: 'center'
     },
     // disaster image
     disasterImg: {
@@ -609,6 +618,12 @@ const styles = StyleSheet.create({
     /* explanation text under the heading for 
        the admin boundaries data attribution */
     adminBoundariesDatUsageExplanationTxt: {
+        color: '#2D3782',
+        fontSize: 16
+    },
+    /* explanation text about unsupported disaster 
+       details for certain types of disasters */
+    unsupportedDetailsTxt: {
         color: '#2D3782',
         fontSize: 16
     }

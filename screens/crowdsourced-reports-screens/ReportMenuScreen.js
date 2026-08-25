@@ -26,6 +26,7 @@ export function ReportMenuScreen({navigation}) {
             }
             else{
                 if(data){
+                    console.log(data);
                     // get the disaster titles and the time
                     const processed = data.map((item) => ({'title': getDisasterTitle(item?.contained_in_area, 
                                                                                      item?.city_or_regency, 
@@ -91,13 +92,6 @@ export function ReportMenuScreen({navigation}) {
                         </TouchableOpacity>
                     </View>
                 ))}
-
-                {/* <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View>
-                <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View>
-                <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View>
-                <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View>
-                <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View>
-                <View style={{width: '100%', height: 200, backgroundColor: 'pink'}}></View> */}
             </ScrollView>
 
             {

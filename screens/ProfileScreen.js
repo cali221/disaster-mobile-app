@@ -204,6 +204,8 @@ export function ProfileScreen({ navigation, route }) {
 
     // function to fetch screen's data
     const fetchScreenData = async(userId) => {
+        setIsLoading(true); 
+
         // fetch and update userProfile state 
         try{
             await fetchAndSetProfileData(userId);
@@ -222,6 +224,8 @@ export function ProfileScreen({ navigation, route }) {
         if(leaderboardTop3Data){
             setLeaderboardTop3(leaderboardTop3Data);
         };
+
+        setIsLoading(false); 
     };
 
     // handle pull to refresh (re-fetch screen data)
@@ -235,12 +239,12 @@ export function ProfileScreen({ navigation, route }) {
 
     useEffect(()=>{
         if(user && isFocused == true){
-            setIsLoading(true); 
+            //setIsLoading(true); 
     
             // fetch sreeen's data
             fetchScreenData(user?.id)
 
-            setIsLoading(false);
+            //setIsLoading(false);
         }
     }, [user, isFocused]);
     
