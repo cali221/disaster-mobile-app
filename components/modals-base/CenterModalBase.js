@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         rowGap: 30,
-        width: '75%',
+        width: '80%',
         borderRadius: 30,
         paddingHorizontal: 30,
         paddingTop: 35,
         paddingBottom: 50,
         backgroundColor: 'white',
         elevation: 2,
-        maxWidth: 350,
+        maxWidth: (Dimensions.get('window').width) - 50,
         maxHeight: (Dimensions.get('window').height) - 50
     },
     // the modal header with title and close button

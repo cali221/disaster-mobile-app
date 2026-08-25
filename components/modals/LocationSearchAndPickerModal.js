@@ -17,6 +17,8 @@ export function LocationSearchAndPicker(props) {
     // state for location search results
     const [locSearchResults, setLocSearchResults] = useState([]);
 
+    /* set the picked location and location 
+       text when a location is picked */
     const handleLocationPick = (locId, 
                                 adm3, 
                                 cityOrRegency, 
@@ -38,8 +40,9 @@ export function LocationSearchAndPicker(props) {
 
         const { data, error } = await supabase.schema('admin_boundaries')
                                               .from('admin3')
-                                              .select()
-                                              .ilike('adm3_name', `%${query}%`);
+                                              .select('ogc_fid, adm3_name, adm2_name, adm1_name')
+                                              .or(`or(adm3_name.ilike.%${query}%, adm2_name.ilike.%${query}%, adm1_name.ilike.%${query}%)`);
+
 
         if(error){
             showErrorToast(t('shared.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
@@ -62,42 +65,42 @@ export function LocationSearchAndPicker(props) {
                         closeFunc={()=>{props.hideBadgeModalFunc()}}
                         modalHeight={props.modalHeight}>
             <View style={styles.modalContentContainer}>
+                {/* explanation text about what to search */}
+                <Text style={styles.searchExplanationTxt}>
+                    {t('locationSearchAndPicker.searchExplanation')}
+                </Text>
+
+                {/* search area */}
                 <View style={styles.locationSearchContainer}>
+                    {/* text input for search  */}
                     <TextInput onChangeText={setSearchQuery}
                                style={styles.locationSearchTextInput} />
 
+                    {/* search button */}
                     <TouchableOpacity style={styles.searchLocBtn}
                                       onPress={()=>{searchLoc(searchQuery)}}>
                         <Text style={styles.searchLocBtnTxt}>
-                            {t('shared.search')}
+                           {t('shared.search')}
                         </Text>
                     </TouchableOpacity>
                 </View>
 
-               <ScrollView contentContainerStyle={{display: 'flex', flexDirection: 'column', width: '100%'}}
-                           style={{width: '100%'}}>
-
+               {/* scroll view for showing search results */}
+               <ScrollView contentContainerStyle={{display: 'flex', flexDirection: 'column', width: '100%', rowGap: 15}}
+                           style={{width: '100%'}}> 
+                    {/* the list of results */}
                     {locSearchResults.map((item, index)=>(
-                        <View key={index}>
-                            <TouchableOpacity onPress={()=>{handleLocationPick(item?.ogc_fid, 
+                        <TouchableOpacity key={index} 
+                                          style={styles.searchResItemContainer} 
+                                          onPress={()=>{handleLocationPick(item?.ogc_fid, 
                                                                                item?.adm3_name, 
                                                                                item?.adm2_name, 
                                                                                item?.adm1_name)}}>
-                                <Text>
+                                <Text style={styles.searchResItemTxt}>
                                     {item.adm3_name}, {item.adm2_name}, {item.adm1_name}
                                 </Text>
-                            </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     ))}
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
-                <View style={{backgroundColor: 'plum', width: '100%', height: 50, marginBottom: 10}}></View>
                </ScrollView>
             </View>
 
@@ -125,30 +128,48 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        columnGap: 10,
+        alignItems: 'center',
+        columnGap: 15,
         width: '100%'
+       
     },
     locationSearchTextInput: {
         borderColor: '#2D3782',
         borderWidth: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         paddingVertical: 7,
         borderRadius: 20,
+        color: '#2D3782',
         flex: 1,
-        color: '#2D3782'
+        width: '100%'
     },
     searchLocBtn: {
         backgroundColor: '#2D3782',
+        paddingVertical: 7,
         paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 20,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        borderRadius: 20
     },
     searchLocBtnTxt: {
         color: 'white',
         fontWeight: '600',
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    searchResItemContainer: {
+        width: '100%',
+        borderBottomWidth: 2,
+        borderBottomColor: '#2D3782',
+        paddingBottom: 5
+    },
+    searchResItemTxt: {
+        color: '#2D3782',
+        fontWeight: '600',
         fontSize: 16
     },
+    searchExplanationTxt: {
+        color: '#2D3782'
+    }
 });

@@ -24,9 +24,21 @@ export function DisasterDetailsScreen({route, navigation}) {
     const { t, i18n } = useTranslation();
     const currentLang = i18n.resolvedLanguage;
 
-    const handleEvacuationGuideBtnPress = (disasterType) => {
-        console.log(disasterType);
+    // if language is changed, get the disaster title again 
+    useEffect(()=>{
+        if(disasterObj){
+            setDisasterTitle(getDisasterTitle(disasterObj?.area?.contained_in_area,
+                                              disasterObj?.area?.city_or_regency,
+                                              disasterObj?.area?.province,
+                                              disasterObj?.area?.dist_in_m_from_area,
+                                              disasterObj?.general?.disaster_type,
+                                              t,
+                                              i18n));
+        }
+        console.log(disasterObj);
+    }, [currentLang]);
 
+    const handleEvacuationGuideBtnPress = (disasterType) => {
         if(disasterType == 'earthquake'){
             // navigate to earthquke guide screen
             navigation.navigate('Resource Hub Screen Stack', 
@@ -95,12 +107,12 @@ export function DisasterDetailsScreen({route, navigation}) {
                         console.log(data);
                         setDisasterObj(data);
                         setDisasterTitle(getDisasterTitle(data?.area?.contained_in_area,
-                                                        data?.area?.city_or_regency,
-                                                        data?.area?.province,
-                                                        data?.area?.dist_in_m_from_area,
-                                                        data?.general?.disaster_type,
-                                                        t,
-                                                        i18n));
+                                                          data?.area?.city_or_regency,
+                                                          data?.area?.province,
+                                                          data?.area?.dist_in_m_from_area,
+                                                          data?.general?.disaster_type,
+                                                          t,
+                                                          i18n));
                     }
                 }
 
@@ -191,7 +203,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 <View style={styles.disasterDetailsContainer}>
                                     {/* magnitude */}
                                     {
-                                        disasterObj?.magnitude && (
+                                        disasterObj?.magnitude !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.magnitude')}: {disasterObj?.magnitude}
                                             </Text>
@@ -200,7 +212,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                     
                                     {/* earthquake depth */}
                                     {
-                                        disasterObj?.depthInKm && (
+                                        disasterObj?.depthInKm !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.depth')}: {disasterObj?.depthInKm} km
                                             </Text>
@@ -209,7 +221,7 @@ export function DisasterDetailsScreen({route, navigation}) {
 
                                     {/* earthquake potential */}
                                     {
-                                        disasterObj?.potentialText && (
+                                        disasterObj?.potentialText !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.potential')}: {disasterObj?.potentialText}
                                             </Text>
@@ -218,7 +230,7 @@ export function DisasterDetailsScreen({route, navigation}) {
 
                                     {/* earthquake center description */}
                                     {
-                                        disasterObj?.earthquakeCenterText && (
+                                        disasterObj?.earthquakeCenterText !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.center')}: {disasterObj?.earthquakeCenterText}
                                             </Text>
@@ -304,20 +316,21 @@ export function DisasterDetailsScreen({route, navigation}) {
                             disasterObj?.general?.disaster_type == 'haze' ?
                             (
                                 <View style={styles.disasterDetailsContainer}>
-                                {/* visibility, with number and status pairs according to documentation on:
+                                     {/* visibility, with number and status pairs according to documentation on:
                                     https://docs.petabencana.id/master-1/general/supported-hazards */}
                                 {
-                                        disasterObj?.visibility && (
+                                        disasterObj?.visibility !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.visibility')}: {' '}
-                                                {disasterObj?.visibility == 0 ? 
-                                                t('disasterDetailsScreen.canSeeButNeedMask'):
-
-                                                disasterObj.visibility == 1 ? 
-                                                t('disasterDetailsScreen.canSeeButNotEnoughToDrive'):
                                                 
-                                                disasterObj?.visibility == 2 &&
-                                                t('disasterDetailsScreen.canBarelySeeCantGoOut')}
+                                                {disasterObj?.visibility == 0 ? 
+                                                 t('disasterDetailsScreen.canSeeButNeedMask'):
+
+                                                 disasterObj.visibility == 1 ? 
+                                                 t('disasterDetailsScreen.canSeeButNotEnoughToDrive'):
+                                                
+                                                 disasterObj?.visibility == 2 &&
+                                                 t('disasterDetailsScreen.canBarelySeeCantGoOut')}
                                             </Text>
                                         )
                                     }
@@ -325,7 +338,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                     {/* air quality, with number and status pairs according to documentation on:
                                         https://docs.petabencana.id/master-1/general/supported-hazards */}
                                     {
-                                        disasterObj?.airQualityStatus && (
+                                        disasterObj?.airQualityStatus !== null && (
                                             <Text style={styles.disasterDetailsTxt}>
                                                 {t('disasterDetailsScreen.airQuality')}: {' '}
                                                 {(disasterObj?.airQualityStatus == 0 || disasterObj?.airQualityStatus == 1) ? 

@@ -18,6 +18,7 @@ export function ReportFormScreen() {
     const [pickedLocationObj, setPickedLocationObj] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [shouldShowLocPickerModal, setShouldShowLocPickerModal] = useState(false);
+    const [pickedSeverity, setPickedSeverity] = useState(null);
 
     const setPickedLocation = (locId, 
                                adm3, 
@@ -26,7 +27,6 @@ export function ReportFormScreen() {
                                distInMetersFromArea, 
                                isContainedInArea,
                                isPickedFromCurrentLoc) => {
-        console.log(isContainedInArea);
         setPickedLocationObj({'ogc_fid': locId, 
                               'adm3': adm3, 
                               'cityOrRegency': cityOrRegency, 
@@ -71,6 +71,7 @@ export function ReportFormScreen() {
             }    
             else{
                 if(data){
+                    console.log(data);
                     setPickedLocation(data?.ogc_fid, 
                                       data?.adm3, 
                                       data?.city_or_regency, 
@@ -78,21 +79,6 @@ export function ReportFormScreen() {
                                       data?.dist_in_m_from_area, 
                                       data?.contained_in_area, 
                                       true);
-
-                    // setPickedLocationObj({'ogc_fid': data?.ogc_fid, 
-                    //                       'adm3': data?.adm3, 
-                    //                       'cityOrRegency': data?.city_or_regency, 
-                    //                       'province': data?.province});
-
-                    // setLocationText(data?.contained_in_area == true ? t('reportFormScreen.userLocationWhenContainedInArea', 
-                    //                                                      {adm3: data?.adm3, 
-                    //                                                       cityOrRegency: data?.city_or_regency, 
-                    //                                                       province: data?.province}):
-                    //                                                    t('reportFormScreen.userLocationWhenNotContainedInArea', 
-                    //                                                      {adm3: data?.adm3, 
-                    //                                                       cityOrRegency: data?.city_or_regency, 
-                    //                                                       province: data?.province,
-                    //                                                       distance: roundTo2DP(data?.dist_in_m_from_area/1000)}));
                 }
             }
         }
@@ -103,19 +89,32 @@ export function ReportFormScreen() {
     
     return(
         <View style={styles.screenContainer}>
-            <ScrollView contentContainerStyle={[styles.formScrollContentContainer, {paddingTop: 30, paddingBottom: insets.bottom + 50}]}>
+            <ScrollView contentContainerStyle={[styles.formScrollContentContainer, 
+                                                {paddingTop: 30, 
+                                                 paddingBottom: insets.bottom + 80}]}>
                 <View style={styles.locationInputSection}>
+                    <Text style={styles.sectionHeadingTxt}>
+                        {t('shared.location')}
+                    </Text>
+
+                    <Text style={styles.bestEstimateTxt}>
+                        {t('reportFormScreen.locationBestEstimateExplanation')}
+                    </Text>
+
                     <View style={styles.locationSearchContainer}>
+                        {/* location picker, shows picker modal when pressed */}
                         <TouchableOpacity style={styles.locationPickerBtn}
                                           onPress={()=>{setShouldShowLocPickerModal(true)}}>
-                            <Text>
+                            <Text style={styles.pickLocationTxt}>
                                 {t('reportFormScreen.pickALoc')}
                             </Text>
 
-                            <ChevronDown />
+                            {/* 'dropdown' icon */}
+                            <ChevronDown color={'#2D3782'} size={30} />
                         </TouchableOpacity>           
                     </View>
                     
+                    {/* button to use user's current location */}
                     <TouchableOpacity style={styles.useCurrentLocBtn} 
                                       onPress={()=>{getUserLocation()}}>
                         <Text style={styles.useCurrentLocBtnTxt}>
@@ -123,19 +122,96 @@ export function ReportFormScreen() {
                         </Text>
                     </TouchableOpacity>
 
+                    {/* the picked location */}
                     <View style={styles.pickedLocationContainer}>
                         <MapPin size={30} fill={'white'} stroke={'#2D3782'} />
-                        <Text style={styles.pickedLocationTxt}>{locationText}</Text>
+
+                        <Text style={styles.pickedLocationTxt}>
+                            {locationText ? locationText : t('reportFormScreen.pleasePickALocation')}
+                        </Text>
                     </View>
                 </View>
 
+                <View style={styles.perceivedSeveritySection}>
+                    <Text style={styles.sectionHeadingTxt}>
+                        {t('reportFormScreen.perceivedSeverity')}
+                    </Text>
+
+                    <View style={styles.perceivedSeverityInputArea}>
+                        <TouchableOpacity onPress={()=>{setPickedSeverity(0)}}
+                                      style={styles.severityBtn}>
+                            <Smile size={55} 
+                                fill={pickedSeverity == 0 ? '#9ec110' : 'transparent'}
+                                stroke={'#2D3782'} />
+
+                            <Text style={styles.severityTxt}>
+                                {t('reportFormScreen.didntFeelOrSee')}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={()=>{setPickedSeverity(1)}}
+                                        style={styles.severityBtn}>
+                            <Meh size={55} 
+                                fill={pickedSeverity == 1 ? '#9ec110' : 'transparent'}
+                                stroke={'#2D3782'} />
+                            <Text style={styles.severityTxt}>
+                                {t('reportFormScreen.notThatBad')}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={()=>{setPickedSeverity(2)}}
+                                        style={styles.severityBtn}>
+                            <Frown size={55} 
+                                fill={pickedSeverity == 2 ? '#9ec110' : 'transparent'}
+                                stroke={'#2D3782'} />
+
+                            <Text style={styles.severityTxt}>
+                                {t('reportFormScreen.bad')}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={()=>{setPickedSeverity(3)}}
+                                        style={styles.severityBtn}>
+                            <Skull size={55} 
+                                fill={pickedSeverity == 3 ? '#9ec110' : 'transparent'}
+                                stroke={'#2D3782'} />
+
+                            <Text style={styles.severityTxt}>
+                                {t('reportFormScreen.veryBad')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={styles.descriptionSection}>
+                    <Text style={styles.sectionHeadingTxt}>
+                        {t('reportFormScreen.description')}
+                    </Text>
+
+                    <TextInput style={styles.descriptionTxtInput} multiline={true} />
+                </View>
+
+                <View style={styles.submitSection}>
+                    <Text style={styles.submitExplanationTxt}>
+                        {t('reportFormScreen.submitExplanation')}
+                    </Text>
+
+                    <TouchableOpacity style={styles.submitBtn}>
+                        <Text style={styles.submitBtnTxt}>
+                            {t('shared.submit')}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+               
+
+                {/* <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
                 <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
                 <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
                 <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
                 <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
                 <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-              
+               */}
             </ScrollView>
 
             {/* loading overlay shown only when isLoading is true */}
@@ -172,14 +248,15 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        rowGap: 30
     },
     // location input section container
     locationInputSection: {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        rowGap: 20
+        rowGap: 10
     },
     // location search area container
     locationSearchContainer: {
@@ -187,6 +264,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         columnGap: 20
+    },
+    bestEstimateTxt: {
+        color: '#2D3782',
     },
     /* button to open a modal to 
        search and pick a location */
@@ -200,7 +280,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        marginTop: 10
     },
     // button to use the user's current location
     useCurrentLocBtn: {
@@ -210,7 +291,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 10
     },
     /* text inside button to use 
        the user's current location */
@@ -226,7 +308,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         columnGap: 7,
         alignItems: 'center',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        marginTop: 10
     },
     // text showing the picked location
     pickedLocationTxt: {
@@ -234,5 +317,74 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: '#2D3782',
         flex: 1
+    },
+    pickLocationTxt: {
+        color: '#2D3782'
+    },
+    perceivedSeverityInputArea: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        width: '100%',
+    }, 
+    severityBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        alignItems: 'center',
+        flex: 1 
+    },
+    severityTxt: {
+        fontSize: 16,
+        textAlign: 'center',
+        width: '100%',
+        color: '#2D3782'
+    },
+    perceivedSeveritySection: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 15,
+        justifyContent: 'flex-start'
+    },
+    sectionHeadingTxt: {
+        fontWeight: '600',
+        fontSize: 20,
+        color: '#2D3782'
+    },
+    descriptionSection: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10
+    },
+    descriptionTxtInput: {
+        borderWidth: 1,
+        borderColor: '#2D3782',
+        borderRadius: 10,
+        padding: 7,
+        color: '#2D3782',
+    },
+    submitSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 12
+    },
+    submitBtn: {
+        backgroundColor: '#2D3782',
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderRadius: 20,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    submitBtnTxt: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 16
+    },
+    submitExplanationTxt: {
+        color: '#2D3782',
     }
 });
