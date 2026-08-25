@@ -15,14 +15,17 @@ import { MapDisasterLegend } from '../../components/MapDisasterLegend';
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
+import { ChevronUp, ChevronDown } from 'lucide-react-native';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
     const [isLoading, setIsLoading] = useState(true);
     const [disasterObj, setDisasterObj] = useState(null);
     const [disasterTitle, setDisasterTitle] = useState('');
+    const [reportLocations, setReportLocations] = useState([]);
     const { t, i18n } = useTranslation();
     const currentLang = i18n.resolvedLanguage;
+    const [shouldShowMap, setShouldShowMap] = useState(false);
 
     // if language is changed, get the disaster title again 
     useEffect(()=>{
@@ -35,7 +38,6 @@ export function DisasterDetailsScreen({route, navigation}) {
                                               t,
                                               i18n));
         }
-        console.log(disasterObj);
     }, [currentLang]);
 
     const handleEvacuationGuideBtnPress = (disasterType) => {
@@ -90,6 +92,39 @@ export function DisasterDetailsScreen({route, navigation}) {
     useEffect(()=>{
         console.log(route.params.disasterId);
 
+        // function to subscribe to new disasters
+        const subscribeToNewReports = (disasterId) => {
+            // listen to new report inserts for the disaster
+            const changes = supabase
+                            .channel('user-reports-table-db-changes')
+                            .on(
+                            'postgres_changes',
+                            {
+                                event: 'INSERT',
+                                schema: 'disasters_related_data',
+                                table: 'user_reports',
+                                filter: `disaster_id=eq.${disasterId}`
+                            },
+                            async(payload) => {
+                                console.log(payload);
+                                const {data, error} = await supabase.schema('public')
+                                                            .rpc('get_unique_report_locations_and_report_count', 
+                                                                {disaster_id_input: route?.params?.disasterId});
+
+                                if(error){
+                                    console.log(error.message)
+                                }
+                                else{
+                                    if(data){
+                                        console.log(data);
+                                        setReportLocations(data);
+                                    }
+                                }
+                            }).subscribe();
+
+            return changes;
+        }; 
+
         // fetch disaster details data and set the disaster title
         const fetchDisasterDetails = async(disasterId) => {
             try{
@@ -97,7 +132,7 @@ export function DisasterDetailsScreen({route, navigation}) {
 
                 const { data, error } = await supabase.schema('public')
                                                         .rpc('get_disaster_data_for_details_screen', 
-                                                            {disaster_id_input: disasterId});
+                                                             {disaster_id_input: disasterId});
                                                 
                 if(error){
                     throw error;
@@ -125,34 +160,87 @@ export function DisasterDetailsScreen({route, navigation}) {
         };
 
         fetchDisasterDetails(route?.params?.disasterId);
+        const newReportsSubscription = subscribeToNewReports(route?.params?.disasterId);
+
+        return () => {
+            if(newReportsSubscription){
+                newReportsSubscription.unsubscribe();
+            }
+        };
     }, [route?.params?.disasterId]);
 
     return( 
         disasterObj ? (
             <View style={styles.screenContainer}>
-                {/* crowdsourced reports map placeholder */}
-                <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
+                <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
+                                  style={styles.toggleShowMapBtn}>
+                    {
+                        shouldShowMap == true ?
+                        (
+                            <View style={styles.toggleShowMapBtnContentContainer}>
+                                <Text style={styles.hideOrShowMapTxt}>
+                                    {t('disasterDetailsScreen.hideMap')}
+                                </Text>
+                                <ChevronUp color={'#2D3782'} size={30} />
+                            </View>
+                        ):
+                        (
+                            <View style={styles.toggleShowMapBtnContentContainer}>
+                                <Text style={styles.hideOrShowMapTxt}>
+                                    {t('disasterDetailsScreen.showMap')}
+                                </Text>
+                                <ChevronDown color={'#2D3782'} size={30} />
+                            </View>
+                        )
+                    }
+                </TouchableOpacity>
 
-                {/* <Map style={{width: '100%', height: 250}} 
-                     mapStyle={mapStyle}
-                     compassPosition={{top: 20, left: 20}}
-                     onStartShouldSetResponder={()=>{return true}}>
-                    <Camera maxZoom={14} 
-                            zoom={10} 
-                            bounds={(disasterObj?.general?.latitude && 
-                                     disasterObj?.general?.longitude) ? 
-                                    [(disasterObj?.general?.longitude - 5), 
-                                     (disasterObj?.general?.latitude - 5), 
-                                     (disasterObj?.general?.longitude + 5), 
-                                     (disasterObj?.general?.latitude + 5)] : 
-                                    [93, -12, 142, 10]}
-                            trackUserLocation='default' />
+                {/* crowndsourced report map, showing disaster location and 
+                    locations where reports are available, markers of report 
+                    location can be pressed to show reports in that location */}
+                {
+                    shouldShowMap == true && (
+                        <View style={styles.mapAndExplanationContainer}>
+                            {/* crowdsourced reports map placeholder */}
+                            <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
+                
+                            {/* <Map style={{width: '100%', height: 250}} 
+                                 mapStyle={mapStyle}
+                                 compassPosition={{top: 20, left: 20}}
+                                 onStartShouldSetResponder={()=>{return true}}>
+                                <Camera maxZoom={14} 
+                                        zoom={10} 
+                                        bounds={(disasterObj?.general?.latitude && 
+                                                disasterObj?.general?.longitude) ? 
+                                                [(disasterObj?.general?.longitude - 5), 
+                                                (disasterObj?.general?.latitude - 5), 
+                                                (disasterObj?.general?.longitude + 5), 
+                                                (disasterObj?.general?.latitude + 5)] : 
+                                                [93, -12, 142, 10]}/>
 
-                    <Marker testID='disaster-marker-on-map'
-                            lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
-                        <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
-                    </Marker>
-                </Map>  */}
+                                <Marker testID='disaster-marker-on-map'
+                                        lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
+                                    <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
+                                </Marker>
+
+                                {reportLocations.map((item, index) => (
+                                    <Marker key={index}
+                                            lngLat={[item?.center_lon, item?.center_lat]}>
+                                        <View style={{width: 30, height: 30, backgroundColor: 'blue', borderRadius: 15}}>
+                                            <Text>
+                                                {item.report_count}
+                                            </Text>
+                                        </View>
+                                    </Marker>
+                                ))}
+                            </Map>  */}
+
+                            <Text style={styles.mapMarkingExplanationTxt}>
+                                {t('disasterDetailsScreen.mapMarkingExplanation')}
+                            </Text>
+                        </View>
+                    )
+                }
 
                 <ScrollView contentContainerStyle={[styles.disasterInformationContainer, 
                                                     {paddingBottom: insets.bottom + 70,
@@ -463,7 +551,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                 </ScrollView>
 
                 {/* menu at screen's bottom */}
-                <View style={[styles.bottomMenu, {paddingBottom: insets.bottom + 30,
+                <View style={[styles.bottomMenu, {paddingBottom: insets.bottom + 50,
                                                   paddingLeft: insets.left + 30, 
                                                   paddingRight: insets.right + 30,
                                                   paddingTop: 30}]}>
@@ -639,5 +727,43 @@ const styles = StyleSheet.create({
     unsupportedDetailsTxt: {
         color: '#2D3782',
         fontSize: 16
+    },
+    toggleShowMapBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 15,
+        width: '100%',
+        backgroundColor: '#9EC110',
+        height: 30,
+        elevation: 5
+    },
+    toggleShowMapBtnContentContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    hideOrShowMapTxt: {
+        fontSize: 17,
+        color: '#2D3782',
+        fontWeight: '600'
+    },
+    mapMarkingExplanationTxt: {
+        color: '#2D3782',
+        textAlign: 'center',
+        width: '90%'
+    },
+    mapAndExplanationContainer: {
+        width: '100%',
+        paddingBottom: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        elevation: 2,
+        borderColor: 'grey'
     }
 });

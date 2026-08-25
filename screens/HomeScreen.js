@@ -114,7 +114,7 @@ export function HomeScreen({ navigation }) {
     const subscribeToNewDisasters = (gtTimestrFilter) => {
       // listen to new disaster inserts in the last 24 hours
       const changes = supabase
-                      .channel('table-db-changes')
+                      .channel('disasters-table-db-changes')
                       .on(
                         'postgres_changes',
                         {

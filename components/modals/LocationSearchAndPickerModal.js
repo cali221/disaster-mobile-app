@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
         flex: 1,
         rowGap: 15
     },
+    // container of the area to search for location
     locationSearchContainer: {
         display: 'flex',
         flexDirection: 'row',
@@ -131,8 +132,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         columnGap: 15,
         width: '100%'
-       
     },
+    // text input for search query
     locationSearchTextInput: {
         borderColor: '#2D3782',
         borderWidth: 1,
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%'
     },
+    // button to search for location
     searchLocBtn: {
         backgroundColor: '#2D3782',
         paddingVertical: 7,
@@ -152,23 +154,27 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 20
     },
+    // text inside button to search for location
     searchLocBtnTxt: {
         color: 'white',
         fontWeight: '600',
         fontSize: 16,
         textAlign: 'center'
     },
+    // item container for each search result
     searchResItemContainer: {
         width: '100%',
         borderBottomWidth: 2,
         borderBottomColor: '#2D3782',
         paddingBottom: 5
     },
+    // texts inside search result item container
     searchResItemTxt: {
         color: '#2D3782',
         fontWeight: '600',
         fontSize: 16
     },
+    // explanation text about searching
     searchExplanationTxt: {
         color: '#2D3782'
     }
