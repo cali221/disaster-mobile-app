@@ -13,7 +13,6 @@ import { LocationSearchAndPicker } from '../../components/modals/LocationSearchA
 export function ReportFormScreen() {
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
-    const [locationSearchInput, setLocationSearchInput] = useState(t('shared.location'));
     const [locationText, setLocationText] = useState('Please pick a location');
     const [pickedLocationObj, setPickedLocationObj] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -89,18 +88,24 @@ export function ReportFormScreen() {
     
     return(
         <View style={styles.screenContainer}>
+            {/* scroll view for the form content */}
             <ScrollView contentContainerStyle={[styles.formScrollContentContainer, 
                                                 {paddingTop: 30, 
                                                  paddingBottom: insets.bottom + 80}]}>
+
+                {/* location input section */}
                 <View style={styles.locationInputSection}>
+                    {/* heading text */}
                     <Text style={styles.sectionHeadingTxt}>
                         {t('shared.location')}
                     </Text>
 
+                    {/* explanation text for the location input */}
                     <Text style={styles.bestEstimateTxt}>
                         {t('reportFormScreen.locationBestEstimateExplanation')}
                     </Text>
 
+                    {/* location search area */}
                     <View style={styles.locationSearchContainer}>
                         {/* location picker, shows picker modal when pressed */}
                         <TouchableOpacity style={styles.locationPickerBtn}
@@ -124,20 +129,26 @@ export function ReportFormScreen() {
 
                     {/* the picked location */}
                     <View style={styles.pickedLocationContainer}>
+                        {/* map pin icon */}
                         <MapPin size={30} fill={'white'} stroke={'#2D3782'} />
 
+                        {/* picked location text */}
                         <Text style={styles.pickedLocationTxt}>
                             {locationText ? locationText : t('reportFormScreen.pleasePickALocation')}
                         </Text>
                     </View>
                 </View>
 
+                {/* perveived severity section */}
                 <View style={styles.perceivedSeveritySection}>
+                    {/* heading text */}
                     <Text style={styles.sectionHeadingTxt}>
                         {t('reportFormScreen.perceivedSeverity')}
                     </Text>
 
+                    {/* input container */}
                     <View style={styles.perceivedSeverityInputArea}>
+                        {/* 'didn't feel or see' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(0)}}
                                       style={styles.severityBtn}>
                             <Smile size={55} 
@@ -149,6 +160,7 @@ export function ReportFormScreen() {
                             </Text>
                         </TouchableOpacity>
 
+                        {/* 'not too bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(1)}}
                                         style={styles.severityBtn}>
                             <Meh size={55} 
@@ -159,6 +171,7 @@ export function ReportFormScreen() {
                             </Text>
                         </TouchableOpacity>
 
+                        {/* 'bad' option button*/}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(2)}}
                                         style={styles.severityBtn}>
                             <Frown size={55} 
@@ -170,6 +183,7 @@ export function ReportFormScreen() {
                             </Text>
                         </TouchableOpacity>
 
+                        {/* 'very bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(3)}}
                                         style={styles.severityBtn}>
                             <Skull size={55} 
@@ -183,35 +197,33 @@ export function ReportFormScreen() {
                     </View>
                 </View>
 
+                {/* description section */}
                 <View style={styles.descriptionSection}>
+                    {/* heading text */}
                     <Text style={styles.sectionHeadingTxt}>
-                        {t('reportFormScreen.description')}
+                        {t('reportFormScreen.description')} ({t('shared.optional')})
                     </Text>
 
-                    <TextInput style={styles.descriptionTxtInput} multiline={true} />
+                    {/* description text input */}
+                    <TextInput style={styles.descriptionTxtInput} 
+                               multiline={true} />
                 </View>
 
+                {/* section for submitting report */}
                 <View style={styles.submitSection}>
+                    {/* explanation text about what will 
+                        happen when report is submitted */}
                     <Text style={styles.submitExplanationTxt}>
                         {t('reportFormScreen.submitExplanation')}
                     </Text>
 
+                    {/* button to submit report */}
                     <TouchableOpacity style={styles.submitBtn}>
                         <Text style={styles.submitBtnTxt}>
                             {t('shared.submit')}
                         </Text>
                     </TouchableOpacity>
                 </View>
-
-               
-
-                {/* <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-                <View style={{widht: '100%', height: 150, backgroundColor: 'pink', marginBottom: 50}}></View>
-               */}
             </ScrollView>
 
             {/* loading overlay shown only when isLoading is true */}
