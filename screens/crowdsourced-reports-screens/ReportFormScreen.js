@@ -80,6 +80,8 @@ export function ReportFormScreen() {
             else{
                 if(data){
                     console.log(data);
+
+                    // updated picked location
                     setPickedLocation(data?.ogc_fid, 
                                       data?.adm3, 
                                       data?.city_or_regency, 
