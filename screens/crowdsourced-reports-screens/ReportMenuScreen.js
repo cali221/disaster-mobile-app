@@ -22,7 +22,8 @@ export function ReportMenuScreen({navigation}) {
                                                 .rpc('get_recent_disasters_for_report_menu');
 
             if(error){
-                showErrorToast('Failed to fetch', `${error.message ?? JSON.stringify(error)}`);
+                showErrorToast(t('reportMenuScreen.failedToFetchRecentDisasters'), 
+                               `${error.message ?? JSON.stringify(error)}`);
             }
             else{
                 if(data){
@@ -38,7 +39,6 @@ export function ReportMenuScreen({navigation}) {
                                                            'datetime': item?.datetime,
                                                            'disaster_id': item.disaster_id}));
 
-                    console.log(processed);
                     setRecentDisasters(processed);
                 }
             }

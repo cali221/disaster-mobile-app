@@ -19,6 +19,7 @@ export function ReportFormScreen() {
     const [shouldShowLocPickerModal, setShouldShowLocPickerModal] = useState(false);
     const [pickedSeverity, setPickedSeverity] = useState(null);
 
+    // function for setting picked location
     const setPickedLocation = (locId, 
                                adm3, 
                                cityOrRegency, 
@@ -26,11 +27,13 @@ export function ReportFormScreen() {
                                distInMetersFromArea, 
                                isContainedInArea,
                                isPickedFromCurrentLoc) => {
+        // set the location as the picked location object
         setPickedLocationObj({'ogc_fid': locId, 
                               'adm3': adm3, 
                               'cityOrRegency': cityOrRegency, 
                               'province': province});
 
+        // set the location text for display accordingly
         if(isContainedInArea == null || isContainedInArea == true){
             setLocationText(t('reportFormScreen.locationNormal', 
                               {adm3: adm3, 
@@ -46,19 +49,24 @@ export function ReportFormScreen() {
         }
     };
 
+    // function to get user's location and update the picked location
     const getUserLocation = async()=> {
       setIsLoading(true);
 
+      // the permission status for location
       const { status } = await Location.requestForegroundPermissionsAsync();
 
+      // if permission is not granted, inform user
       if (status !== 'granted') {
         showInfoToast(t('permissions.permissionNeeded'), 
                       t('permissions.permissionNeededToGetLocation'));
         return;
       }
       else{
-        let location = await Location.getCurrentPositionAsync({});
+        // get the user's location data
+        const location = await Location.getCurrentPositionAsync({});
         
+        // if coordinates are found, get the location text from the database
         if(location?.coords?.latitude && location?.coords?.longitude){
             const {data, error} = await supabase.schema('public')
                                                 .rpc('get_adm3_from_coords', 
@@ -66,7 +74,8 @@ export function ReportFormScreen() {
                                                       lon_input: location.coords.longitude})
                                                 .single();
             if(error){
-                console.log(error.message)
+                showErrorToast(t('reportFormScreen.failedToFetchLocationText'), 
+                               `${error.message ?? JSON.stringify(error)}`);
             }    
             else{
                 if(data){
