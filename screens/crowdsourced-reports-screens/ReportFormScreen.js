@@ -150,10 +150,10 @@ export function ReportFormScreen() {
                     <View style={styles.perceivedSeverityInputArea}>
                         {/* 'didn't feel or see' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(0)}}
-                                      style={styles.severityBtn}>
+                                          style={styles.severityBtn}>
                             <Smile size={55} 
-                                fill={pickedSeverity == 0 ? '#9ec110' : 'transparent'}
-                                stroke={'#2D3782'} />
+                                   fill={pickedSeverity == 0 ? '#9ec110' : 'transparent'}
+                                   stroke={'#2D3782'} />
 
                             <Text style={styles.severityTxt}>
                                 {t('reportFormScreen.didntFeelOrSee')}
@@ -162,10 +162,10 @@ export function ReportFormScreen() {
 
                         {/* 'not too bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(1)}}
-                                        style={styles.severityBtn}>
+                                          style={styles.severityBtn}>
                             <Meh size={55} 
-                                fill={pickedSeverity == 1 ? '#9ec110' : 'transparent'}
-                                stroke={'#2D3782'} />
+                                 fill={pickedSeverity == 1 ? '#9ec110' : 'transparent'}
+                                 stroke={'#2D3782'} />
                             <Text style={styles.severityTxt}>
                                 {t('reportFormScreen.notThatBad')}
                             </Text>
@@ -173,10 +173,10 @@ export function ReportFormScreen() {
 
                         {/* 'bad' option button*/}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(2)}}
-                                        style={styles.severityBtn}>
+                                          style={styles.severityBtn}>
                             <Frown size={55} 
-                                fill={pickedSeverity == 2 ? '#9ec110' : 'transparent'}
-                                stroke={'#2D3782'} />
+                                   fill={pickedSeverity == 2 ? '#9ec110' : 'transparent'}
+                                   stroke={'#2D3782'} />
 
                             <Text style={styles.severityTxt}>
                                 {t('reportFormScreen.bad')}
@@ -185,10 +185,10 @@ export function ReportFormScreen() {
 
                         {/* 'very bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(3)}}
-                                        style={styles.severityBtn}>
+                                          style={styles.severityBtn}>
                             <Skull size={55} 
-                                fill={pickedSeverity == 3 ? '#9ec110' : 'transparent'}
-                                stroke={'#2D3782'} />
+                                   fill={pickedSeverity == 3 ? '#9ec110' : 'transparent'}
+                                   stroke={'#2D3782'} />
 
                             <Text style={styles.severityTxt}>
                                 {t('reportFormScreen.veryBad')}
@@ -277,6 +277,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         columnGap: 20
     },
+    /* explanation text for location input 
+       (about picking best estimate) */
     bestEstimateTxt: {
         color: '#2D3782',
     },
@@ -330,9 +332,13 @@ const styles = StyleSheet.create({
         color: '#2D3782',
         flex: 1
     },
+    /* text saying 'Pick a location' 
+       on the location picker button */
     pickLocationTxt: {
         color: '#2D3782'
     },
+    /* container of the input options 
+       for perceived severity */
     perceivedSeverityInputArea: {
         display: 'flex',
         flexDirection: 'row',
@@ -340,6 +346,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
     }, 
+    /* severity option button */
     severityBtn: {
         display: 'flex',
         justifyContent: 'center',
@@ -347,29 +354,34 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1 
     },
+    // text under severity button
     severityTxt: {
         fontSize: 16,
         textAlign: 'center',
         width: '100%',
         color: '#2D3782'
     },
+    // perceived severity section
     perceivedSeveritySection: {
         display: 'flex',
         flexDirection: 'column',
         rowGap: 15,
         justifyContent: 'flex-start'
     },
+    // texts for section headings
     sectionHeadingTxt: {
         fontWeight: '600',
         fontSize: 20,
         color: '#2D3782'
     },
+    // description section
     descriptionSection: {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         rowGap: 10
     },
+    // text input for description
     descriptionTxtInput: {
         borderWidth: 1,
         borderColor: '#2D3782',
@@ -377,11 +389,14 @@ const styles = StyleSheet.create({
         padding: 7,
         color: '#2D3782',
     },
+    /* section for submitting with submit 
+       button and explanation text */
     submitSection: {
         display: 'flex',
         flexDirection: 'column',
         rowGap: 12
     },
+    // the submit button
     submitBtn: {
         backgroundColor: '#2D3782',
         paddingHorizontal: 10,
@@ -391,11 +406,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    // text inside submit button
     submitBtnTxt: {
         color: 'white',
         fontWeight: '600',
         fontSize: 16
     },
+    // explanation text about submitting
     submitExplanationTxt: {
         color: '#2D3782',
     }
