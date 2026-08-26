@@ -9,7 +9,7 @@ import { Activity,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-export function ResourceHubScreen() {
+export function ResourceHubScreen({navigation}){
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
 
@@ -22,7 +22,8 @@ export function ResourceHubScreen() {
                                                  paddingBottom: insets.bottom + 30}]}>
                 {/* emergency number button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Emergency Numbers')}}>
                         <Phone size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -33,7 +34,8 @@ export function ResourceHubScreen() {
                 
                 {/* useful location button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Useful Locations')}}>
                         <Map size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -44,7 +46,8 @@ export function ResourceHubScreen() {
 
                 {/* earthquake guide button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Earthquake Guide')}}>
                         <Activity size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -55,7 +58,8 @@ export function ResourceHubScreen() {
 
                 {/* tsunami guide button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Tsunami Guide')}}>
                         <WavesArrowUp size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -66,7 +70,8 @@ export function ResourceHubScreen() {
 
                 {/* flood guide button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Flood Guide')}}>
                         <Waves size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -77,7 +82,8 @@ export function ResourceHubScreen() {
 
                 {/* landslide guide button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Landslide Guide')}}>
                         <SlashIcon size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
@@ -88,7 +94,8 @@ export function ResourceHubScreen() {
 
                 {/* volcanic eruption guide button */}
                 <View style={styles.menuBtnContainer}>
-                    <TouchableOpacity style={styles.menuBtn}>
+                    <TouchableOpacity style={styles.menuBtn}
+                                      onPress={()=>{navigation.navigate('Volcanic Eruption Guide')}}>
                         <Mountain size={55} stroke={'white'} />
 
                         <Text style={styles.menuBtnTxt}>
