@@ -38,18 +38,20 @@ export function DisasterDetailsScreen({route, navigation}) {
        function is declared here) */
     const getReportLocations = async(disasterId) => {
         setIsLoading(true);
+
         const {data, error} = await supabase.schema('public')
                                             .rpc('get_unique_report_locations_and_report_count', 
                                                 {disaster_id_input: disasterId});
 
         if(error){
             setIsLoading(false);
-            console.log(error.message);
+
+            showErrorToast(t('disasterDetailsScreen.failedToFetchReportLocations'), 
+                           `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             if(data){
                 setIsLoading(false);
-                console.log(data);
                 return data;
             }
         }
@@ -65,12 +67,13 @@ export function DisasterDetailsScreen({route, navigation}) {
                                             .eq('location_id', locId)
                                             .order('timestamp', { ascending: false });
         if(error){
-            console.log(error.message);
             setIsLoading(false);
+
+            showErrorToast(t('disasterDetailsScreen.failedToFetchReportsInTheArea'), 
+                           `${error.message ?? JSON.stringify(error)}`);
         }
         else{
             if(data){
-                console.log(data);
                 setIsLoading(false);
                 return data;
             }
@@ -185,7 +188,11 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 filter: `disaster_id=eq.${disasterId}`
                             },
                             async(payload) => {
-                                getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
+                                getReportLocations(route?.params?.disasterId).then(
+                                    (data)=>{
+                                        setReportLocations(data);
+                                    }
+                                );
                             }).subscribe();
 
             return changes;
@@ -205,7 +212,6 @@ export function DisasterDetailsScreen({route, navigation}) {
                 }
                 else{
                     if(data){
-                        console.log(data);
                         setDisasterObj(data);
                         setDisasterTitle(getDisasterTitle(data?.area?.contained_in_area,
                                                           data?.area?.city_or_regency,
@@ -666,20 +672,28 @@ export function DisasterDetailsScreen({route, navigation}) {
                                  minHeight={350}>
                     {reportsModalData.map((item, index) => (
                         <View key={index} style={styles.reportItemContainer}>
+                            {/* severity icon and label */}
                             <SeverityIconAndLabel iconSize={50} 
                                                   iconFillColor={'#9ec110'}
                                                   iconStrokeColor={'#2D3782'}
                                                   severityValue={item?.severity_status_number} />
 
                             <View style={styles.reportItemTextsContainer}>
-                                <Text style={[styles.reportItemDescText, {fontStyle: item?.description ? 'normal' : 'italic'}]}>
-                                    {item?.description ? item.description : 'No description given'}
+                                {/* description */}
+                                <Text style={[styles.reportItemDescText, 
+                                             {fontStyle: item?.description ? 
+                                              'normal' : 
+                                              'italic'}]}>
+                                    {item?.description ? 
+                                     item.description : 
+                                     t('disasterDetailsScreen.noDescription')}
                                 </Text>
 
+                                {/* time the report was created */}
                                 <Text style={styles.reportItemTimeText}>
                                     {item?.timestamp ? 
                                      new Date(item?.timestamp).toLocaleString('id', {timeZoneName: 'short'}) : 
-                                     'No timestamp'}
+                                     t('disasterDetails.noTimestamp')}
                                 </Text>
                             </View>
                         </View>
@@ -907,16 +921,20 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         borderBottomColor: '#2D3782'
     },
+    /* container of texts (time and description) 
+       of each report */
     reportItemTextsContainer: {
         display: 'flex',
         flexDirection: 'column',
         rowGap: 10
     },
+    // description text of the report
     reportItemDescText: {
         fontSize: 16,
         color: '#2D3782',
         fontWeight: '600'
     },
+    // text showing the time the report was created
     reportItemTimeText: {
         color: '#2D3782'
     }
