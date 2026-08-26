@@ -185,7 +185,8 @@ export function ReportFormScreen({route}) {
                         </Text>
                     </View>
 
-                    <DataAttributionSection />    
+                    {/* location data attribution */}
+                    <DataAttributionSection attributionTxt={t('reportFormScreen.dataAttribution')} />    
                 </View>
 
                 {/* perveived severity section */}

@@ -214,7 +214,8 @@ export function NotificationsScreen({ navigation }) {
                                 <TouchableOpacity style={styles.notificationItemBtn}
                                                     accessibilityRole='button'
                                                     accessibilityLabel={t('notifScreen.detailsBtnAccLbl')}
-                                                    onPress={()=>{navigation.navigate('Disaster Details', {disasterId: item.associated_disaster_id})}}> 
+                                                    onPress={()=>{navigation.navigate('Disaster Details', 
+                                                                                      {disasterId: item?.associated_disaster_id})}}> 
                                     <Text style={styles.notificationItemBtnTxt}>
                                         {t('shared.details')}
                                     </Text>

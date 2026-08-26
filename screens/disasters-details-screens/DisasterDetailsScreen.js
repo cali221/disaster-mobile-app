@@ -4,7 +4,7 @@ import { Text,
          Image, 
          ScrollView, 
          TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { showErrorToast } from '../../utils/show-toast';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -18,6 +18,7 @@ import { DataAttributionSection } from '../../components/DataAttributionSection'
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
 import { BottomModalBase } from '../../components/modals-base/BottomModalBase';
 import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
+import { roundTo2DP } from '../../utils/rounding';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
@@ -31,6 +32,7 @@ export function DisasterDetailsScreen({route, navigation}) {
     const [shouldShowUserReportsModal, setShouldShowUserReportsModal] = useState(false);
     const [reportsModalTitle, setReportsModalTitle] = useState('');
     const [reportsModalData, setReportsModalData] = useState([]);
+    const newReportsSub = useRef(null);
 
     /* function to get report locations 
        (called both in useEffect and when new report 
@@ -172,8 +174,6 @@ export function DisasterDetailsScreen({route, navigation}) {
     };
 
     useEffect(()=>{
-        console.log(route.params.disasterId);
-
         // function to subscribe to new disasters
         const subscribeToNewReports = (disasterId) => {
             // listen to new report inserts for the disaster
@@ -201,44 +201,46 @@ export function DisasterDetailsScreen({route, navigation}) {
         // fetch disaster details data and set the disaster title
         const fetchDisasterDetails = async(disasterId) => {
             setIsLoading(true);
-            try{
 
-                const { data, error } = await supabase.schema('public')
-                                                        .rpc('get_disaster_data_for_details_screen', 
-                                                             {disaster_id_input: disasterId});
+            const { data, error } = await supabase.schema('public')
+                                                  .rpc('get_disaster_data_for_details_screen', 
+                                                       {disaster_id_input: disasterId});
                                                 
-                if(error){
-                    throw error;
-                }
-                else{
-                    if(data){
-                        setDisasterObj(data);
-                        setDisasterTitle(getDisasterTitle(data?.area?.contained_in_area,
-                                                          data?.area?.city_or_regency,
-                                                          data?.area?.province,
-                                                          data?.area?.dist_in_m_from_area,
-                                                          data?.general?.disaster_type,
-                                                          t,
-                                                          i18n));
-                    }
-                }
-            }
-            catch(error){
+            if(error){
+                setIsLoading(false);
                 showErrorToast(t('disasterDetailsScreen.failedToGetDisasterData'), 
                                `${error.message ?? JSON.stringify(error)}`);
+
+                return;
             }
-            setIsLoading(false);
+            else{
+                if(data){
+                    setDisasterObj(data);
+                    setDisasterTitle(getDisasterTitle(data?.area?.contained_in_area,
+                                                      data?.area?.city_or_regency,
+                                                      data?.area?.province,
+                                                      data?.area?.dist_in_m_from_area,
+                                                      data?.general?.disaster_type,
+                                                      t,
+                                                      i18n));
+                    setIsLoading(false);
+                }
+            }
         };
 
         /* fetch disaster details, get existing report locations 
            and subscribe to new reports for the disaster */
         fetchDisasterDetails(route?.params?.disasterId);
         getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
-        const newReportsSubscription = subscribeToNewReports(route?.params?.disasterId);
+
+        if(newReportsSub == null){
+            newReportsSub.current = subscribeToNewReports(route?.params?.disasterId);
+        }
 
         return () => {
-            if(newReportsSubscription){
-                newReportsSubscription.unsubscribe();
+            if(newReportsSub.current){
+                newReportsSub.current.unsubscribe();
+                newReportsSub.current = null;
             }
         };
     }, [route?.params?.disasterId]);
@@ -246,6 +248,7 @@ export function DisasterDetailsScreen({route, navigation}) {
     return( 
         disasterObj ? (
             <View style={styles.screenContainer}>
+                {/* button to hide/show map */}
                 <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
                                   style={styles.toggleShowMapBtn}>
                     {
@@ -298,10 +301,13 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 {reportLocations.map((item, index) => (
                                     <Marker key={index}
                                             lngLat={[item?.center_lon, item?.center_lat]}
-                                            onPress={()=>{handleReportMarkerPress(item?.adm3, item?.city_or_regency, item?.province, item?.ogc_fid)}}>
+                                            onPress={()=>{handleReportMarkerPress(item?.adm3, 
+                                                                                  item?.city_or_regency, 
+                                                                                  item?.province, 
+                                                                                  item?.ogc_fid)}}>
                                         <View style={styles.reportLocMarker}>
                                             <Text style={styles.reportCountTxt}>
-                                                {item.report_count}
+                                                {item?.report_count}
                                             </Text>
                                         </View>
                                     </Marker>
@@ -309,11 +315,13 @@ export function DisasterDetailsScreen({route, navigation}) {
 
                                 {/* the disater marker, below the reports marker so it's shown above them */}
                                 <Marker testID='disaster-marker-on-map'
-                                        lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
+                                        lngLat={[disasterObj?.general?.longitude, 
+                                                 disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
                             </Map> 
 
+                            {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>
                                 {t('disasterDetailsScreen.mapMarkingExplanation')}
                             </Text>
@@ -522,7 +530,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 </View>
                             ):
                             /* extreme wind details texts, since impact is the only metric, 
-                            don't show details if there is no impact data */
+                               don't show details if there is no impact data */
                             disasterObj?.general?.disaster_type == 'wind' && disasterObj?.impactStatus !== null ?
                             (
                                 <View style={styles.disasterDetailsContainer}>
@@ -642,13 +650,6 @@ export function DisasterDetailsScreen({route, navigation}) {
                         </Text>
                     </TouchableOpacity>
 
-                    {/* button to find useful locations */}
-                    {/* <TouchableOpacity style={styles.bottomMenuBtn}>
-                        <Text style={styles.bottomMenuBtnTxt}>
-                            {t('disasterDetailsScreen.findUsefulLocations')}
-                        </Text>
-                    </TouchableOpacity> */}
-
                     {/* button to create report */}
                     <TouchableOpacity style={styles.bottomMenuBtn}
                                       onPress={()=>{navigation.navigate('Report Form', {disasterId: disasterObj?.general?.id})}}>
@@ -665,42 +666,44 @@ export function DisasterDetailsScreen({route, navigation}) {
                     )
                 }
 
+                {/* modal for showing reports around a location, 
+                    shown when a report marker on the map is pressed */}
                 {shouldShowUserReportsModal == true && (
+                    <BottomModalBase title={reportsModalTitle} 
+                                     closeFunc={()=>{hideReportsModal()}}
+                                     minHeight={350}>
+                        {/* data attribution for the title shown on the title of the modal */}
+                        <DataAttributionSection attributionTxt={t('disasterDetailsScreen.reportsLocationTitleDataAttribution')} />
 
-                <BottomModalBase title={reportsModalTitle} 
-                                 closeFunc={()=>{hideReportsModal()}}
-                                 minHeight={350}>
-                    {reportsModalData.map((item, index) => (
-                        <View key={index} style={styles.reportItemContainer}>
-                            {/* severity icon and label */}
-                            <SeverityIconAndLabel iconSize={50} 
-                                                  iconFillColor={'#9ec110'}
-                                                  iconStrokeColor={'#2D3782'}
-                                                  severityValue={item?.severity_status_number} />
+                        {reportsModalData.map((item, index) => (
+                            <View key={index} style={styles.reportItemContainer}>
+                                {/* severity icon and label */}
+                                <SeverityIconAndLabel iconSize={50} 
+                                                      iconFillColor={'#9ec110'}
+                                                      iconStrokeColor={'#2D3782'}
+                                                      severityValue={item?.severity_status_number} />
 
-                            <View style={styles.reportItemTextsContainer}>
-                                {/* description */}
-                                <Text style={[styles.reportItemDescText, 
-                                             {fontStyle: item?.description ? 
-                                              'normal' : 
-                                              'italic'}]}>
-                                    {item?.description ? 
-                                     item.description : 
-                                     t('disasterDetailsScreen.noDescription')}
-                                </Text>
+                                <View style={styles.reportItemTextsContainer}>
+                                    {/* description */}
+                                    <Text style={[styles.reportItemDescText, 
+                                                 {fontStyle: item?.description ? 
+                                                  'normal' : 
+                                                  'italic'}]}>
+                                        {item?.description ? 
+                                         item.description : 
+                                         t('disasterDetailsScreen.noDescription')}
+                                    </Text>
 
-                                {/* time the report was created */}
-                                <Text style={styles.reportItemTimeText}>
-                                    {item?.timestamp ? 
-                                     new Date(item?.timestamp).toLocaleString('id', {timeZoneName: 'short'}) : 
-                                     t('disasterDetails.noTimestamp')}
-                                </Text>
+                                    {/* time the report was created */}
+                                    <Text style={styles.reportItemTimeText}>
+                                        {item?.timestamp ? 
+                                         new Date(item?.timestamp).toLocaleString('id', {timeZoneName: 'short'}) : 
+                                         t('disasterDetails.noTimestamp')}
+                                    </Text>
+                                </View>
                             </View>
-                        </View>
-                    ))}
-
-                    {/* TODO: need to add data attribution(?) */}
-                </BottomModalBase>
+                        ))}
+                    </BottomModalBase>
                 )}
             </View>
         ):

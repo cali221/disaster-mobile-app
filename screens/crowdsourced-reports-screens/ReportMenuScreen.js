@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
+import { DataAttributionSection } from '../../components/DataAttributionSection';
 
 export function ReportMenuScreen({navigation}) {
     const insets = useSafeAreaInsets();
@@ -65,7 +66,9 @@ export function ReportMenuScreen({navigation}) {
                     {t('reportMenuScreen.pickADisasterToCreateAReportFor')}
                 </Text>
 
-                {/* TODO: need to add data attribution texts(?) */}
+                {/* data attribution */}
+                <DataAttributionSection attributionTxt={t('reportMenuScreen.dataAttribution')} />
+
                 {/* list of disasters in the last 3 days */}
                 {recentDisasters.map((item, index) => (
                     <View key={index} style={styles.disasterItemContainer}>

@@ -150,9 +150,9 @@ export function HomeScreen({ navigation }) {
       fetchDisastersGtTimeStrFilter(yesterdaytimeStr);
     
       // fetch disasters data in the last 24 hours that match user's watched areas
-      fetchRecentDisastersNearWatchedAreaSummary(user.id);
+      fetchRecentDisastersNearWatchedAreaSummary(user?.id);
 
-      // subcribe to new disasters if they happen in the last 24 hours
+      // subcribe to new disasters data within the last 24 hours
       const newDisastersSubscription = subscribeToNewDisasters(yesterdaytimeStr);
 
       setIsLoading(false);
@@ -258,7 +258,7 @@ export function HomeScreen({ navigation }) {
                                       accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}
                                       accessibilityRole='button'
                                       onPress={()=>{navigation.navigate('Disaster Details', 
-                                                                        {disasterId: summary.disaster_id})
+                                                                        {disasterId: summary?.disaster_id})
                                                    }}>
                       <Text style={styles.disasterSummaryDetailsBtnTxt}>{t('shared.details')}</Text>
                     </TouchableOpacity>
