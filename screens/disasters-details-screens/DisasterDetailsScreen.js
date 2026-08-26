@@ -11,14 +11,13 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
 import { BottomModalBase } from '../../components/modals-base/BottomModalBase';
 import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
-import { roundTo2DP } from '../../utils/rounding';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
@@ -281,9 +280,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                     shouldShowMap == true && (
                         <View style={styles.mapAndExplanationContainer}>
                             {/* crowdsourced reports map placeholder */}
-                            {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
+                            <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
                 
-                            <Map style={{width: '100%', height: 250, overflow: 'hidden'}} 
+                            {/* <Map style={styles.map} 
                                  mapStyle={mapStyle}
                                  compassPosition={{top: 20, left: 20}}
                                  onStartShouldSetResponder={()=>{return true}}>
@@ -297,7 +296,6 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                 (disasterObj?.general?.latitude + 5)] : 
                                                 [93, -12, 142, 10]}/>
 
-                                {/* the crowdsourced report markers */}
                                 {reportLocations.map((item, index) => (
                                     <Marker key={index}
                                             lngLat={[item?.center_lon, item?.center_lat]}
@@ -313,13 +311,12 @@ export function DisasterDetailsScreen({route, navigation}) {
                                     </Marker>
                                 ))}
 
-                                {/* the disater marker, below the reports marker so it's shown above them */}
                                 <Marker testID='disaster-marker-on-map'
                                         lngLat={[disasterObj?.general?.longitude, 
                                                  disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map> 
+                            </Map>  */}
 
                             {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>
@@ -940,5 +937,11 @@ const styles = StyleSheet.create({
     // text showing the time the report was created
     reportItemTimeText: {
         color: '#2D3782'
+    },
+    // the map showing the disaster and user report locations
+    map: {
+        width: '100%', 
+        height: 250, 
+        overflow: 'hidden'
     }
 });
