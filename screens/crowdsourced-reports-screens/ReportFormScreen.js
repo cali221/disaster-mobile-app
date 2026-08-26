@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useState } from 'react';
-import { Skull, Smile, Frown, Meh, MapPin, ChevronDown} from 'lucide-react-native';
+import { MapPin, ChevronDown} from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
@@ -9,6 +9,8 @@ import * as Location from 'expo-location';
 import { roundTo2DP } from '../../utils/rounding';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
+import { DataAttributionSection } from '../../components/DataAttributionSection';
+import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
 
 export function ReportFormScreen({route}) {
     const insets = useSafeAreaInsets();
@@ -24,16 +26,17 @@ export function ReportFormScreen({route}) {
     const submitReport = async(locationId, severity, description) => {
         setIsLoading(true);
 
-
         /* if there is no picked location or severity, 
            inform user they are required */
-        if(!locationId || !severity){
+        if(locationId == null || severity == null){
+            setIsLoading(false);
             showErrorToast(t('reportFormScreen.failedToSubmitReport'), 
                            t('reportFormScreen.locationAndSeverityDataRequired'));
             return;
         };
 
-        // insert report data to database (database trigger handles XP and badges udpates)
+        /* insert report data to database 
+           (database trigger handles XP and badges udpates) */
         const { error } = await supabase.schema('disasters_related_data')
                                         .from('user_reports')
                                         .insert({disaster_id: route?.params?.disasterId,
@@ -91,6 +94,7 @@ export function ReportFormScreen({route}) {
 
       // if permission is not granted, inform user
       if (status !== 'granted') {
+        setIsLoading(false);
         showInfoToast(t('permissions.permissionNeeded'), 
                       t('permissions.permissionNeededToGetLocation'));
         return;
@@ -126,7 +130,6 @@ export function ReportFormScreen({route}) {
             }
         }
       }
-
       setIsLoading(false);
     };
     
@@ -160,7 +163,7 @@ export function ReportFormScreen({route}) {
 
                             {/* 'dropdown' icon */}
                             <ChevronDown color={'#2D3782'} size={30} />
-                        </TouchableOpacity>           
+                        </TouchableOpacity>       
                     </View>
                     
                     {/* button to use user's current location */}
@@ -181,6 +184,8 @@ export function ReportFormScreen({route}) {
                             {locationText ? locationText : t('reportFormScreen.pleasePickALocation')}
                         </Text>
                     </View>
+
+                    <DataAttributionSection />    
                 </View>
 
                 {/* perveived severity section */}
@@ -195,48 +200,38 @@ export function ReportFormScreen({route}) {
                         {/* 'didn't feel or see' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(0)}}
                                           style={styles.severityBtn}>
-                            <Smile size={55} 
-                                   fill={pickedSeverity == 0 ? '#9ec110' : 'transparent'}
-                                   stroke={'#2D3782'} />
 
-                            <Text style={styles.severityTxt}>
-                                {t('reportFormScreen.didntFeelOrSee')}
-                            </Text>
+                            <SeverityIconAndLabel iconSize={55} 
+                                                  iconFillColor={pickedSeverity == 0 ? '#9ec110' : 'transparent'}
+                                                  iconStrokeColor={'#2D3782'}
+                                                  severityValue={0} />
                         </TouchableOpacity>
 
                         {/* 'not too bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(1)}}
                                           style={styles.severityBtn}>
-                            <Meh size={55} 
-                                 fill={pickedSeverity == 1 ? '#9ec110' : 'transparent'}
-                                 stroke={'#2D3782'} />
-                            <Text style={styles.severityTxt}>
-                                {t('reportFormScreen.notThatBad')}
-                            </Text>
+                           <SeverityIconAndLabel iconSize={55} 
+                                                 iconFillColor={pickedSeverity == 1 ? '#9ec110' : 'transparent'}
+                                                 iconStrokeColor={'#2D3782'}
+                                                 severityValue={1} />
                         </TouchableOpacity>
 
                         {/* 'bad' option button*/}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(2)}}
                                           style={styles.severityBtn}>
-                            <Frown size={55} 
-                                   fill={pickedSeverity == 2 ? '#9ec110' : 'transparent'}
-                                   stroke={'#2D3782'} />
-
-                            <Text style={styles.severityTxt}>
-                                {t('reportFormScreen.bad')}
-                            </Text>
+                            <SeverityIconAndLabel iconSize={55} 
+                                                  iconFillColor={pickedSeverity == 2 ? '#9ec110' : 'transparent'}
+                                                  iconStrokeColor={'#2D3782'}
+                                                  severityValue={2} />
                         </TouchableOpacity>
 
                         {/* 'very bad' option button */}
                         <TouchableOpacity onPress={()=>{setPickedSeverity(3)}}
                                           style={styles.severityBtn}>
-                            <Skull size={55} 
-                                   fill={pickedSeverity == 3 ? '#9ec110' : 'transparent'}
-                                   stroke={'#2D3782'} />
-
-                            <Text style={styles.severityTxt}>
-                                {t('reportFormScreen.veryBad')}
-                            </Text>
+                            <SeverityIconAndLabel iconSize={55} 
+                                                  iconFillColor={pickedSeverity == 3 ? '#9ec110' : 'transparent'}
+                                                  iconStrokeColor={'#2D3782'}
+                                                  severityValue={3} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -392,21 +387,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
     }, 
-    /* severity option button */
+    // severity option button 
     severityBtn: {
-        display: 'flex',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        alignItems: 'center',
         flex: 1 
     },
-    // text under severity button
-    severityTxt: {
-        fontSize: 16,
-        textAlign: 'center',
-        width: '100%',
-        color: '#2D3782'
-    },
+    // // text under severity button
+    // severityTxt: {
+    //     fontSize: 16,
+    //     textAlign: 'center',
+    //     width: '100%',
+    //     color: '#2D3782'
+    // },
     // perceived severity section
     perceivedSeveritySection: {
         display: 'flex',

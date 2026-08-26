@@ -11,11 +11,13 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
+import { BottomModalBase } from '../../components/modals-base/BottomModalBase';
+import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
@@ -26,6 +28,82 @@ export function DisasterDetailsScreen({route, navigation}) {
     const { t, i18n } = useTranslation();
     const currentLang = i18n.resolvedLanguage;
     const [shouldShowMap, setShouldShowMap] = useState(false);
+    const [shouldShowUserReportsModal, setShouldShowUserReportsModal] = useState(false);
+    const [reportsModalTitle, setReportsModalTitle] = useState('');
+    const [reportsModalData, setReportsModalData] = useState([]);
+
+    /* function to get report locations 
+       (called both in useEffect and when new report 
+       for the disaster is detected, so the 
+       function is declared here) */
+    const getReportLocations = async(disasterId) => {
+        setIsLoading(true);
+        const {data, error} = await supabase.schema('public')
+                                            .rpc('get_unique_report_locations_and_report_count', 
+                                                {disaster_id_input: disasterId});
+
+        if(error){
+            setIsLoading(false);
+            console.log(error.message);
+        }
+        else{
+            if(data){
+                setIsLoading(false);
+                console.log(data);
+                return data;
+            }
+        }
+    };
+
+    const getReportsInAreaForDisasters = async(disasterId, locId) => {
+        setIsLoading(true);
+
+        const {data, error} = await supabase.schema('disasters_related_data')
+                                            .from('user_reports')
+                                            .select()
+                                            .eq('disaster_id', disasterId)
+                                            .eq('location_id', locId)
+                                            .order('timestamp', { ascending: false });
+        if(error){
+            console.log(error.message);
+            setIsLoading(false);
+        }
+        else{
+            if(data){
+                console.log(data);
+                setIsLoading(false);
+                return data;
+            }
+        }
+    };
+
+    const handleReportMarkerPress = async(adm3, cityOrRegency, province, locId) => {
+        // fetch the reports from the area
+        const reportsData = await getReportsInAreaForDisasters(route?.params?.disasterId, locId);
+
+        setReportsModalData(reportsData);
+
+        // hide map, because it makes scroll view on modal act unexpectedly
+        setShouldShowMap(false);
+
+        // set the reports modal title
+        setReportsModalTitle(t('disasterDetailsScreen.reportsModalTitle', 
+                      {adm3: adm3, 
+                       cityOrRegency: cityOrRegency, 
+                       province: province}));
+
+        // show reports modal
+        setShouldShowUserReportsModal(true);
+    };
+
+    const hideReportsModal = () => {
+        /* show the map again, since it was closed to fix 
+           the unexpected scroll view behavior on the modal */
+        setShouldShowMap(true);
+
+        // hide the modal
+        setShouldShowUserReportsModal(false);
+    };
 
     // if language is changed, get the disaster title again 
     useEffect(()=>{
@@ -40,6 +118,7 @@ export function DisasterDetailsScreen({route, navigation}) {
         }
     }, [currentLang]);
 
+    // function to handle 'View evacuation steps' button press
     const handleEvacuationGuideBtnPress = (disasterType) => {
         if(disasterType == 'earthquake'){
             // navigate to earthquke guide screen
@@ -106,20 +185,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 filter: `disaster_id=eq.${disasterId}`
                             },
                             async(payload) => {
-                                console.log(payload);
-                                const {data, error} = await supabase.schema('public')
-                                                            .rpc('get_unique_report_locations_and_report_count', 
-                                                                {disaster_id_input: route?.params?.disasterId});
-
-                                if(error){
-                                    console.log(error.message)
-                                }
-                                else{
-                                    if(data){
-                                        console.log(data);
-                                        setReportLocations(data);
-                                    }
-                                }
+                                getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
                             }).subscribe();
 
             return changes;
@@ -127,8 +193,8 @@ export function DisasterDetailsScreen({route, navigation}) {
 
         // fetch disaster details data and set the disaster title
         const fetchDisasterDetails = async(disasterId) => {
+            setIsLoading(true);
             try{
-                setIsLoading(true);
 
                 const { data, error } = await supabase.schema('public')
                                                         .rpc('get_disaster_data_for_details_screen', 
@@ -150,16 +216,18 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                           i18n));
                     }
                 }
-
-                setIsLoading(false);
             }
             catch(error){
                 showErrorToast(t('disasterDetailsScreen.failedToGetDisasterData'), 
                                `${error.message ?? JSON.stringify(error)}`);
             }
+            setIsLoading(false);
         };
 
+        /* fetch disaster details, get existing report locations 
+           and subscribe to new reports for the disaster */
         fetchDisasterDetails(route?.params?.disasterId);
+        getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
         const newReportsSubscription = subscribeToNewReports(route?.params?.disasterId);
 
         return () => {
@@ -181,6 +249,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 <Text style={styles.hideOrShowMapTxt}>
                                     {t('disasterDetailsScreen.hideMap')}
                                 </Text>
+
                                 <ChevronUp color={'#2D3782'} size={30} />
                             </View>
                         ):
@@ -189,6 +258,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 <Text style={styles.hideOrShowMapTxt}>
                                     {t('disasterDetailsScreen.showMap')}
                                 </Text>
+
                                 <ChevronDown color={'#2D3782'} size={30} />
                             </View>
                         )
@@ -202,13 +272,13 @@ export function DisasterDetailsScreen({route, navigation}) {
                     shouldShowMap == true && (
                         <View style={styles.mapAndExplanationContainer}>
                             {/* crowdsourced reports map placeholder */}
-                            <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
+                            {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
                 
-                            {/* <Map style={{width: '100%', height: 250}} 
+                            <Map style={{width: '100%', height: 250, overflow: 'hidden'}} 
                                  mapStyle={mapStyle}
                                  compassPosition={{top: 20, left: 20}}
                                  onStartShouldSetResponder={()=>{return true}}>
-                                <Camera maxZoom={14} 
+                            <Camera maxZoom={14} 
                                         zoom={10} 
                                         bounds={(disasterObj?.general?.latitude && 
                                                 disasterObj?.general?.longitude) ? 
@@ -218,22 +288,25 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                 (disasterObj?.general?.latitude + 5)] : 
                                                 [93, -12, 142, 10]}/>
 
-                                <Marker testID='disaster-marker-on-map'
-                                        lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
-                                    <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
-                                </Marker>
-
+                                {/* the crowdsourced report markers */}
                                 {reportLocations.map((item, index) => (
                                     <Marker key={index}
-                                            lngLat={[item?.center_lon, item?.center_lat]}>
-                                        <View style={{width: 30, height: 30, backgroundColor: 'blue', borderRadius: 15}}>
-                                            <Text>
+                                            lngLat={[item?.center_lon, item?.center_lat]}
+                                            onPress={()=>{handleReportMarkerPress(item?.adm3, item?.city_or_regency, item?.province, item?.ogc_fid)}}>
+                                        <View style={styles.reportLocMarker}>
+                                            <Text style={styles.reportCountTxt}>
                                                 {item.report_count}
                                             </Text>
                                         </View>
                                     </Marker>
                                 ))}
-                            </Map>  */}
+
+                                {/* the disater marker, below the reports marker so it's shown above them */}
+                                <Marker testID='disaster-marker-on-map'
+                                        lngLat={[disasterObj?.general?.longitude, disasterObj?.general?.latitude]}>
+                                    <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
+                                </Marker>
+                            </Map> 
 
                             <Text style={styles.mapMarkingExplanationTxt}>
                                 {t('disasterDetailsScreen.mapMarkingExplanation')}
@@ -369,7 +442,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                 </View>
                             ):
                             /* flood details texts, since depth is the only metric, 
-                            don't show details if there is no depth data */
+                               don't show details if there is no depth data */
                             disasterObj?.general?.disaster_type == 'flood' && disasterObj?.floodDepthInCm !== null ?
                             (
                                 <View style={styles.disasterDetailsContainer}>
@@ -578,13 +651,48 @@ export function DisasterDetailsScreen({route, navigation}) {
                         </Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* loading overlay shown when isLoading is true */}
+                {
+                    isLoading == true && (
+                        <LoadingOverlay />
+                    )
+                }
+
+                {shouldShowUserReportsModal == true && (
+
+                <BottomModalBase title={reportsModalTitle} 
+                                 closeFunc={()=>{hideReportsModal()}}
+                                 minHeight={350}>
+                    {reportsModalData.map((item, index) => (
+                        <View key={index} style={styles.reportItemContainer}>
+                            <SeverityIconAndLabel iconSize={50} 
+                                                  iconFillColor={'#9ec110'}
+                                                  iconStrokeColor={'#2D3782'}
+                                                  severityValue={item?.severity_status_number} />
+
+                            <View style={styles.reportItemTextsContainer}>
+                                <Text style={[styles.reportItemDescText, {fontStyle: item?.description ? 'normal' : 'italic'}]}>
+                                    {item?.description ? item.description : 'No description given'}
+                                </Text>
+
+                                <Text style={styles.reportItemTimeText}>
+                                    {item?.timestamp ? 
+                                     new Date(item?.timestamp).toLocaleString('id', {timeZoneName: 'short'}) : 
+                                     'No timestamp'}
+                                </Text>
+                            </View>
+                        </View>
+                    ))}
+
+                    {/* TODO: need to add data attribution(?) */}
+                </BottomModalBase>
+                )}
             </View>
         ):
-        // loading overlay shown when isLoading is true
+        // loading overlay shown when disasterObj is not available
         (
-            isLoading == true && (
-                <LoadingOverlay />
-            )
+            <LoadingOverlay />
         )
     )
 }
@@ -771,5 +879,45 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 20,
         elevation: 2,
         borderColor: 'grey'
+    },
+    // marker for locations with report(s)
+    reportLocMarker: {
+        width: 30, 
+        height: 30, 
+        backgroundColor: '#2d3782e8', 
+        borderRadius: 15, 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center'
+    },
+    // report count text inside marker
+    reportCountTxt: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    // container of a report item
+    reportItemContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        columnGap: 35,
+        paddingVertical: 15,
+        borderBottomWidth: 2,
+        borderBottomColor: '#2D3782'
+    },
+    reportItemTextsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10
+    },
+    reportItemDescText: {
+        fontSize: 16,
+        color: '#2D3782',
+        fontWeight: '600'
+    },
+    reportItemTimeText: {
+        color: '#2D3782'
     }
 });

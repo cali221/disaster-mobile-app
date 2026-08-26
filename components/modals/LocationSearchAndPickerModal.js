@@ -45,6 +45,7 @@ export function LocationSearchAndPicker(props) {
 
 
         if(error){
+            setIsLoading(false);
             showErrorToast(t('shared.failedToFetchSearchRes'), `${error.message ?? JSON.stringify(error)}`);
         }
         else{
@@ -55,15 +56,16 @@ export function LocationSearchAndPicker(props) {
             console.log(data);
             // set search results using the results obtained
             setLocSearchResults(data);
-        }
 
-        setIsLoading(false);
+            setIsLoading(false);
+        }
     };
 
     return(
        <CenterModalBase title={props.title} 
                         closeFunc={()=>{props.hideBadgeModalFunc()}}
                         modalHeight={props.modalHeight}>
+            {/* TODO: need to add data attribution(?) */}
             <View style={styles.modalContentContainer}>
                 {/* explanation text about what to search */}
                 <Text style={styles.searchExplanationTxt}>
@@ -93,9 +95,9 @@ export function LocationSearchAndPicker(props) {
                         <TouchableOpacity key={index} 
                                           style={styles.searchResItemContainer} 
                                           onPress={()=>{handleLocationPick(item?.ogc_fid, 
-                                                                               item?.adm3_name, 
-                                                                               item?.adm2_name, 
-                                                                               item?.adm1_name)}}>
+                                                                           item?.adm3_name, 
+                                                                           item?.adm2_name, 
+                                                                           item?.adm1_name)}}>
                                 <Text style={styles.searchResItemTxt}>
                                     {item.adm3_name}, {item.adm2_name}, {item.adm1_name}
                                 </Text>

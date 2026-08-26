@@ -12,7 +12,7 @@ export function BottomModalBase(props) {
                                             paddingLeft: insets.left, 
                                             paddingRight: insets.right}]}>
             {/* the base of the modal */}
-            <View style={[styles.modalBase, {paddingBottom: insets.bottom }]}>
+            <View style={[styles.modalBase, {minHeight: props?.minHeight ? props.minHeight : 100}]}>
                 {/* the modal header with title and close button */}
                 <View style={styles.modalHeader}>
                     {/* modal title */}
@@ -31,9 +31,8 @@ export function BottomModalBase(props) {
                     </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.contentScrollView}
-                            contentContainerStyle={[styles.contentScrollViewContentContainer, 
-                                                    {paddingBottom: insets.bottom + 30}]}
+                <ScrollView style={[styles.contentScrollView, {marginBottom: insets.bottom + 35}]}
+                            contentContainerStyle={styles.contentScrollViewContentContainer}
                             accessibilityRole='scrollbar'>
                     {/* content of the modal */}
                     {props.children}
@@ -105,11 +104,12 @@ const styles = StyleSheet.create({
     },
     // scroll view container of the modal content
     contentScrollView: {
-        width: '100%',
-        marginBottom: 30
+        width: '100%'
     },
     // content container of the scroll view container of the modal content
     contentScrollViewContentContainer: {
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
     }
 });

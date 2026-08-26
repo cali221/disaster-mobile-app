@@ -1,0 +1,1 @@
+This directory contains modals that are re-used in different screens or considered 'significant' components with more complex functions than 'simpler' modals that e.g. merely show input fields or buttons to redirect to other screens. Simpler modals are implemented directly on the respective screens to avoid unnecessary complexity. 
