@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import { showErrorToast, showInfoToast, showSuccessToast } from '../../utils/show-toast'; 
-import * as Location from 'expo-location';
+import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { roundTo2DP } from '../../utils/rounding';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
@@ -89,47 +89,45 @@ export function ReportFormScreen({route}) {
     const getUserLocation = async()=> {
       setIsLoading(true);
 
-      // the permission status for location
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      try{
+        // get the user's curren location data
+        const location = await getUserCurrentLocation();
 
-      // if permission is not granted, inform user
-      if (status !== 'granted') {
-        setIsLoading(false);
-        showInfoToast(t('permissions.permissionNeeded'), 
-                      t('permissions.permissionNeededToGetLocation'));
-        return;
-      }
-      else{
-        // get the user's location data
-        const location = await Location.getCurrentPositionAsync({});
-        
-        // if coordinates are found, get the location text from the database
-        if(location?.coords?.latitude && location?.coords?.longitude){
-            const {data, error} = await supabase.schema('public')
-                                                .rpc('get_adm3_from_coords', 
-                                                     {lat_input: location.coords.latitude, 
-                                                      lon_input: location.coords.longitude})
-                                                .single();
-            if(error){
-                showErrorToast(t('reportFormScreen.failedToFetchLocationText'), 
-                               `${error.message ?? JSON.stringify(error)}`);
-            }    
-            else{
-                if(data){
-                    console.log(data);
+        // get the location name from the database
+        const {data, error} = await supabase.schema('public')
+                                            .rpc('get_adm3_from_coords', 
+                                                    {lat_input: location?.coords?.latitude, 
+                                                     lon_input: location?.coords?.longitude})
+                                            .single();
+        if(error){
+            throw error;
+        }    
+        else{
+            if(data){
+                console.log(data);
 
-                    // updated picked location
-                    setPickedLocation(data?.ogc_fid, 
-                                      data?.adm3, 
-                                      data?.city_or_regency, 
-                                      data?.province, 
-                                      data?.dist_in_m_from_area, 
-                                      data?.contained_in_area, 
-                                      true);
-                }
+                // updated picked location
+                setPickedLocation(data?.ogc_fid, 
+                                  data?.adm3, 
+                                  data?.city_or_regency, 
+                                  data?.province, 
+                                  data?.dist_in_m_from_area, 
+                                  data?.contained_in_area, 
+                                  true);
             }
         }
       }
+      catch(error){
+        if(error.message == 'No permission to access location'){
+            showInfoToast(t('permissions.permissionNeeded'), 
+                          t('permissions.permissionNeededToGetLocation'));
+        }
+        else{
+            showErrorToast(t('reportFormScreen.failedToFetchCurrentLocation'), 
+                           `${error.message ?? JSON.stringify(error)}`);
+        }
+      }
+
       setIsLoading(false);
     };
     

@@ -3,6 +3,7 @@
  */
 
 import { supabase } from '../lib/supabase';
+import * as Location from 'expo-location';
 
 // function to follow 
 export async function addFollow(user1_id, user2_id){
@@ -44,17 +45,6 @@ export async function getLeaderboard(userId){
     }
 };
 
-// moved sorting logic to Supabase function
-// function to sort badges array so that earned badges are at the start of array
-// export function sortBadgesArrByEarnedStatus(arr){
-//     try{
-//         return arr.sort((a, b)=> b.earned - a.earned);
-//     }
-//     catch(error){
-//         return {arr, error};
-//     }
-// };
-
 // function to fetch user's profile data
 export async function getUserProfileData(userId) {
     const { data, error } = await supabase.schema('public')
@@ -82,3 +72,20 @@ export async function getTrustedContacts(userId) {
         return data;
     }
 };
+
+// function to get user's current location
+export async function getUserCurrentLocation(){
+    // the permission status for location
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    // if permission is not granted, inform user
+    if (status !== 'granted') {
+        throw new Error('No permission to access location');
+    }
+    else{
+        // get the user's location data
+        const location = await Location.getCurrentPositionAsync({});
+
+        return location;
+    }
+}

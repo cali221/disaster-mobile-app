@@ -7,10 +7,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as SMS from 'expo-sms';
+import { getUserCurrentLocation } from '../utils/users-utilities';
 import { showSuccessToast, 
          showErrorToast, 
          showInfoToast} from '../utils/show-toast';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
+// SOS sound source
 const sosSoundSource = require('../assets/audio/sos-sound/54847__izkhanilov__morse-sos.wav');
 
 export function PanicButtonScreen() {
@@ -19,14 +22,15 @@ export function PanicButtonScreen() {
     const sosIntervalRef = useRef(null);
     const [isSoundingSOS, setIsSoundingSOS] = useState(false);
     const sosSoundPlayer = useAudioPlayer(sosSoundSource);
-    sosSoundPlayer.volume = 9.0;
+    const [isLoading, setIsLoading] = useState(false);
+    sosSoundPlayer.volume = 1.0;
 
     // function to pay SOS sound
     const playSOS = () => {
         sosSoundPlayer.seekTo(0);
         sosSoundPlayer.play();
         return playSOS;
-    }
+    };
 
     // function to start sounding SOS
     const startSOS = () => {
@@ -49,19 +53,48 @@ export function PanicButtonScreen() {
         const smsIsAvailable = await SMS.isAvailableAsync();
 
         // get trusted contacts from async storage
-        const trustedContactsData = await AsyncStorage.getItem('trustedContacts');
+        const trustedContactsDataStr = await AsyncStorage.getItem('trustedContacts');
+        const trustedContactsData = JSON.parse(trustedContactsDataStr);
 
-        if (smsIsAvailable) {
-            // get only the phone numbers
-            const phoneNumsToSendSMSTo = JSON.parse(trustedContactsData).map((item)=>{return item.phone_num});
+        // get only the phone numbers
+        const phoneNumsToSendSMSTo = trustedContactsData.map((item)=> item.phone_num);
+
+        /* send SMS if it's available on the device and 
+           user has at least one saved trusted contact */
+        if (smsIsAvailable == true && trustedContactsData.length > 0) {
+            setIsLoading(true);
+            
+            let message;
+            let location;
+
+            // get user's current location data
+            try{
+                location = await getUserCurrentLocation();
+            }
+            catch(error){
+                location = null;
+            }
+
+            // set message to send accordingly
+            if(location !== null){
+                message = t('panicButtonScreen.emergencyMessageWithCoords', 
+                            {latitude: location?.coords?.latitude, 
+                             longitude: location?.coords?.longitude});
+            }
+            else{
+                message = t('panicButtonScreen.emergencyMessageWithoutCoords');
+            }
 
             // open the SMS app on the device with phone numbers and message ready
-            const { result } = await SMS.sendSMSAsync(phoneNumsToSendSMSTo, t('panicButtonScreen.emergencyMessage'));
+            const { result } = await SMS.sendSMSAsync(phoneNumsToSendSMSTo, message);
+
+            setIsLoading(false);
 
             // show toasts according to result
             if(result == 'sent'){
                 showSuccessToast(t('panicButtonScreen.smsSent'), 
-                                 t('panicButtonScreen.smsSentToNContacts', {contactNum: phoneNumsToSendSMSTo.length}));
+                                 t('panicButtonScreen.smsSentToNContacts', 
+                                   {contactNum: phoneNumsToSendSMSTo.length}));
             }
             else if(result == 'cancelled'){
                 showInfoToast(t('panicButtonScreen.smsCancelled'), '')
@@ -73,10 +106,13 @@ export function PanicButtonScreen() {
                 showErrorToast(t('panicButtonScreen.somethineWentWrongWhenSMS'), '');
             }
         } 
-        else {
-            showErrorToast(t('panicButtonScreen.smsUnavailable'), 
-                           t('panicButtonScreen.smsUnavailableOnDevice'));
+        else if(smsIsAvailable == false) {
+            showInfoToast(t('panicButtonScreen.smsUnavailable'), 
+                          t('panicButtonScreen.smsUnavailableOnDevice'));
         }  
+        else if(trustedContactsData.length < 1){
+            showInfoToast(t('panicButtonScreen.noTrustedContacts'), '');
+        }
     };
 
     // handle stopping/sounding SOS sound
@@ -147,6 +183,14 @@ export function PanicButtonScreen() {
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
+
+            {/* loading overlay shown only when isLoading is true */}
+            {
+                isLoading == true && (
+                    <LoadingOverlay />
+                )
+            }
+
         </View>
     )
 };
