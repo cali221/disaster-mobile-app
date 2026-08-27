@@ -67,7 +67,7 @@ export function HomeScreen({ navigation }) {
   }, []);
 
 
-  // TODO: handle overlapping markers
+  // TODO: handle overlapping markers (do it for all maps, implement using a utility function)
   // possible approach: find coordinate duplicates, offset coordinates to cluster around the actual coordinates
   // useEffect(()=>{
   // }, [disastersLast24h])
@@ -124,14 +124,11 @@ export function HomeScreen({ navigation }) {
                           filter: `datetime=gt.${gtTimestrFilter}`
                         },
                         (payload) => {
-                          console.log(`new disaster > ${gtTimestrFilter} detected`);
-                          console.log(payload);
-
                           setDisastersLast24h(disastersLast24h => [...disastersLast24h, payload.new]);
 
                           if(user?.id){
                             /* re-fetch and update the summary of disasters near 
-                             user's watched areas on disaster insert */
+                               user's watched areas on disaster insert */
                             fetchRecentDisastersNearWatchedAreaSummary(user?.id);
                           }
                         }
