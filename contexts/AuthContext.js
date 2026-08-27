@@ -134,7 +134,7 @@ const AuthProvider = ({ children }) => {
       const pushToken = await registerForPushNotificationsAsync();
 
       /* if there is a token upsert to profiles table with the token,
-          otherwise upsert with null push token */
+         otherwise upsert with null push token */
       if(pushToken){
         await upsertExpoPushToken(pushToken, data.user.id);
 

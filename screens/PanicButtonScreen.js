@@ -6,6 +6,10 @@ import { useAudioPlayer } from 'expo-audio';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ScrollView } from 'react-native-gesture-handler';
+import * as SMS from 'expo-sms';
+import { showSuccessToast, 
+         showErrorToast, 
+         showInfoToast} from '../utils/show-toast';
 
 const sosSoundSource = require('../assets/audio/sos-sound/54847__izkhanilov__morse-sos.wav');
 
@@ -15,7 +19,7 @@ export function PanicButtonScreen() {
     const sosIntervalRef = useRef(null);
     const [isSoundingSOS, setIsSoundingSOS] = useState(false);
     const sosSoundPlayer = useAudioPlayer(sosSoundSource);
-    sosSoundPlayer.volume = 1.0;
+    sosSoundPlayer.volume = 9.0;
 
     // function to pay SOS sound
     const playSOS = () => {
@@ -27,6 +31,10 @@ export function PanicButtonScreen() {
     // function to start sounding SOS
     const startSOS = () => {
         setIsSoundingSOS(true);
+
+        /*  interval needs to be long enough so sound has 
+            enough time to play fully and there is a 
+            little pause between each play */
         sosIntervalRef.current = setInterval(playSOS(), 3000);
     };
 
@@ -35,6 +43,40 @@ export function PanicButtonScreen() {
         sosSoundPlayer.pause();
         clearInterval(sosIntervalRef.current);
         setIsSoundingSOS(false);
+    };
+
+    const sendSMSToTrustedContacts = async() => {
+        const smsIsAvailable = await SMS.isAvailableAsync();
+
+        // get trusted contacts from async storage
+        const trustedContactsData = await AsyncStorage.getItem('trustedContacts');
+
+        if (smsIsAvailable) {
+            // get only the phone numbers
+            const phoneNumsToSendSMSTo = JSON.parse(trustedContactsData).map((item)=>{return item.phone_num});
+
+            // open the SMS app on the device with phone numbers and message ready
+            const { result } = await SMS.sendSMSAsync(phoneNumsToSendSMSTo, t('panicButtonScreen.emergencyMessage'));
+
+            // show toasts according to result
+            if(result == 'sent'){
+                showSuccessToast(t('panicButtonScreen.smsSent'), 
+                                 t('panicButtonScreen.smsSentToNContacts', {contactNum: phoneNumsToSendSMSTo.length}));
+            }
+            else if(result == 'cancelled'){
+                showInfoToast(t('panicButtonScreen.smsCancelled'), '')
+            }
+            else if(result == 'unknown'){
+                showInfoToast(t('panicButtonScreen.smsStatusUndetermined'), '')
+            }
+            else{
+                showErrorToast(t('panicButtonScreen.somethineWentWrongWhenSMS'), '');
+            }
+        } 
+        else {
+            showErrorToast(t('panicButtonScreen.smsUnavailable'), 
+                           t('panicButtonScreen.smsUnavailableOnDevice'));
+        }  
     };
 
     // handle stopping/sounding SOS sound
@@ -98,7 +140,8 @@ export function PanicButtonScreen() {
                 </TouchableOpacity>
 
                 {/* button to send SMS to trusted contacts */}
-                <TouchableOpacity style={styles.contactBtns}>
+                <TouchableOpacity style={styles.contactBtns}
+                                  onPress={()=>{sendSMSToTrustedContacts()}}>
                     <Text style={styles.contactBtnsTxt}>
                         {t('panicButtonScreen.sendSMS')}
                     </Text>
