@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, Linking } from 'react-native';
 import { BellRing, Bell } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -90,7 +90,8 @@ export function PanicButtonScreen() {
                 }
 
                 {/* button to call 112 */}
-                <TouchableOpacity style={styles.contactBtns}>
+                <TouchableOpacity style={styles.contactBtns}
+                                  onPress={()=>{Linking.openURL(`tel:112`)}}>
                     <Text style={styles.contactBtnsTxt}>
                         {t('panicButtonScreen.call12')}
                     </Text>
