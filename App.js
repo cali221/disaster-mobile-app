@@ -342,7 +342,7 @@ const bottomNavigationTabs = createBottomTabNavigator({
       height: 120
     },
     // Note: tab bar navigation buttons' accessibility label follow these labels
-    // except for panic button where the accessiblity label is 'Panic Button (Tombol Panik) 
+    // except for panic button where the accessiblity label is 'Panic Button (Tombol Panik)' 
     tabBarLabel: ({ focused, color, size }) => {
       const { t, i18n } = useTranslation();
 
@@ -441,6 +441,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  // the panic button in the middle of the bottom tab bar
   panicButton:{
     display: 'flex',
     justifyContent: 'center',
@@ -454,37 +455,18 @@ const styles = StyleSheet.create({
     bottom: '3%',
     elevation: 3
   },
+  // text inside panic button
   panicButtonTxt: {
     textAlign: 'center',
     color: '#2D3782',
     fontSize: 12,
     fontWeight: '600'
   },
+  /* label texts for bottom tab bar 
+     buttons (except for the panic button) */
   bottomTabNavLabelTxts:{
     color: '#E0E0E0',
     textAlign: 'center',
     fontSize: 10
-  },
-  customToastView: {
-     maxHeight: 350,
-     width: '100%', 
-     backgroundColor: 'white',
-     paddingHorizontal: 20,
-     paddingVertical: 10,
-     left: 0,
-     borderLeftColor: 'tomato',
-     borderLeftWidth: 20
-  },
-  errorToastRedLeftBorder: {
-    borderLeftColor: 'tomato',
-    borderLeftWidth: 2
-  },
-  infoToastBlueLeftBorder: {
-    borderLeftColor: 'cornflowerblue',
-    borderLeftWidth: 2
-  },
-  successToastGreenLeftBorder: {
-    borderLeftColor: 'limegreen',
-    borderLeftWidth: 2
   }
-})
+});

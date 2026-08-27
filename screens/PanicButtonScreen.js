@@ -50,6 +50,7 @@ export function PanicButtonScreen() {
     };
 
     const sendSMSToTrustedContacts = async() => {
+        // status of availability of SMS on the device
         const smsIsAvailable = await SMS.isAvailableAsync();
 
         // get trusted contacts from async storage
