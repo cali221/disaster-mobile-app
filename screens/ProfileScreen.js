@@ -24,7 +24,7 @@ import { LevelXpOverviewSection } from '../components/levelXpOverviewSection';
 import { BadgesHorizontalScrollContainer } from '../components/BadgesHorizontalScrollContainer';
 import { BadgeDetailsModal } from '../components/modals/BadgeDetailsModal';
 
-export function ProfileScreen({ navigation, route }) {
+export function ProfileScreen({ navigation }) {
     const { t, i18n } = useTranslation();
     const isFocused = useIsFocused();
     const { user, 

@@ -1,4 +1,8 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, 
+         View, 
+         StyleSheet, 
+         ScrollView, 
+         TouchableOpacity } from 'react-native';
 import { Activity,
          Waves,
          Mountain,
