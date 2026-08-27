@@ -14,8 +14,6 @@ import { showErrorToast, showSuccessToast, showInfoToast } from '../utils/show-t
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { addFollow } from '../utils/users-utilities';
 
-// TODO: implement the notification for Mutuals tab
-
 // function to fetch notifications for logged in user
 // placed outside useEffect so it can be used in onRefresh too
 const fetchNotifications = async (userId, notifTypeToFetch) => {
@@ -149,18 +147,6 @@ export function NotificationsScreen({ navigation }) {
                                                          styles.pickedNotifCategoryBtnTxtColor : 
                                                          styles.notPickedNotifCategoryBtnTxtColor]}>
                         {t('notifScreen.newFollowersCategoryBtn')}
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.notifCategoryBtn,
-                                          notifCategoryChosen == 'mutuals' ?
-                                          styles.pickedNotifCategoryBtnColor :
-                                          styles.notPickedNotifCategoryBtnColor]}>
-                    <Text style={[styles.notifCategoryBtnTxt, 
-                                  notifCategoryChosen == 'mutuals' ? 
-                                  styles.pickedNotifCategoryBtnTxtColor : 
-                                  styles.notPickedNotifCategoryBtnTxtColor]}>
-                        Mutuals
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
