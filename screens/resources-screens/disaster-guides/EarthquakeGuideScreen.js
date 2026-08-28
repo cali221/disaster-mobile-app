@@ -1,9 +1,8 @@
 import { Text, View } from 'react-native';
+import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
 export function EarthquakeGuideScreen() {
     return(
-        <View>
-            <Text>Earthquake Guide Screen Placeholder</Text>
-        </View>
+       <DisasterGuideTemplate />
     )
-}
+};

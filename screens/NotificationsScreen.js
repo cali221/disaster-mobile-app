@@ -262,9 +262,9 @@ const styles = StyleSheet.create({
     },
     // buttons for picking notification category/type
     notifCategoryBtn: {
-        paddingHorizontal: 20,
-        minWidth: 180,
-        maxWidth: 270,
+        paddingHorizontal: 10,
+        minWidth: 150,
+        maxWidth: 250,
         height: 50,
         display: 'flex',
         justifyContent: 'center',

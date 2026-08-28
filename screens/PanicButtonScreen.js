@@ -1,4 +1,9 @@
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions, Linking } from 'react-native';
+import { Text, 
+         View, 
+         StyleSheet, 
+         TouchableOpacity, 
+         Dimensions, 
+         Linking } from 'react-native';
 import { BellRing, Bell } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
