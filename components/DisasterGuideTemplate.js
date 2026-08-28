@@ -5,12 +5,29 @@ import { View,
          ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { showErrorToast } from '../utils/show-toast';
 
 export function DisasterGuideTemplate(props) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [pickedStage, setPickedStage] = useState('During');
+    const [guideTextsToShow, setGuideTextsToShow] = useState(null);
+
+    useEffect(()=>{
+        if(pickedStage == 'Before' && props?.guideData?.before){
+            setGuideTextsToShow(props?.guideData?.before);
+        }
+        else if(pickedStage == 'During' && props?.guideData?.during){
+            setGuideTextsToShow(props?.guideData?.during);
+        }
+        else if(pickedStage == 'After' && props?.guideData?.after){
+            setGuideTextsToShow(props?.guideData?.after);
+        }
+        else{
+            showErrorToast('Something went wrong', '');
+        }
+    }, [pickedStage]);
 
     return(
         <View style={styles.screenContainer}>
@@ -71,11 +88,29 @@ export function DisasterGuideTemplate(props) {
             <ScrollView style={[styles.guideContentScrollView, 
                                 {paddingLeft: Math.max(insets.left, insets.right) + 20, 
                                  paddingRight: Math.max(insets.left, insets.right) + 20,
-                                 paddingBottom: insets.bottom + 70}]}
+                                 paddingBottom: insets.bottom + 70,
+                                 paddingTop: 20}]}
                         contentContainerStyle={styles.guideContentScrollViewContentContainer}>
-                <View style={{width: '100%', backgroundColor: 'plum', height: 250, marginBottom: 20}}></View>
-                <View style={{width: '100%', backgroundColor: 'plum', height: 250, marginBottom: 20}}></View>
-                <View style={{width: '100%', backgroundColor: 'plum', height: 250, marginBottom: 20}}></View>
+               {
+                // show steps to do
+                guideTextsToShow?.map((item, index) => (
+                    <View key={index} style={styles.guideStepContainer}>
+                        {/* the step number */}
+                        <View style={styles.guideStepNumberContainer}>
+                            <Text style={styles.guideStepNumberTxt}>
+                                {index + 1}
+                            </Text>
+                        </View>
+
+                        {/* the step's text */}
+                        <View style={styles.guideStepTxtContainer}>
+                            <Text style={styles.guideStepTxt}>
+                                {item}
+                            </Text>
+                        </View>
+                    </View>
+                ))
+               }
             </ScrollView>
         </View>
     )
@@ -105,13 +140,16 @@ const styles = StyleSheet.create({
     /* vertical scroll view 
        for the guidance content */
     guideContentScrollView: {
-        width: '100%',
-        flex: 1
+        width: '100%'
     },
     /* content container for the scroll 
        view showing the guidance content */
     guideContentScrollViewContentContainer: {
-        width: '100%'
+        width: '100%',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20,
     },
     /* buttons inside the horizontal 
        scroll view for the top menu */
@@ -151,5 +189,44 @@ const styles = StyleSheet.create({
        the disaster stage that is not picked */
     unpickedMenuBtnTxtColor: {
         color: '#2D3782'
+    },
+    // container of each step 
+    guideStepContainer: {
+        backgroundColor: '#D2DAE4',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 20,
+        columnGap: 20,
+        paddingHorizontal: 30,
+        paddingVertical: 20,
+        flexShrink: 1
+    },
+    // step number container
+    guideStepNumberContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#2D3782'
+    },
+    // step number text
+    guideStepNumberTxt: {
+        color: 'white',
+        fontSize: 25,
+        fontWeight: '600'
+    },
+    // text describing the step
+    guideStepTxt: {
+        color: '#2D3782',
+        fontSize: 20,
+        fontWeight: '600'
+    },
+    // container of the step text
+    guideStepTxtContainer: {
+        flex: 1
     }
 });
