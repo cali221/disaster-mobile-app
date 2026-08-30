@@ -93,21 +93,29 @@ export function DisasterGuideTemplate(props) {
                                                  paddingTop: 20}]}>
                {
                 // show steps to do
-                guideTextsToShow?.map((item, index) => (
-                    <View key={index} style={styles.guideStepContainer}>
-                        {/* the step number */}
-                        <View style={styles.guideStepNumberContainer}>
-                            <Text style={styles.guideStepNumberTxt}>
-                                {index + 1}
-                            </Text>
-                        </View>
+                guideTextsToShow?.map((sectionItem, sectionIndex) => (
+                    <View key={sectionIndex} style={styles.guideSectionContainer}>
+                        <Text style={styles.sectionHeadingTxt}>
+                            {t(sectionItem.heading)}
+                        </Text>
 
-                        {/* the step's text */}
-                        <View style={styles.guideStepTxtContainer}>
-                            <Text style={styles.guideStepTxt}>
-                                {t(item)}
-                            </Text>
-                        </View>
+                        {sectionItem?.texts?.map((textItem, textIndex) => (
+                            <View style={styles.guideStepContainer} key={textIndex}>
+                                {/* the step number */}
+                                <View style={styles.guideStepNumberContainer}>
+                                    <Text style={styles.guideStepNumberTxt}>
+                                        {textIndex + 1}
+                                    </Text>
+                                </View>
+
+                                {/* the step's text */}
+                                <View style={styles.guideStepTxtContainer}>
+                                    <Text style={styles.guideStepTxt}>
+                                        {t(textItem)}
+                                    </Text>
+                                </View>
+                            </View>
+                        ))}
                     </View>
                 ))
                }
@@ -128,8 +136,7 @@ const styles = StyleSheet.create({
     topMenuScrollView: {
        flexGrow: 0,
        minHeight: 120,
-       maxHeight: 220,
-       backgroundColor: 'red'
+       maxHeight: 220
     },
     // content container for the top menu
     topMenuScrollContentContainer: {
@@ -231,5 +238,18 @@ const styles = StyleSheet.create({
     guideStepTxtContainer: {
         flex: 1,
        
+    },
+    sectionHeadingTxt: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    guideSectionContainer: {
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        rowGap: 30
     }
 });
