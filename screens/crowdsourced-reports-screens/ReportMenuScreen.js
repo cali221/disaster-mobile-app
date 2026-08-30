@@ -11,8 +11,23 @@ import { DataAttributionSection } from '../../components/DataAttributionSection'
 export function ReportMenuScreen({navigation}) {
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
+    const [recentDisastersRaw, setRecentDisastersRaw] = useState([]);
     const [recentDisasters, setRecentDisasters] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const currentLang = i18n.resolvedLanguage;
+    
+    // get the disaster titles when language is changed or raw data is changed
+    useEffect(()=>{
+       setRecentDisasters(recentDisastersRaw.map((item, index) => ({...item, 
+                                                                  title: getDisasterTitle(item?.contained_in_area, 
+                                                                                          item?.city_or_regency, 
+                                                                                          item?.province, 
+                                                                                          item?.dist_in_m_from_area, 
+                                                                                          item?.disaster_type, 
+                                                                                          t, 
+                                                                                          i18n)})));
+
+    }, [currentLang, recentDisastersRaw]);
     
     useEffect(()=>{
         // fetch disasters in the last 3 days
@@ -28,19 +43,7 @@ export function ReportMenuScreen({navigation}) {
             }
             else{
                 if(data){
-                    console.log(data);
-                    // get the disaster titles and the time
-                    const processed = data.map((item) => ({'title': getDisasterTitle(item?.contained_in_area, 
-                                                                                     item?.city_or_regency, 
-                                                                                     item?.province, 
-                                                                                     item?.dist_in_m_from_area, 
-                                                                                     item?.disaster_type, 
-                                                                                     t, 
-                                                                                     i18n), 
-                                                           'datetime': item?.datetime,
-                                                           'disaster_id': item.disaster_id}));
-
-                    setRecentDisasters(processed);
+                    setRecentDisastersRaw(data);
                 }
             }
 
@@ -49,6 +52,8 @@ export function ReportMenuScreen({navigation}) {
 
         fetchRecentDisasters();
     }, []);
+
+
 
     return(
         <View style={styles.screenContainer}>

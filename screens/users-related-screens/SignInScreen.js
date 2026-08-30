@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { showErrorToast } from '../../utils/show-toast';
+import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 
 // set how the notification should be shown if it happens while the app is running
 Notifications.setNotificationHandler({
@@ -24,7 +24,7 @@ Notifications.setNotificationHandler({
 });
 
 export function SignInScreen({navigation}){
-  const { signIn, upsertExpoPushToken } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
   const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -39,7 +39,12 @@ export function SignInScreen({navigation}){
       await signIn(email, password);
     }
     catch(error){
-      showErrorToast(t('signInScreen.signInFailed'), `${error.message ?? JSON.stringify(error)}`);
+      if(error.message == 'Permission needed'){
+        showInfoToast(t('permissions.permissionNeeded'), t('permissions.permissionNeededToSendPushNotif'))
+      }
+      else{
+        showErrorToast(t('signInScreen.signInFailed'), `${error.message ?? JSON.stringify(error)}`);
+      }
     };
     
     setIsLoading(false);

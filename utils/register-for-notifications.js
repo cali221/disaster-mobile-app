@@ -80,8 +80,7 @@ export async function registerForPushNotificationsAsync(){
 
     // if final status is stil not granted, alert the user that it's needed to get notifications
     if (finalStatus !== 'granted') {
-        showInfoToast(t('permissions.permissionNeeded', 'permissions.permissionNeededToSendPushNotif'));
-        return null;
+        throw new Error('Permission needed');
     }
 
     // if notification permission is granted, try to get the Expo push token

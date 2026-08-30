@@ -62,62 +62,67 @@ export function PanicButtonScreen() {
         const trustedContactsDataStr = await AsyncStorage.getItem('trustedContacts');
         const trustedContactsData = JSON.parse(trustedContactsDataStr);
 
-        // get only the phone numbers
-        const phoneNumsToSendSMSTo = trustedContactsData.map((item)=> item.phone_num);
+        if(!trustedContactsData){
+            showInfoToast(t('panicButtonScreen.couldntGetTrustedContacts'), '');
+        }
+        else{
+            // get only the phone numbers
+            const phoneNumsToSendSMSTo = trustedContactsData.map((item)=> item.phone_num);
 
-        /* send SMS if it's available on the device and 
-           user has at least one saved trusted contact */
-        if (smsIsAvailable == true && trustedContactsData.length > 0) {
-            setIsLoading(true);
-            
-            let message;
-            let location;
+            /* send SMS if it's available on the device and 
+            user has at least one saved trusted contact */
+            if (smsIsAvailable == true && trustedContactsData.length > 0) {
+                setIsLoading(true);
+                
+                let message;
+                let location;
 
-            // get user's current location data
-            try{
-                location = await getUserCurrentLocation();
-            }
-            catch(error){
-                location = null;
-            }
+                // get user's current location data
+                try{
+                    location = await getUserCurrentLocation();
+                }
+                catch(error){
+                    location = null;
+                }
 
-            // set message to send accordingly
-            if(location !== null){
-                message = t('panicButtonScreen.emergencyMessageWithCoords', 
-                            {latitude: location?.coords?.latitude, 
-                             longitude: location?.coords?.longitude});
-            }
-            else{
-                message = t('panicButtonScreen.emergencyMessageWithoutCoords');
-            }
+                // set message to send accordingly
+                if(location !== null){
+                    message = t('panicButtonScreen.emergencyMessageWithCoords', 
+                                {latitude: location?.coords?.latitude, 
+                                longitude: location?.coords?.longitude});
+                }
+                else{
+                    message = t('panicButtonScreen.emergencyMessageWithoutCoords');
+                }
 
-            // open the SMS app on the device with phone numbers and message ready
-            const { result } = await SMS.sendSMSAsync(phoneNumsToSendSMSTo, message);
+                // open the SMS app on the device with phone numbers and message ready
+                const { result } = await SMS.sendSMSAsync(phoneNumsToSendSMSTo, message);
 
-            setIsLoading(false);
+                setIsLoading(false);
 
-            // show toasts according to result
-            if(result == 'sent'){
-                showSuccessToast(t('panicButtonScreen.smsSent'), 
-                                 t('panicButtonScreen.smsSentToNContacts', 
-                                   {contactNum: phoneNumsToSendSMSTo.length}));
+                // show toasts according to result
+                if(result == 'sent'){
+                    showSuccessToast(t('panicButtonScreen.smsSent'), 
+                                    t('panicButtonScreen.smsSentToNContacts', 
+                                    {contactNum: phoneNumsToSendSMSTo.length}));
+                }
+                else if(result == 'cancelled'){
+                    showInfoToast(t('panicButtonScreen.smsCancelled'), '')
+                }
+                else if(result == 'unknown'){
+                    showInfoToast(t('panicButtonScreen.smsStatusUndetermined'), '')
+                }
+                else{
+                    showErrorToast(t('panicButtonScreen.somethineWentWrongWhenSMS'), '');
+                }
+            } 
+            else if(smsIsAvailable == false) {
+                showInfoToast(t('panicButtonScreen.smsUnavailable'), 
+                            t('panicButtonScreen.smsUnavailableOnDevice'));
+            }  
+            else if(trustedContactsData.length < 1){
+                showInfoToast(t('panicButtonScreen.noTrustedContacts'), '');
             }
-            else if(result == 'cancelled'){
-                showInfoToast(t('panicButtonScreen.smsCancelled'), '')
-            }
-            else if(result == 'unknown'){
-                showInfoToast(t('panicButtonScreen.smsStatusUndetermined'), '')
-            }
-            else{
-                showErrorToast(t('panicButtonScreen.somethineWentWrongWhenSMS'), '');
-            }
-        } 
-        else if(smsIsAvailable == false) {
-            showInfoToast(t('panicButtonScreen.smsUnavailable'), 
-                          t('panicButtonScreen.smsUnavailableOnDevice'));
-        }  
-        else if(trustedContactsData.length < 1){
-            showInfoToast(t('panicButtonScreen.noTrustedContacts'), '');
         }
     };
 

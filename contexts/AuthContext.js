@@ -74,7 +74,6 @@ const AuthProvider = ({ children }) => {
     };
 
     // TODO: remove getting item and console logs, just rmeove item (these are only for checking)
-
     // get trusted contacts from async storage
     const trustedContactsInAsyncStorage = await AsyncStorage.getItem('trustedContacts');
 
@@ -117,7 +116,6 @@ const AuthProvider = ({ children }) => {
       throw error;
     }
   }, []);
-
 
   // function to sign in to supabase
   const signIn = useCallback(async(email, password) => {

@@ -120,7 +120,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                               t,
                                               i18n));
         }
-    }, [currentLang]);
+    }, [currentLang, disasterObj]);
 
     // function to handle 'View evacuation steps' button press
     const handleEvacuationGuideBtnPress = (disasterType) => {

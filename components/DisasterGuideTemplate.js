@@ -15,14 +15,14 @@ export function DisasterGuideTemplate(props) {
     const [guideTextsToShow, setGuideTextsToShow] = useState(null);
 
     useEffect(()=>{
-        if(pickedStage == 'Before' && props?.guideTranslationKeys?.before){
-            setGuideTextsToShow(props?.guideTranslationKeys?.before);
+        if(pickedStage == 'Before' && props?.guideContent?.before){
+            setGuideTextsToShow(props?.guideContent?.before);
         }
-        else if(pickedStage == 'During' && props?.guideTranslationKeys?.during){
-            setGuideTextsToShow(props?.guideTranslationKeys?.during);
+        else if(pickedStage == 'During' && props?.guideContent?.during){
+            setGuideTextsToShow(props?.guideContents?.during);
         }
-        else if(pickedStage == 'After' && props?.guideTranslationKeys?.after){
-            setGuideTextsToShow(props?.guideTranslationKeys?.after);
+        else if(pickedStage == 'After' && props?.guideContent?.after){
+            setGuideTextsToShow(props?.guideContent?.after);
         }
         else{
             showErrorToast(t('shared.somethingWentWrong'), '');
@@ -85,12 +85,12 @@ export function DisasterGuideTemplate(props) {
 
             {/* vertical scroll view for showing 
                 disaster guidance content */}
-            <ScrollView style={[styles.guideContentScrollView, 
-                                {paddingLeft: Math.max(insets.left, insets.right) + 20, 
-                                 paddingRight: Math.max(insets.left, insets.right) + 20,
-                                 paddingBottom: insets.bottom + 70,
-                                 paddingTop: 20}]}
-                        contentContainerStyle={styles.guideContentScrollViewContentContainer}>
+            <ScrollView style={styles.guideContentScrollView}
+                        contentContainerStyle={[styles.guideContentScrollViewContentContainer, 
+                                                {paddingLeft: Math.max(insets.left, insets.right) + 20, 
+                                                 paddingRight: Math.max(insets.left, insets.right) + 20,
+                                                 paddingBottom: insets.bottom + 50,
+                                                 paddingTop: 20}]}>
                {
                 // show steps to do
                 guideTextsToShow?.map((item, index) => (
@@ -126,8 +126,10 @@ const styles = StyleSheet.create({
     /* horizontal scroll view for the top menu for 
        picking disaster stage to view guidance for */
     topMenuScrollView: {
-       height: 120,
-       flexGrow: 0
+       flexGrow: 0,
+       minHeight: 120,
+       maxHeight: 220,
+       backgroundColor: 'red'
     },
     // content container for the top menu
     topMenuScrollContentContainer: {
@@ -146,7 +148,6 @@ const styles = StyleSheet.create({
        view showing the guidance content */
     guideContentScrollViewContentContainer: {
         width: '100%',
-        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         rowGap: 20,
@@ -200,8 +201,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         columnGap: 20,
         paddingHorizontal: 30,
-        paddingVertical: 20,
-        flexShrink: 1
+        paddingVertical: 30,
+       
     },
     // step number container
     guideStepNumberContainer: {
@@ -223,10 +224,12 @@ const styles = StyleSheet.create({
     guideStepTxt: {
         color: '#2D3782',
         fontSize: 20,
-        fontWeight: '600'
+        fontWeight: '600',
+
     },
     // container of the step text
     guideStepTxtContainer: {
-        flex: 1
+        flex: 1,
+       
     }
 });

@@ -7,12 +7,18 @@ export function EarthquakeGuideScreen() {
     const { t, i18n } = useTranslation();
 
     const disasterGuideTextsTranslationKey = {
-        before: ['earthquakeGuide.before.hi'],
-        during: ['earthquakeGuide.during.hi', 'earthquakeGuide.during.hello'],
-        after: ['earthquakeGuide.after.hi']
+        before: ['earthquakeGuide.before.buildingStructureAndLoc',
+                 'earthquakeGuide.before.identifySpots', 
+                 'earthquakeGuide.before.evacuationPlan', 
+                 'earthquakeGuide.before.practiceSafetySteps',
+                 'earthquakeGuide.before.secureFurnitureToWall',
+                 'earthquakeGuide.before.prepareLogistics',
+                 ],
+        during: [],
+        after: []
     };
 
     return(
-       <DisasterGuideTemplate guideTranslationKeys={disasterGuideTextsTranslationKey} />
+        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
     )
 };
