@@ -1,16 +1,18 @@
-import { Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState } from 'react';
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
+import { Text } from 'react-native';
 
 export function EarthquakeGuideScreen() {
-    /* keep guide texts here so that it's 
-       avaiable offline without downloads */
-    const guideTexts = {
-        before: ['step1 before', 'step2 before'],
-        during: ['step1 during this is a verly long texttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt', 'step2 during'],
-        after: ['step 1 after', 'step2 after']
+    const { t, i18n } = useTranslation();
+
+    const disasterGuideTextsTranslationKey = {
+        before: ['earthquakeGuide.before.hi'],
+        during: ['earthquakeGuide.during.hi', 'earthquakeGuide.during.hello'],
+        after: ['earthquakeGuide.after.hi']
     };
 
     return(
-       <DisasterGuideTemplate guideData = {guideTexts} />
+       <DisasterGuideTemplate guideTranslationKeys={disasterGuideTextsTranslationKey} />
     )
 };

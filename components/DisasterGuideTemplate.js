@@ -15,17 +15,17 @@ export function DisasterGuideTemplate(props) {
     const [guideTextsToShow, setGuideTextsToShow] = useState(null);
 
     useEffect(()=>{
-        if(pickedStage == 'Before' && props?.guideData?.before){
-            setGuideTextsToShow(props?.guideData?.before);
+        if(pickedStage == 'Before' && props?.guideTranslationKeys?.before){
+            setGuideTextsToShow(props?.guideTranslationKeys?.before);
         }
-        else if(pickedStage == 'During' && props?.guideData?.during){
-            setGuideTextsToShow(props?.guideData?.during);
+        else if(pickedStage == 'During' && props?.guideTranslationKeys?.during){
+            setGuideTextsToShow(props?.guideTranslationKeys?.during);
         }
-        else if(pickedStage == 'After' && props?.guideData?.after){
-            setGuideTextsToShow(props?.guideData?.after);
+        else if(pickedStage == 'After' && props?.guideTranslationKeys?.after){
+            setGuideTextsToShow(props?.guideTranslationKeys?.after);
         }
         else{
-            showErrorToast('Something went wrong', '');
+            showErrorToast(t('shared.somethingWentWrong'), '');
         }
     }, [pickedStage]);
 
@@ -105,7 +105,7 @@ export function DisasterGuideTemplate(props) {
                         {/* the step's text */}
                         <View style={styles.guideStepTxtContainer}>
                             <Text style={styles.guideStepTxt}>
-                                {item}
+                                {t(item)}
                             </Text>
                         </View>
                     </View>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
        the horizontal scroll view 
        for the top menu  */
     topMenuBtnTxt: {
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: '600',
         textAlign: 'center'
     },

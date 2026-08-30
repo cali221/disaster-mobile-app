@@ -14,31 +14,21 @@ export function EmergencyNumbersScreen() {
     const isFocused = useIsFocused();
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
-    const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
-
-    /* update language when screen is in focus, 
-       to display emergency numbers names according 
-       to the current language used */
-    useEffect(()=>{
-        if(isFocused == true){
-            setCurrentLang(i18n.resolvedLanguage);
-        }
-    }, [isFocused])
 
     /* emergency numbers data, store it here 
        so it's available offline without downloads */
-    const emergencyNumbers = [{name: 'Emergency', nameIdn: 'Darurat',phoneNum: '112'},
-                              {name: 'Firefighter', nameIdn: 'Pemadam Kebakaran',  phoneNum: '113'},
-                              {name: 'Search and Rescue', nameIdn: 'SAR/BASARNAS', phoneNum: '115'},
-                              {name: 'Ambulance (option 1)', nameIdn: 'Ambulans (opsi 1)', 'phoneNum': '118'},
-                              {name: 'Ambulance (option 2)', nameIdn: 'Ambulans (opsi 2)', 'phoneNum': '119'},
-                              {name: 'Police', nameIdn: 'Polisi', phoneNum: '110'},
-                              {name: 'Natural Disaster Command Post', nameIdn: 'Posko Bencana Alam', phoneNum: '129'},
-                              {name: 'Call Center BNPB', nameIdn: 'Call Center BNPB', phoneNum: '117'},
-                              {name: 'PLN (Perusahaan Listrik Negara)', nameIdn: 'PLN (Perusahaan Listrik Negara)', phoneNum: '123'},
-                              {name: 'National Commission on Human Rights (Komnas HAM)', nameIdn: 'Komisi Nasional Hak Asasi Manusia (Komnas HAM)', phoneNum: '021-3925230'},
-                              {name: 'National Commission on Violence Against Women (Komnas Perempuan)', nameIdn: 'Komisi Nasional Anti Kekerasan terhadap Perempuan (Komnas Perempuan)', phoneNum: '021-3903963'},
-                              {name: 'Indonesian Child Protection Commission (KPAI)', nameIdn: 'Komisi Perlindungan Anak Indonesia (KPAI)', phoneNum: '021-31901556'}];
+    const emergencyNumbers = [{name: t('emergencyNumbersScreen.emergency'), phoneNum: '112'},
+                              {name: t('emergencyNumbersScreen.firefighter'),  phoneNum: '113'},
+                              {name: t('emergencyNumbersScreen.searchRescue'), phoneNum: '115'},
+                              {name: `${t('emergencyNumbersScreen.ambulance')} (${t('shared.option')} 1)`, 'phoneNum': '118'},
+                              {name: `${t('emergencyNumbersScreen.ambulance')} (${t('shared.option')} 2)`, 'phoneNum': '119'},
+                              {name: t('emergencyNumbersScreen.police'), phoneNum: '110'},
+                              {name: t('emergencyNumbersScreen.naturalDisasterCommandPost'), phoneNum: '129'},
+                              {name: t('emergencyNumbersScreen.bnpbCallCenter'), phoneNum: '117'},
+                              {name: t('emergencyNumbersScreen.pln'), phoneNum: '123'},
+                              {name: t('emergencyNumbersScreen.komnasHAM'), phoneNum: '021-3925230'},
+                              {name: t('emergencyNumbersScreen.komnasPerempuan'), phoneNum: '021-3903963'},
+                              {name: t('emergencyNumbersScreen.kpai'), phoneNum: '021-31901556'}]
     return(
         <View style={styles.screenContainer}>
             {/* list of emergency numbers */}
@@ -54,7 +44,7 @@ export function EmergencyNumbersScreen() {
                             <View style={styles.emergencyNumberItemTextsContainer}>
                                 {/* the emergeny number's name e.g. Ambulance */}
                                 <Text style={styles.emergencyNumberNameTxt}>
-                                    {currentLang == 'id' ? item?.nameIdn : item?.name}
+                                    {item?.name}
                                 </Text>
 
                                 <Text style={styles.phoneNumberTxt}>
@@ -69,7 +59,7 @@ export function EmergencyNumbersScreen() {
                                 <Phone fill={'#AB5C82'} size={33} stroke={'#2D3782'} />
 
                                 <Text style={styles.callTxt}>
-                                    {t('emergencyNumersScreen.call')}
+                                    {t('emergencyNumbersScreen.call')}
                                 </Text>
                             </TouchableOpacity>
                         </View>
