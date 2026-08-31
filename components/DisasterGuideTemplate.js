@@ -17,6 +17,12 @@ export function DisasterGuideTemplate(props) {
     const scrollViewRef = useRef(null);
 
     useEffect(()=>{
+        // scroll back to top when a new stage is picked
+        scrollViewRef.current.scrollTo({ y: 0, animated: false });
+
+         /* set texts to show according to picked stage 
+            and add section vertical position property 
+            for each section */
         if(pickedStage == 'Before' && props.guideContent.before){
             setGuideTextsToShow(props?.guideContent?.before?.map((item, index) => {return {...item, sectionYPos: null}}));
         }
@@ -176,8 +182,8 @@ const styles = StyleSheet.create({
     topMenuScrollContentContainer: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
+        justifyContent: 'flex-start',
         columnGap: 30
     },
     /* vertical scroll view 
@@ -263,7 +269,7 @@ const styles = StyleSheet.create({
     // text describing the step
     guideStepTxt: {
         color: '#2D3782',
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: '600',
     },
     // container of the step text
@@ -272,7 +278,7 @@ const styles = StyleSheet.create({
     },
     // text showing each section heading
     sectionHeadingTxt: {
-        fontSize: 25,
+        fontSize: 23,
         fontWeight: '600',
         color: '#2D3782'
     },
@@ -338,7 +344,7 @@ const styles = StyleSheet.create({
     /* section heading for section containing 
        hyperlinks to the sections shown */
     sectionsHyperlinksHeadingTxt: {
-        fontSize: 25,
+        fontSize: 23,
         fontWeight: '600',
         color: 'white'
     }

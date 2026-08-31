@@ -22,7 +22,14 @@ export function EarthquakeGuideScreen() {
                   texts: ['earthquakeGuide.during.moveAwayFromThingsWhenOutside']},
                  {heading: 'earthquakeGuide.during.inBedHeading', 
                   texts: ['earthquakeGuide.during.lieFaceDownIfInBed']}],
-        after: []
+        after: [{heading: 'earthquakeGuide.after.whatToDoAfterwards', 
+                 texts: ['earthquakeGuide.after.bewareOfAftershocks',
+                         'earthquakeGuide.after.getOutIfIndoors', 
+                         'earthquakeGuide.after.dontApproachDamagedBuilding',
+                         'earthquakeGuide.after.checkSurroundings',
+                         'earthquakeGuide.after.turnOffElectricityIfWiringDamaged',
+                         'earthquakeGuide.after.ifGasSmellsOpenWindowAndGetOut',
+                         'earthquakeGuide.after.followInfo']}]
     };
 
     return(
