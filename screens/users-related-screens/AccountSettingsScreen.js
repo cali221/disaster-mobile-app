@@ -94,7 +94,7 @@ export function AccountSettingsScreen() {
         }
         catch(error){
             // reset states of the text input to the default values
-            setUsernameVal(userProfile?.username ?? 'kms');
+            setUsernameVal(userProfile?.username ?? '');
             setEmailVal(user?.user_metadata?.email ?? '');
             setPasswordVal('');
 
