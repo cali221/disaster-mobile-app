@@ -28,7 +28,6 @@ export function PanicButtonScreen() {
     const [isSoundingSOS, setIsSoundingSOS] = useState(false);
     const sosSoundPlayer = useAudioPlayer(sosSoundSource);
     const [isLoading, setIsLoading] = useState(false);
-    sosSoundPlayer.volume = 1.0;
 
     // function to pay SOS sound
     const playSOS = () => {

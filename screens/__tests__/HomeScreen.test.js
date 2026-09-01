@@ -32,7 +32,16 @@ jest.mock('lucide-react-native', () => {
         Haze: 'Haze',
         ShieldQuestion: 'ShieldQuestion',
         // close icon (shown on modal):
-        XCircle: 'XCircle'
+        XCircle: 'XCircle',
+        // up arrow icon (shown on disaster guide screens)
+        ArrowBigUp: 'ArrowBigUp',
+        // resouce hub extra icons that aren't alreadu included
+        Map: 'Map',
+        SlashIcon: 'SlashIcon',
+        WavesArrowUp: 'WavesArrowUp',
+        // disaster details scren icons
+        ChevronUp: 'ChevronUp', 
+        ChevronDown: 'ChevronDown'
     }
 });
 
@@ -77,14 +86,16 @@ jest.mock('@supabase/supabase-js', () => {
                                     dist_in_m_from_disaster: 1000, 
                                     adm2_name: 'Jakarta Pusat', 
                                     adm1_name: 'DKI Jakarta', 
-                                    disaster_datetime: new Date 
+                                    disaster_datetime: new Date ,
+                                    disaster_id: 'someid'
                                     },
                                     { 
                                     disaster_type: 'flood', 
                                     dist_in_m_from_disaster: 20, 
                                     adm2_name: 'Denpasar', 
                                     adm1_name: 'Bali', 
-                                    disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) 
+                                    disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
+                                    disaster_id: 'someid2'
                                     }],
                             error: null
                         }
@@ -102,9 +113,6 @@ jest.mock('@supabase/supabase-js', () => {
         })
     }
 });
-
-const setLoggedInUser = jest.fn();
-const fetchAndSetProfileData = jest.fn();
 
 describe('Home Screen', () => {
     const testUser = { id: 'some-user-id' };
@@ -182,7 +190,7 @@ describe('Home Screen', () => {
             
             // expect to be redirected to the disaster details screen
             await expect(screen.getByRole('heading', 
-                                        {name: 'screenTitles.disasterDetailsScreenTitle'}))
+                                          {name: 'screenTitles.disasterDetailsScreenTitle'}))
                             .toBeOnTheScreen();
         }
     });
@@ -238,8 +246,8 @@ describe('Home Screen', () => {
             
             // expect to be redirected to the emergency numbers screen
             await expect(screen.getByRole('heading', 
-                                        {name: 'screenTitles.emergencyNumbersScreenTitle'}))
-                            .toBeOnTheScreen();
+                                          {name: 'screenTitles.emergencyNumbersScreenTitle'}))
+                               .toBeOnTheScreen();
         }
     });
 

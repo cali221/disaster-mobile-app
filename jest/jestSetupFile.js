@@ -166,7 +166,13 @@ jest.mock('@maplibre/maplibre-react-native', () => {
 // mock expo audio
 jest.mock('expo-audio', () => {
    return{
-     useAudioPlayer: jest.fn()
+     useAudioPlayer: () => {
+      return{
+        pause: jest.fn(),
+        play: jest.fn(),
+        seekTo: jest.fn()
+      }
+     }
    }
 });
 // End of code I personally wrote without assistance

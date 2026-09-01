@@ -1,9 +1,13 @@
-import { Text, View } from 'react-native';
+import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
 export function LandslideGuideScreen() {
+    const disasterGuideTextsTranslationKey = {
+        before: [],
+        during: [],
+        after: []
+    };
+
     return(
-        <View>
-            <Text>Landslide Guide Screen Placeholder</Text>
-        </View>
+        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
     )
-}
+};

@@ -2,7 +2,7 @@ import { getYesterdaysISOTimeStr } from "../get-time";
 
 describe('getYesterdayISOTimeStr function', () => {
   it('should show date of yesterday', () => {
-    expect(new Date(getYesterdaysISOTimeStr()).getDate()).toBe(new Date().getDate() - 1);
+    expect(new Date(getYesterdaysISOTimeStr()).getDate()).toBe(new Date(new Date() - 24 * 60 * 60 * 1000).getDate());
   });
 
   it('should show the same hour as now', () => {

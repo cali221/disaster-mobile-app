@@ -9,6 +9,11 @@ import { useState, useEffect, useRef } from 'react';
 import { showErrorToast } from '../utils/show-toast';
 import { ArrowBigUp } from 'lucide-react-native';
 
+/* TODO: need to add disclaimers about accuracy 
+(due to lack of expertise in these topics as a student) 
+and possibly disclaimer about not including citation/sources 
+(disaster guidelines are considered to be general concepts/knowledge for now and 
+want to make the guidelines as concise as possible) (?) */
 export function DisasterGuideTemplate(props) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();

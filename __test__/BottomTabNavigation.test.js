@@ -53,7 +53,15 @@ jest.mock('lucide-react-native', () => {
         ScrollText: 'ScrollText', 
         Briefcase: 'Briefcase',
         // notification screen icons:
-        RotateCw: 'RotateCw'
+        RotateCw: 'RotateCw',
+        ArrowBigUp: 'ArrowBigUp',
+        // resouce hub extra icons that aren't already included
+        Map: 'Map',
+        SlashIcon: 'SlashIcon',
+        WavesArrowUp: 'WavesArrowUp',
+        Activity: 'Activity',
+        Waves: 'Waves',
+        Mountain: 'Mountain'
     }
 });
 

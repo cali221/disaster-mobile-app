@@ -11,7 +11,7 @@ export function getDisasterTitle(isContainedInArea,
                                  i18n){
 
   if(!disasterType){
-    throw new Error(t('disasterTitles.disasterTypeNotAvailable'))
+    return t('disasterTitles.disasterTypeNotAvailable');
   }
   else{
     if(cityOrRegency && province && (isContainedInArea !== null || isContainedInArea !== undefined)){
