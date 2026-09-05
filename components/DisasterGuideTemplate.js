@@ -9,11 +9,6 @@ import { useState, useEffect, useRef } from 'react';
 import { showErrorToast } from '../utils/show-toast';
 import { ArrowBigUp } from 'lucide-react-native';
 
-/* TODO: need to add disclaimers about accuracy 
-(due to lack of expertise in these topics as a student) 
-and possibly disclaimer about not including citation/sources 
-(disaster guidelines are considered to be general concepts/knowledge for now and 
-want to make the guidelines as concise as possible) (?) */
 export function DisasterGuideTemplate(props) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -114,7 +109,6 @@ export function DisasterGuideTemplate(props) {
                                                  paddingRight: Math.max(insets.left, insets.right) + 20,
                                                  paddingBottom: insets.bottom + 200,
                                                  paddingTop: 20}]}>
-
                 <View style={styles.sectionsListContainer}>
                     <Text style={styles.sectionsHyperlinksHeadingTxt}>
                         {t('disasterGuide.sections')}:
@@ -132,6 +126,17 @@ export function DisasterGuideTemplate(props) {
                             ))
                         }
                     </View>
+                </View>
+
+                {/* disclaimer */}
+                <View style={styles.disclaimerContainer}>
+                    <Text style={styles.disclaimerHeadingTxt}>
+                        {t('shared.disclaimer')}:
+                    </Text>
+
+                    <Text style={styles.disclaimerContentTxt}>
+                        {t('disasterGuide.disclaimerTxt')}
+                    </Text>
                 </View>
 
                 {
@@ -352,5 +357,26 @@ const styles = StyleSheet.create({
         fontSize: 23,
         fontWeight: '600',
         color: 'white'
+    },
+    // container of discaaimer text and heading
+    disclaimerContainer: {
+        width: '100%',
+        backgroundColor: '#D2DAE4',
+        borderRadius: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 20,
+        rowGap: 15
+    },
+    // heading text for disclaimer section
+    disclaimerHeadingTxt: {
+        color: '#2D3782',
+        fontSize: 18,
+        fontWeight: '600'
+    },
+    // the disclaimer text
+    disclaimerContentTxt: {
+        color: '#2D3782',
+        fontSize: 16
     }
 });

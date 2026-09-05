@@ -1,5 +1,6 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
+// TODO: add attribution/mention source for guide content(?)
 export function TsunamiGuideScreen() {
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'tsunamiGuide.before.signsHeading', 
