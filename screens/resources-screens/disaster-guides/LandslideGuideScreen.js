@@ -23,8 +23,12 @@ export function LandslideGuideScreen() {
                           'landslideGuide.before.strongGutter',
                           'landslideGuide.before.beAlertWhenHighRainfall',
                           'landslideGuide.before.dontDeforestCarelessly']}],
-        during: [],
-        after: []
+        during: [{heading: 'landslideGuide.during.whatToDoDuringLandslide', 
+                  texts: ['landslideGuide.during.getAway', 
+                          'landslideGuide.during.evacuateIfSiren']}],
+        after: [{heading: 'landslideGuide.after.whatToDoAfterLandslide', 
+                 texts: ['landslideGuide.after.avoidLandslideArea', 
+                         'landslideGuide.after.anticipateAnotherIfRain']}]
     };
 
     return(
