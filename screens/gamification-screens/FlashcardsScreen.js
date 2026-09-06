@@ -1,3 +1,4 @@
+// TODO: add disclaimers about disaster knowledge(?)
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';

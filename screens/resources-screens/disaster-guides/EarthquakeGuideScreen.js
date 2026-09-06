@@ -1,6 +1,7 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
 // TODO: add attribution/mention source for guide content(?)
+// these are based on various sources (buku saku bencana BNPB, international drop cover hold on guidance and educational youtube video from BMKG)
 export function EarthquakeGuideScreen() {
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'earthquakeGuide.before.heading', 

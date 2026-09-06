@@ -1,6 +1,7 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
 // TODO: add attribution/mention source for guide content(?)
+// mostly based on buku saku panduan bencana BNPB and English article(s) for some tusnami signs (?)
 export function TsunamiGuideScreen() {
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'tsunamiGuide.before.signsHeading', 

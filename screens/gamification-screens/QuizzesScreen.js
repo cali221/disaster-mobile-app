@@ -1,3 +1,4 @@
+// TODO: add disclaimers about disaster knowledge(?)
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useEffect, useState, useContext } from 'react';
