@@ -17,8 +17,8 @@ export function getDisasterTitle(isContainedInArea,
     if(cityOrRegency && province && (isContainedInArea !== null || isContainedInArea !== undefined)){
         if(isContainedInArea == true){
             return t('disasterTitles.titleWhenInAreaIsTrue', { disasterType: i18n.exists(`disasterNames.${disasterType}`) ?  
-                                                                                    capitalizeFirstLetter(t(`disasterNames.${disasterType}`)) : 
-                                                                                    capitalizeFirstLetter(disasterType),
+                                                                             capitalizeFirstLetter(t(`disasterNames.${disasterType}`)) : 
+                                                                             capitalizeFirstLetter(disasterType),
                                                                       cityOrRegency: cityOrRegency,
                                                                       province: province});
         }

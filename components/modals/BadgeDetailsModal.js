@@ -1,7 +1,11 @@
 import { Text, View, StyleSheet, Image } from 'react-native';
 import { CenterModalBase } from '../modals-base/CenterModalBase';
+import { useTranslation } from 'react-i18next';
 
 export function BadgeDetailsModal(props) {
+    const { t, i18n } = useTranslation();
+    const currentLang = i18n.resolvedLanguage;
+
     return(
        <CenterModalBase title={props.badgeModalData.name} 
                         closeFunc={()=>{props.hideBadgeModalFunc()}}>
@@ -12,7 +16,7 @@ export function BadgeDetailsModal(props) {
                                         props.badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
                 {/* the badge's description */}
                 <Text style={styles.badgeModalDescTxt}>
-                    {props.badgeModalData.badgeDesc}
+                    {currentLang == 'id' ? props.badgeModalData.badgeDescIdn : props.badgeModalData.badgeDesc}
                 </Text>
             </View>
         </CenterModalBase>
