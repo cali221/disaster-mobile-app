@@ -13,7 +13,13 @@ export function VolcanicEruptionGuideScreen() {
                  {heading: 'volcanoGuide.before.krb', 
                   texts: ['volcanoGuide.before.krbI', 
                           'volcanoGuide.before.krbII',
-                          'volcanoGuide.before.krbIII']}],
+                          'volcanoGuide.before.krbIII']},
+                {heading: 'volcanoGuide.before.whatToDoBeforeEruption', 
+                 texts: ['volcanoGuide.before.prepareMaskAndGoggles', 
+                         'volcanoGuide.before.knowEvacRoute',
+                         'volcanoGuide.before.prepareLogistics',
+                         'volcanoGuide.before.stayInformed',
+                         'volcanoGuide.before.altPlan']}],
         during: [],
         after: []
     };
