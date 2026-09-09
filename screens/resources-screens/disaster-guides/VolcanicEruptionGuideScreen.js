@@ -3,7 +3,7 @@ import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate
 // TODO: add attribution/mention source for guide content(?)
 // planned to be based on buku saku panduan bencana BNPB
 export function VolcanicEruptionGuideScreen() {
-    // summarized knowledge from book
+    // summarized knowledge from buku saku panduan bencana BNPB
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'volcanoGuide.before.statusLevel', 
                   texts: ['volcanoGuide.before.normal',
@@ -20,8 +20,23 @@ export function VolcanicEruptionGuideScreen() {
                          'volcanoGuide.before.prepareLogistics',
                          'volcanoGuide.before.stayInformed',
                          'volcanoGuide.before.altPlan']}],
-        during: [],
-        after: []
+        // summarized knowledge from buku saku panduan bencana BNPB
+        during: [{heading: 'volcanoGuide.during.whatToWear', 
+                  texts: ['volcanoGuide.during.protectiveGoggles', 
+                          'volcanoGuide.during.mask',
+                          'volcanoGuide.during.coveringClothes']},
+                 {heading: 'volcanoGuide.during.whatToNotWear', 
+                  texts: ['volcanoGuide.during.contactLenses']},
+                 {heading: 'volcanoGuide.during.whatToAvoid', 
+                  texts: ['volcanoGuide.during.areasRecommendedToBeEmptied', 
+                          'volcanoGuide.during.valley',
+                          'volcanoGuide.during.watershed',
+                          'volcanoGuide.during.openAreas']}],
+        after: [{heading: 'volcanoGuide.after.whatToDoAfterEruption', 
+                 texts: ['volcanoGuide.after.avoidAsh', 
+                         'volcanoGuide.after.clearRoof',
+                         'volcanoGuide.after.dontDriveOnAsh',
+                         'volcanoGuide.after.bewareWatershed']}]
     };
 
     return(
