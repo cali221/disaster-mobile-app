@@ -5,6 +5,7 @@ import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate
 export function LandslideGuideScreen() {
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'landslideGuide.before.whatToDoBeforeLandslide', 
+                  subheading: 'this is my subheading',
                   texts: ['landslideGuide.before.reduceSurfaceSlopeAndGroundWaterSteepness', 
                           'landslideGuide.before.buildRetainingStructures',
                           'landslideGuide.before.dontBuildInDisasterProneArea',
@@ -24,9 +25,11 @@ export function LandslideGuideScreen() {
                           'landslideGuide.before.beAlertWhenHighRainfall',
                           'landslideGuide.before.dontDeforestCarelessly']}],
         during: [{heading: 'landslideGuide.during.whatToDoDuringLandslide', 
+                  subheading: 'this is my subheading',
                   texts: ['landslideGuide.during.getAway', 
                           'landslideGuide.during.evacuateIfSiren']}],
         after: [{heading: 'landslideGuide.after.whatToDoAfterLandslide', 
+                 subheading: 'this is my subheading',
                  texts: ['landslideGuide.after.avoidLandslideArea', 
                          'landslideGuide.after.anticipateAnotherIfRain']}]
     };

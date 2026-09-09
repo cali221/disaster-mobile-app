@@ -144,10 +144,16 @@ export function DisasterGuideTemplate(props) {
                 guideTextsToShow?.map((sectionItem, sectionIndex) => (
                     <View key={sectionIndex} 
                           style={styles.guideSectionContainer}
-                          onLayout={(event) => {sectionItem.sectionYPos = event.nativeEvent.layout.y }}>
-                        <Text style={styles.sectionHeadingTxt}>
-                            {t(sectionItem.heading)}
-                        </Text>
+                          onLayout={(event) => {sectionItem.sectionYPos = event.nativeEvent.layout.y}}>
+                        <View style={styles.headingAndSubheadingContainer}>
+                             <Text style={styles.sectionHeadingTxt}>
+                                {t(sectionItem.heading)}
+                            </Text>
+
+                            <Text style={styles.sectionSubheadingTxt}>
+                                {t(sectionItem.subheading)}
+                            </Text>
+                        </View>
 
                         {sectionItem?.texts?.map((textItem, textIndex) => (
                             <View style={styles.guideStepContainer} key={textIndex}>
@@ -378,5 +384,19 @@ const styles = StyleSheet.create({
     disclaimerContentTxt: {
         color: '#2D3782',
         fontSize: 16
+    },
+    // subheading text for each section containing the source information
+    sectionSubheadingTxt: {
+        color: '#2D3782',
+        fontSize: 17,
+        fontWeight: '600'
+    },
+    // container of heading and subheading
+    headingAndSubheadingContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10,
+        width: '100%',
+        justifyContent: 'flex-start'
     }
 });
