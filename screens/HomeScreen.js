@@ -420,7 +420,7 @@ export function HomeScreen({ navigation }) {
               <Text style={[styles.sectionExplanationTxt, styles.linkText]}
                     accessibilityRole='link'
                     onPress={() => {Linking.openURL('https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020')}}>
-                {t('homeScreen.learnSectionBNPBSourceInfoHereLink')}.
+                {t('shared.hereLink')}.
               </Text>
             </Text>
           </View>

@@ -5,7 +5,9 @@ import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate
 export function LandslideGuideScreen() {
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'landslideGuide.before.whatToDoBeforeLandslide', 
-                  subheading: 'this is my subheading',
+                  subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
+                  sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 
+                                 'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
                   texts: ['landslideGuide.before.reduceSurfaceSlopeAndGroundWaterSteepness', 
                           'landslideGuide.before.buildRetainingStructures',
                           'landslideGuide.before.dontBuildInDisasterProneArea',
@@ -25,11 +27,13 @@ export function LandslideGuideScreen() {
                           'landslideGuide.before.beAlertWhenHighRainfall',
                           'landslideGuide.before.dontDeforestCarelessly']}],
         during: [{heading: 'landslideGuide.during.whatToDoDuringLandslide', 
-                  subheading: 'this is my subheading',
+                  subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
+                  sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
                   texts: ['landslideGuide.during.getAway', 
                           'landslideGuide.during.evacuateIfSiren']}],
         after: [{heading: 'landslideGuide.after.whatToDoAfterLandslide', 
-                 subheading: 'this is my subheading',
+                 subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
+                 sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
                  texts: ['landslideGuide.after.avoidLandslideArea', 
                          'landslideGuide.after.anticipateAnotherIfRain']}]
     };

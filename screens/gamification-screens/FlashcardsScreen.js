@@ -178,10 +178,10 @@ export function FlashcardsScreen() {
                                     contentContainerStyle={styles.screenScrollContentContainer}>
                             <View style={styles.avatarAndExplanationContainer}>
                                 <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
-                                                    width={120} 
-                                                    height={120} 
+                                                    width={150} 
+                                                    height={'100%'} 
                                                     bgColor='#D2DAE4' 
-                                                    pfpBorderRadius={30} />
+                                                    pfpBorderRadius={20} />
                                 <Text style={styles.avatarExplanationTxt}>
                                     {t('flashcardScreen.keepReviewing')}
                                 </Text>
@@ -223,6 +223,17 @@ export function FlashcardsScreen() {
                                         }
                                     </Text>
                                 </View>
+
+                                {/* show disclaimer text when showing answer */}
+                                {
+                                    isShowingAns == true && (
+                                        <View style={styles.disclaimerContainer}>
+                                            <Text style={styles.disclaimerTxt}>
+                                                {t('flashcardScreen.disclaimer')}
+                                            </Text>
+                                        </View>
+                                    )
+                                }
 
                                 {/* SM-2 attribution text following requirements shown on 
                                     https://supermemopedia.com/wiki/Licensing_SuperMemo_Algorithm?__cf_chl_tk=elpcKHpx6jfSSo34cfrjTTBGziYDCdEAIBrgPQDaq.c-1781093381-1.0.1.1-bXfY9SDKYXCChrbYv59xRgzJW..W7FcfhJZep4Cm5Fk */}
@@ -366,8 +377,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         columnGap: 30,
         width: '100%',
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
         borderColor: 'grey',
         borderWidth: 1,
         elevation: 2,
@@ -496,7 +507,7 @@ const styles = StyleSheet.create({
     // explanation texts for recall ease buttons
     explanationTxt: {
         textAlign: 'center',
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     },
     /* content container inside the bottom section 
@@ -521,5 +532,24 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: 'white',
         elevation: 2
+    },
+    // container of disclaimer text
+    disclaimerContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        columnGap: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#D2DAE4',
+        borderRadius: 20,
+        width: '100%',
+        marginBottom: 20
+    },
+    // the disclaimer text
+    disclaimerTxt: {
+        fontSize: 16,
+        color: '#2D3782'
     }
 });

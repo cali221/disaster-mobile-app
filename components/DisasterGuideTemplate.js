@@ -2,7 +2,8 @@ import { View,
          Text, 
          StyleSheet, 
          TouchableOpacity, 
-         ScrollView } from 'react-native';
+         ScrollView,
+         Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
@@ -147,12 +148,25 @@ export function DisasterGuideTemplate(props) {
                           onLayout={(event) => {sectionItem.sectionYPos = event.nativeEvent.layout.y}}>
                         <View style={styles.headingAndSubheadingContainer}>
                              <Text style={styles.sectionHeadingTxt}>
-                                {t(sectionItem.heading)}
+                                {t(sectionItem?.heading)}
                             </Text>
 
                             <Text style={styles.sectionSubheadingTxt}>
-                                {t(sectionItem.subheading)}
+                                {t(sectionItem?.subheading)}
                             </Text>
+
+                            {
+                                sectionItem?.sourceLinks?.map((source, index) => (
+                                    <Text key={index} style={styles.sectionSubheadingTxt}>
+                                        • {t(source.name)}:{' '}
+                                        <Text accessibilityRole='link'
+                                              onPress={() => {Linking.openURL(source.link)}}
+                                              style={styles.subheadingLinkText}>
+                                            {source.link}
+                                        </Text>
+                                    </Text>
+                                ))
+                            }
                         </View>
 
                         {sectionItem?.texts?.map((textItem, textIndex) => (
@@ -388,8 +402,7 @@ const styles = StyleSheet.create({
     // subheading text for each section containing the source information
     sectionSubheadingTxt: {
         color: '#2D3782',
-        fontSize: 17,
-        fontWeight: '600'
+        fontSize: 16
     },
     // container of heading and subheading
     headingAndSubheadingContainer: {
@@ -398,5 +411,11 @@ const styles = StyleSheet.create({
         rowGap: 10,
         width: '100%',
         justifyContent: 'flex-start'
+    },
+    // link texts
+    subheadingLinkText: {
+        fontSize: 16,
+        color: 'dodgerblue',
+        textDecorationLine: 'underline'
     }
 });

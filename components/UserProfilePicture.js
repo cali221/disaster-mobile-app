@@ -19,7 +19,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
-        elevation: 2
+        elevation: 2,
+        maxHeight: 180
     },
     // the avatar image
     avatarImg: {
