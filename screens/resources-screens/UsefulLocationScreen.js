@@ -1,4 +1,10 @@
-import { Text, StyleSheet, View, TouchableOpacity, Switch, Linking } from 'react-native';
+import { Text, 
+         StyleSheet, 
+         View, 
+         TouchableOpacity, 
+         Switch, 
+         Linking, 
+         RefreshControl } from 'react-native';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +18,6 @@ import { Map, Camera, Marker } from "@maplibre/maplibre-react-native";
 import * as mapStyle from '../../assets/map-style/style.json';
 
 // TODO: make user location marker move in real time(?), implement download and offline map
-// TODO: add pull to refresh
 export function UsefulLocationScreen() {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -71,6 +76,21 @@ export function UsefulLocationScreen() {
         setIsLoading(false);
     };
 
+    // handle pull to refresh (re-fetch places data)
+    const onRefresh = useCallback(async () => {
+        if(pickedCategory && pickedCoords){
+            setRefreshing(true);
+
+            getPlacesAroundCoordinates(pickedCategory?.type, 
+                                       pickedCategory?.place, 
+                                       7000, 
+                                       pickedCoords?.latitude, 
+                                       pickedCoords?.longitude);
+            
+            setRefreshing(false);
+        }
+    }, [pickedCategory, pickedCoords]);
+
     /* handle using current location */
     useEffect(() => {
         const setToCurrentLocation = async () => {
@@ -118,7 +138,13 @@ export function UsefulLocationScreen() {
     }, [pickedCategory, pickedCoords]);
 
     return(
-        <View style={styles.screenContainer}>              
+        <ScrollView contentContainerStyle={styles.screenContainer}
+                    refreshControl={ <RefreshControl refreshing={refreshing} 
+                                                     onRefresh={onRefresh}
+                                                     colors={['#2D3782']}
+                                                     progressBackgroundColor='#9ec110' />}
+                    scrollEnabled={false}
+                    nestedScrollEnabled={true}>              
             {/* map placeholder */}
             {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
@@ -384,7 +410,7 @@ export function UsefulLocationScreen() {
                                              modalHeight={'90%'} />
                 )
             }
-        </View>
+        </ScrollView>
     )
 };
 
