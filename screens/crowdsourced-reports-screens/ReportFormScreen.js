@@ -85,6 +85,17 @@ export function ReportFormScreen({route}) {
         }
     };
 
+    // function to handle location pick on picker modal
+    const handleLocPickedFromPicker = (locObj) => {
+        setPickedLocation(locObj.ogc_fid, 
+                          locObj.adm3_name, 
+                          locObj.adm2_name, 
+                          locObj.province, 
+                          null, 
+                          null,
+                          false)
+    }
+
     // function to get user's location and update the picked location
     const getUserLocation = async()=> {
       setIsLoading(true);
@@ -279,7 +290,7 @@ export function ReportFormScreen({route}) {
                 shouldShowLocPickerModal == true && (
                     <LocationSearchAndPicker title={t('reportFormScreen.pickALoc')}
                                              hideBadgeModalFunc={()=>{setShouldShowLocPickerModal(false)}}
-                                             handleLocationPressFunc={setPickedLocation}
+                                             handleLocationPressFunc={handleLocPickedFromPicker}
                                              modalHeight={'90%'} />
                 )
             }
@@ -390,13 +401,6 @@ const styles = StyleSheet.create({
     severityBtn: {
         flex: 1 
     },
-    // // text under severity button
-    // severityTxt: {
-    //     fontSize: 16,
-    //     textAlign: 'center',
-    //     width: '100%',
-    //     color: '#2D3782'
-    // },
     // perceived severity section
     perceivedSeveritySection: {
         display: 'flex',

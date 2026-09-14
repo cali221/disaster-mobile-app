@@ -244,12 +244,8 @@ export function ProfileScreen({ navigation }) {
 
     useEffect(()=>{
         if(user && isFocused == true){
-            //setIsLoading(true); 
-    
             // fetch sreeen's data
             fetchScreenData(user?.id)
-
-            //setIsLoading(false);
         }
     }, [user, isFocused]);
     

@@ -19,17 +19,8 @@ export function LocationSearchAndPicker(props) {
 
     /* set the picked location and location 
        text when a location is picked */
-    const handleLocationPick = (locId, 
-                                adm3, 
-                                cityOrRegency, 
-                                province) => {
-        props.handleLocationPressFunc(locId, 
-                                      adm3, 
-                                      cityOrRegency, 
-                                      province, 
-                                      null,
-                                      null, 
-                                      false);
+    const handleLocationPick = (locObj) => {
+        props.handleLocationPressFunc(locObj);
         props.hideBadgeModalFunc();
     };
 
@@ -40,7 +31,7 @@ export function LocationSearchAndPicker(props) {
 
         const { data, error } = await supabase.schema('admin_boundaries')
                                               .from('admin3')
-                                              .select('ogc_fid, adm3_name, adm2_name, adm1_name')
+                                              .select('ogc_fid, adm3_name, adm2_name, adm1_name, center_lat, center_lon')
                                               .or(`or(adm3_name.ilike.%${query}%, adm2_name.ilike.%${query}%, adm1_name.ilike.%${query}%)`);
 
 
@@ -53,7 +44,6 @@ export function LocationSearchAndPicker(props) {
                 showInfoToast(t('shared.noSearchRes'), '')
             }
 
-            console.log(data);
             // set search results using the results obtained
             setLocSearchResults(data);
 
@@ -65,7 +55,6 @@ export function LocationSearchAndPicker(props) {
        <CenterModalBase title={props.title} 
                         closeFunc={()=>{props.hideBadgeModalFunc()}}
                         modalHeight={props.modalHeight}>
-            {/* TODO: need to add data attribution(?) */}
             <View style={styles.modalContentContainer}>
                 {/* explanation text about what to search */}
                 <Text style={styles.searchExplanationTxt}>
@@ -94,10 +83,7 @@ export function LocationSearchAndPicker(props) {
                     {locSearchResults.map((item, index)=>(
                         <TouchableOpacity key={index} 
                                           style={styles.searchResItemContainer} 
-                                          onPress={()=>{handleLocationPick(item?.ogc_fid, 
-                                                                           item?.adm3_name, 
-                                                                           item?.adm2_name, 
-                                                                           item?.adm1_name)}}>
+                                          onPress={()=>{handleLocationPick(item)}}>
                                 <Text style={styles.searchResItemTxt}>
                                     {item.adm3_name}, {item.adm2_name}, {item.adm1_name}
                                 </Text>
@@ -179,5 +165,34 @@ const styles = StyleSheet.create({
     // explanation text about searching
     searchExplanationTxt: {
         color: '#2D3782'
-    }
+    },
+    // location input section container
+    locationInputSection: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10
+    },
+    // location search area container
+    locationSearchContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        columnGap: 20
+    },
+    /* button to open a modal to 
+       search and pick a location */
+    locationPickerBtn: {
+        borderColor: '#2D3782',
+        borderWidth: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 7,
+        borderRadius: 20,
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 10
+    },
 });
