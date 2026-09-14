@@ -12,7 +12,7 @@ import { LocationSearchAndPicker } from '../../components/modals/LocationSearchA
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
 
-export function ReportFormScreen({route}) {
+export function ReportFormScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation();
     const [locationText, setLocationText] = useState('Please pick a location');
@@ -49,7 +49,8 @@ export function ReportFormScreen({route}) {
                            `${error.message ?? JSON.stringify(error)}`);
         }
         else{
-            showSuccessToast(t('reportFormScreen.reportSubmitted'))
+            showSuccessToast(t('reportFormScreen.reportSubmitted'));
+            navigation.popTo('Disaster Details', {disasterId: route?.params?.disasterId});
         }
 
         setIsLoading(false);

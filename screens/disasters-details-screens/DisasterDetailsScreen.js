@@ -11,16 +11,18 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
 import { BottomModalBase } from '../../components/modals-base/BottomModalBase';
 import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
+import { useIsFocused } from '@react-navigation/native';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
+    const isFocused = useIsFocused();
     const [isLoading, setIsLoading] = useState(true);
     const [disasterObj, setDisasterObj] = useState(null);
     const [disasterTitle, setDisasterTitle] = useState('');
@@ -227,13 +229,15 @@ export function DisasterDetailsScreen({route, navigation}) {
             }
         };
 
-        /* fetch disaster details, get existing report locations 
-           and subscribe to new reports for the disaster */
-        fetchDisasterDetails(route?.params?.disasterId);
-        getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
+        if(isFocused == true){
+            /* fetch disaster details, get existing report locations 
+               and subscribe to new reports for the disaster */
+            fetchDisasterDetails(route?.params?.disasterId);
+            getReportLocations(route?.params?.disasterId).then((data)=>{setReportLocations(data)});
 
-        if(newReportsSub == null){
-            newReportsSub.current = subscribeToNewReports(route?.params?.disasterId);
+            if(newReportsSub == null){
+                newReportsSub.current = subscribeToNewReports(route?.params?.disasterId);
+            }
         }
 
         return () => {
@@ -242,7 +246,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                 newReportsSub.current = null;
             }
         };
-    }, [route?.params?.disasterId]);
+    }, [route?.params?.disasterId, isFocused]);
 
     return( 
         disasterObj ? (
@@ -280,9 +284,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                     shouldShowMap == true && (
                         <View style={styles.mapAndExplanationContainer}>
                             {/* crowdsourced reports map placeholder */}
-                            <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
+                            {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
                 
-                            {/* <Map style={styles.map} 
+                            <Map style={styles.map} 
                                  mapStyle={mapStyle}
                                  compassPosition={{top: 20, left: 20}}
                                  onStartShouldSetResponder={()=>{return true}}>
@@ -296,7 +300,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                 (disasterObj?.general?.latitude + 5)] : 
                                                 [93, -12, 142, 10]}/>
 
-                                {reportLocations.map((item, index) => (
+                                {reportLocations?.map((item, index) => (
                                     <Marker key={index}
                                             lngLat={[item?.center_lon, item?.center_lat]}
                                             onPress={()=>{handleReportMarkerPress(item?.adm3, 
@@ -316,7 +320,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                  disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map>  */}
+                            </Map> 
 
                             {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>

@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View, TouchableOpacity, Switch, Linking } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -8,10 +8,11 @@ import { showErrorToast } from '../../utils/show-toast';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ChevronDown} from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
-//import * as mapStyle from '../../assets/map-style/style.json';
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import * as mapStyle from '../../assets/map-style/style.json';
 
 // TODO: make user location marker move in real time(?), implement download and offline map
+// TODO: add pull to refresh
 export function UsefulLocationScreen() {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -20,6 +21,7 @@ export function UsefulLocationScreen() {
     const [shouldShowLocPickerModal, setShouldShowLocPickerModal] = useState(false);
     const [pickedCoords, setPickedCoords] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [isUsingCurrentLoc, setIsUsingCurrentLoc] = useState(true);
     const mapCamRef = useRef(null);
  
@@ -32,6 +34,41 @@ export function UsefulLocationScreen() {
                          adm2_name: locObj.adm2_name});
 
         setIsUsingCurrentLoc(false);
+    };
+
+    // function for getting the results from the Overpass API instance
+    const getPlacesAroundCoordinates = async(type, place, radius, lat, lon) => {
+        setIsLoading(true);
+        
+        try{
+            // fetch the data
+            const res = await fetch('https://maps.mail.ru/osm/tools/overpass/api/interpreter', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body:`[out:json];node["${type}"="${place}"](around:${radius},${lat},${lon});out center;`
+            });
+
+            if(res?.status !== 200){
+                throw new Error(res?.statusText);
+            }  
+            else{
+                // convert it to JSON
+                const places = await res.json();
+
+                // update the data state
+                console.log(places);
+                setPlacesData(places?.elements);
+            }
+        }
+        catch(error){
+            setPlacesData([]);
+            showErrorToast(t('usefulLocScreen.failedToFetchPlacesData'), 
+                            `${error.message ?? JSON.stringify(error)}`);
+        };
+        setIsLoading(false);
     };
 
     /* handle using current location */
@@ -71,40 +108,6 @@ export function UsefulLocationScreen() {
 
     // handle updating search results
     useEffect(()=>{
-        // function for getting the results from the Overpass API instance
-        const getPlacesAroundCoordinates = async(type, place, radius, lat, lon) => {
-            try{
-                // fetch the data
-                const res = await fetch('https://maps.mail.ru/osm/tools/overpass/api/interpreter', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body:`[out:json];node["${type}"="${place}"](around:${radius},${lat},${lon});out center;`
-                });
-
-                if(res?.status !== 200){
-                    throw new Error(res?.statusText);
-                }  
-                else{
-                    // convert it to JSON
-                    const places = await res.json();
-
-                    // update the data state
-                    console.log(places);
-                    setPlacesData(places?.elements);
-                }
-            }
-            catch(error){
-                setPlacesData([]);
-                showErrorToast('Failed to fetch', `${error.message ?? JSON.stringify(error)}`);
-            };
-            setIsLoading(false);
-        };
-
-        setIsLoading(true);
-
         if(pickedCoords && pickedCategory){
             getPlacesAroundCoordinates(pickedCategory?.type, 
                                        pickedCategory?.place, 
@@ -117,10 +120,10 @@ export function UsefulLocationScreen() {
     return(
         <View style={styles.screenContainer}>              
             {/* map placeholder */}
-            <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View>
+            {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
             {/* map showing the places */}
-            {/* <Map mapStyle={mapStyle}
+            <Map mapStyle={mapStyle}
                  compassPosition={{top: 20, left: 20}}
                  onStartShouldSetResponder={()=>{return true}}
                  style={{width: '100%', height: 200}}>
@@ -151,16 +154,17 @@ export function UsefulLocationScreen() {
                     placesData?.map((item, index)=>(
                         <Marker key={index} 
                                 testID='place-marker-on-map'
-                                lngLat={[item.lon, item.lat]}>
+                                lngLat={[item.lon, item.lat]}
+                                style={{backgroundColor: 'transparent', overflow: 'visible'}}>
                             <View style={styles.placeMarker}>
                                 <Text style={styles.placeNamxTxtOnMarker}>
-                                    {item?.tags?.name}
+                                    {item?.tags?.name ? item?.tags?.name : t('usefulLocScreen.unnamed')}
                                 </Text>
                             </View>
                         </Marker>
                     ))
                 }
-            </Map> */}
+            </Map>
 
             <View style={styles.contentBelowMapContainer}>
                 {
@@ -237,10 +241,13 @@ export function UsefulLocationScreen() {
                             }
                         </Text>
 
+                        {/* switch for using current coordinates,
+                            can't be switch off but can be switched on */}
                         <Switch trackColor={{false: '#767577', true: '#9ec110'}}
                                 thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
                                 onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
-                                value={isUsingCurrentLoc} />
+                                value={isUsingCurrentLoc}
+                                disabled={isUsingCurrentLoc == false ? false : true} />
                     </View>
 
                     {/* location picker, can be pressed to view picker modal */}
@@ -599,7 +606,8 @@ const styles = StyleSheet.create({
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        padding: 10
+        padding: 5,
+        overflow: 'scroll'
     },
     // data attribution text
     dataAttributionTxt: {
