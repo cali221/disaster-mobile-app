@@ -356,8 +356,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingHorizontal: 20,
         paddingVertical: 10,
-        width: 120,
-        height: 45
+        height: 40
     },
     // text inside the watch area button
     watchAreaBtnTxt: {
@@ -401,15 +400,14 @@ const styles = StyleSheet.create({
     },
     // button to remove location from watchlist
     removeAreaBtn: {
-        backgroundColor: '#2D3782',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        width: 120,
-        height: 45
+       backgroundColor: '#2D3782',
+       display: 'flex',
+       justifyContent: 'center',
+       alignItems: 'center',
+       borderRadius: 20,
+       paddingHorizontal: 20,
+       paddingVertical: 10,
+       height: 40
     },
     // text inside button to remove area from watchlist
     removeAreaBtnTxt: {

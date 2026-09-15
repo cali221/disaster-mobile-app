@@ -52,6 +52,7 @@ SOFTWARE.
 // - I changed console.log for showing generated push token message slightly
 // - I export the function to use from another file
 // - I throw an error if the token wasn't successfully generated instead of setting token to the error string
+// - I manually add the project ID instead of using Constants
 export async function registerForPushNotificationsAsync(){
     // the Expo push notification token
     let token;
@@ -86,16 +87,16 @@ export async function registerForPushNotificationsAsync(){
     // if notification permission is granted, try to get the Expo push token
     try {
         // get the project ID
-        const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        // const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
 
-        if (!projectId) {
-            throw new Error('Project ID was not found');
-        }
+        // if (!projectId) {
+        //     throw new Error('Project ID was not found');
+        // }
         
         // get the Expo push token
         token = (
             await Notifications.getExpoPushTokenAsync({
-                projectId,
+                projectId: 'de577934-0e3e-4bc7-965b-5f8d8c7e4e1f'
             })
         ).data;
 

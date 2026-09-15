@@ -11,7 +11,7 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
@@ -286,7 +286,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                             {/* crowdsourced reports map placeholder */}
                             {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
                 
-                            <Map style={styles.map} 
+                            {/* <Map style={styles.map} 
                                  mapStyle={mapStyle}
                                  compassPosition={{top: 20, left: 20}}
                                  onStartShouldSetResponder={()=>{return true}}>
@@ -320,7 +320,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                  disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map> 
+                            </Map>  */}
 
                             {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>

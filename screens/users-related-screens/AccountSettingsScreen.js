@@ -183,7 +183,8 @@ export function AccountSettingsScreen() {
 
                 {/* button to delete account */}
                 <TouchableOpacity style={[styles.bottomButtons, styles.deleteAccountBtnColor]}
-                                   onPress={()=>{handleAccountDelete(user.id)}}>
+                                  onPress={()=>{handleAccountDelete(user.id)}}
+                                  accessibilityRole='button'>
                     <Text style={styles.bottomButtonsTxt}>
                         {t('authWords.deleteAccount')}
                     </Text>
