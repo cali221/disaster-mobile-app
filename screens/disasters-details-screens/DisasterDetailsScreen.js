@@ -286,19 +286,19 @@ export function DisasterDetailsScreen({route, navigation}) {
                             {/* crowdsourced reports map placeholder */}
                             {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
                 
-                            {/* <Map style={styles.map} 
+                            <Map style={styles.map} 
                                  mapStyle={mapStyle}
                                  compassPosition={{top: 20, left: 20}}
                                  onStartShouldSetResponder={()=>{return true}}>
-                            <Camera maxZoom={14} 
-                                        zoom={10} 
-                                        bounds={(disasterObj?.general?.latitude && 
-                                                disasterObj?.general?.longitude) ? 
-                                                [(disasterObj?.general?.longitude - 5), 
-                                                (disasterObj?.general?.latitude - 5), 
-                                                (disasterObj?.general?.longitude + 5), 
-                                                (disasterObj?.general?.latitude + 5)] : 
-                                                [93, -12, 142, 10]}/>
+                                <Camera maxZoom={14} 
+                                            zoom={10} 
+                                            bounds={(disasterObj?.general?.latitude && 
+                                                    disasterObj?.general?.longitude) ? 
+                                                    [(disasterObj?.general?.longitude - 5), 
+                                                    (disasterObj?.general?.latitude - 5), 
+                                                    (disasterObj?.general?.longitude + 5), 
+                                                    (disasterObj?.general?.latitude + 5)] : 
+                                                    [93, -12, 142, 10]}/>
 
                                 {reportLocations?.map((item, index) => (
                                     <Marker key={index}
@@ -320,7 +320,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                  disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map>  */}
+                            </Map> 
 
                             {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>
