@@ -428,9 +428,12 @@ export function ProfileScreen({ navigation }) {
                                     {/* button to add trusted contact */}
                                     <TouchableOpacity style={styles.trustedContactListAddBtn} 
                                                       accessibilityRole='button'
-                                                      onPress={()=>{setShouldShowAddContactModal(true)}}>
+                                                      onPress={()=>{setShouldShowAddContactModal(true)}}
+                                                      disabled={true}>
                                         <Text style={styles.trustedContactListAddBtnTxt}>
                                             {t('shared.add')}
+                                            {"\n"}
+                                            ({t('shared.disabledForUserTesting')})
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
@@ -846,7 +849,8 @@ const styles = StyleSheet.create({
     trustedContactListAddBtnTxt: {
         color: 'white',
         fontSize: 16,
-        fontWeight: '600'
+        fontWeight: '600',
+        textAlign: 'center'
     },
     // content container for modal for adding new trusted contact
     addContactModalContentContainer: {

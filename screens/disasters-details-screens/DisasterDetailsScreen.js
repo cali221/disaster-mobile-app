@@ -11,7 +11,7 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
