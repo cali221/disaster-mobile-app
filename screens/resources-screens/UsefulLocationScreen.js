@@ -10,11 +10,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { getUserCurrentLocation } from '../../utils/users-utilities';
-import { showErrorToast } from '../../utils/show-toast';
+import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ChevronDown} from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import * as mapStyle from '../../assets/map-style/style.json';
 
 export function UsefulLocationScreen() {
@@ -114,8 +114,15 @@ export function UsefulLocationScreen() {
                 setPickedCoords(null);
                 setIsUsingCurrentLoc(false);
                 setIsLoading(false);
-                showErrorToast(t('usefulLocScreen.failedToUseCurrentCoords'), 
-                               `${error.message ?? JSON.stringify(error)}`);
+
+                if(error.message == 'No permission to access location'){
+                    showInfoToast(t('permissions.permissionNeeded'), 
+                                    t('permissions.permissionNeededToGetLocation'));
+                }
+                else{
+                    showErrorToast(t('usefulLocScreen.failedToUseCurrentCoords'), 
+                                     `${error.message ?? JSON.stringify(error)}`);
+                }
             };
         };
 
@@ -151,7 +158,7 @@ export function UsefulLocationScreen() {
             {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
             {/* map showing the places */}
-            <Map mapStyle={mapStyle}
+            {/* <Map mapStyle={mapStyle}
                  compassPosition={{top: 20, left: 20}}
                  onStartShouldSetResponder={()=>{return true}}
                  style={{width: '100%', height: 200}}>
@@ -192,7 +199,7 @@ export function UsefulLocationScreen() {
                         </Marker>
                     ))
                 }
-            </Map>
+            </Map> */}
 
             <View style={styles.contentBelowMapContainer}>
                 {

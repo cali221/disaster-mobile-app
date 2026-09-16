@@ -151,10 +151,6 @@ export function DisasterGuideTemplate(props) {
                                 {t(sectionItem?.heading)}
                             </Text>
 
-                            <Text style={styles.sectionSubheadingTxt}>
-                                {t(sectionItem?.subheading)}
-                            </Text>
-
                             {
                                 sectionItem?.sourceLinks?.map((source, index) => (
                                     <Text key={index} style={styles.sectionSubheadingTxt}>
@@ -167,6 +163,10 @@ export function DisasterGuideTemplate(props) {
                                     </Text>
                                 ))
                             }
+
+                            <Text style={styles.sectionSubheadingTxt}>
+                                {t(sectionItem?.subheading)}
+                            </Text>
                         </View>
 
                         {sectionItem?.texts?.map((textItem, textIndex) => (
