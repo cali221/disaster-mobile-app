@@ -151,6 +151,14 @@ export function DisasterGuideTemplate(props) {
                                 {t(sectionItem?.heading)}
                             </Text>
 
+                            <Text style={styles.sectionRefExplanation}>
+                                {t('disasterGuide.academicRefLocs')}
+                            </Text>
+
+                            <Text style={styles.sectionSubheadingTxt}>
+                                {t(sectionItem?.subheading)}
+                            </Text>
+
                             {
                                 sectionItem?.sourceLinks?.map((source, index) => (
                                     <Text key={index} style={styles.sectionSubheadingTxt}>
@@ -163,10 +171,6 @@ export function DisasterGuideTemplate(props) {
                                     </Text>
                                 ))
                             }
-
-                            <Text style={styles.sectionSubheadingTxt}>
-                                {t(sectionItem?.subheading)}
-                            </Text>
                         </View>
 
                         {sectionItem?.texts?.map((textItem, textIndex) => (
@@ -186,6 +190,34 @@ export function DisasterGuideTemplate(props) {
                                 </View>
                             </View>
                         ))}
+
+                        {/* refrences for the section */}
+                        <View style={styles.referencesSection}>
+                            {/* references section heading */}
+                            <Text style={styles.sectionHeadingTxt}>
+                                {t('shared.references')}
+                            </Text>
+
+                            {/* the references */}
+                            {
+                                sectionItem?.citations?.map((item, index) => (
+                                    <View key={index} style={styles.citationContainer}>
+                                        <Text style={styles.indexTxt}>
+                                            [{item.index}]
+                                        </Text>
+                                        {/* make the citation texts selectable, so users can 
+                                            easily copy it or the link */}
+                                        <Text style={styles.citationTxt} selectable={true}>
+                                            {item?.part1}
+                                            <Text style={[styles.citationTxt, styles.citationTxtItalic]} selectable={true}>
+                                                {item?.italicTxt}
+                                            </Text>
+                                            {item?.part2}
+                                        </Text>
+                                    </View>
+                                ))
+                            }
+                        </View>
                     </View>
                 ))
                }
@@ -417,5 +449,49 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'dodgerblue',
         textDecorationLine: 'underline'
+    },
+    // explanation text about where academic citation is
+    sectionRefExplanation: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#2D3782'
+    },
+    // citation text
+    citationTxt: {
+        color: '#2D3782',
+        fontSize: 16,
+        flex: 1,
+        flexWrap: 'wrap',
+        width: '100%',
+        maxWidth: 300,
+        textAlign: 'left'
+    },
+    // index text for citation
+    indexTxt: {
+        textAlign: 'left',
+        color: '#2D3782',
+        fontSize: 16
+    },
+    // container of citation
+    citationContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        columnGap: 12
+    },
+    // references section
+    referencesSection: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 13,
+        flex: 1,
+        flexWrap: 'wrap'
+    },
+    // itaic text for citation
+    citationTxtItalic: {
+        fontStyle: 'italic'
     }
 });

@@ -1,4 +1,3 @@
-// TODO: add disclaimers about disaster knowledge(?)
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -143,7 +142,10 @@ export function FlashcardsScreen() {
                 /* add is_repeeating property to track if the card is reviewed 
                    in a new session or if it's a card repeated after session because 
                    its last recall ease value was rated < 4 */
-                const deck = data.map((card) => {return {...card, is_repeating: false}})
+                   console.log(data);
+                const deck = data.map((card) => {return {...card, is_repeating: false, reference: card.reference?.sort((a, b) => a.index - b.index)}})
+
+                console.log(deck)
                 setDeckArr(deck);
             }
         };
@@ -207,8 +209,10 @@ export function FlashcardsScreen() {
                                 </Text>
 
                                 <View style={styles.flashcardContentTxtContainer}>
-                                    {/* the flashcard's content text */}
-                                    <Text style={styles.flashcardContentTxt}>
+                                    {/* the flashcard's content text, make the text selectable 
+                                        so users can copy link */}
+                                    <Text style={styles.flashcardContentTxt} 
+                                          selectable={true}>
                                         { isShowingAns == false ? 
                                                 (
                                                     currentLang  == 'id' ?
@@ -222,6 +226,38 @@ export function FlashcardsScreen() {
                                                 )
                                         }
                                     </Text>
+
+                                    
+                                    {
+                                       (isShowingAns == true && deckArr[0]?.reference?.length > 0) &&
+                                        <View style={styles.referencesSection}>
+                                            {/* references section heading */}
+                                            <Text style={styles.referenceHeadingTxt}>
+                                                {t('shared.references')}:
+                                            </Text>
+                
+                                            {/* the references */}
+                                            {
+                                                deckArr[0]?.reference?.map((item, index) => (
+                                                    item.index && (
+                                                    <View key={index} style={styles.citationContainer}>
+                                                        <Text style={styles.indexTxt}>
+                                                            [{item.index}]
+                                                        </Text>
+                                                        {/* make the citation texts selectable, so users can 
+                                                            easily copy it or the link */}
+                                                        <Text style={styles.citationTxt} selectable={true}>
+                                                            {item?.text_part_1}
+                                                            <Text style={[styles.citationTxt, styles.citationTxtItalic]} selectable={true}>
+                                                                {item?.italic_text}
+                                                            </Text>
+                                                            {item?.text_part_2}
+                                                        </Text>
+                                                    </View>
+                                                )))
+                                            }
+                                        </View>
+                                    }
                                 </View>
 
                                 {/* show disclaimer text when showing answer */}
@@ -300,7 +336,7 @@ export function FlashcardsScreen() {
                             (
                                 // if not showing answer, show the 'Show Answer' button
                                 <TouchableOpacity style={styles.showAnsBtn}
-                                                onPress={()=>{setIsShowingAns(true)}}>
+                                                  onPress={()=>{setIsShowingAns(true)}}>
                                     <Text style={styles.showAnsBtnTxt}>
                                         {t('flashcardScreen.showAnswer')}
                                     </Text>
@@ -430,7 +466,10 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         backgroundColor: '#2D3782',
         borderColor: '#D2DAE4',
-        elevation: 5
+        elevation: 5,
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 20
     },
     // container of SM-2 attributions texts
     algAttrTxtsContainer: {
@@ -551,5 +590,49 @@ const styles = StyleSheet.create({
     disclaimerTxt: {
         fontSize: 16,
         color: '#2D3782'
+    },
+    // references heading
+    referenceHeadingTxt: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: '600'
+    },
+     // citation text
+    citationTxt: {
+        color: 'white',
+        fontSize: 16,
+        flex: 1,
+        flexWrap: 'wrap',
+        width: '100%',
+        maxWidth: 250,
+        textAlign: 'left'
+    },
+    // index text for citation
+    indexTxt: {
+        textAlign: 'left',
+        color: 'white',
+        fontSize: 16
+    },
+    // container of citation
+    citationContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        columnGap: 12
+    },
+    // references section
+    referencesSection: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 13,
+        flex: 1,
+        flexWrap: 'wrap'
+    },
+    // itaic text for citation
+    citationTxtItalic: {
+        fontStyle: 'italic'
     }
 });

@@ -1,8 +1,12 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
+import { useTranslation } from 'react-i18next';
+import { Text } from 'react-native';
 
 // TODO: add attribution/mention source for guide content(?)
 // planned to be based on buku saku panduan bencana BNPB
 export function LandslideGuideScreen() {
+    const { t, i18n } = useTranslation();
+    
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'landslideGuide.before.whatToDoBeforeLandslide', 
                   subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
@@ -39,6 +43,9 @@ export function LandslideGuideScreen() {
     };
 
     return(
-        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        // <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        <Text>
+            {t('userTestingTemporary.contentOnThisScreenIsCurrentlyUnderReview')}
+        </Text>
     )
 };

@@ -1,6 +1,10 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
+import { useTranslation } from 'react-i18next';
+import { Text } from 'react-native';
 
 export function FloodGuideScreen() {
+    const { t, i18n } = useTranslation();
+    
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'floodGuide.before.whatToDoBefore', 
                   subheading: 'floodGuide.before.sourceSubheading',
@@ -33,6 +37,9 @@ export function FloodGuideScreen() {
     };
 
     return(
-        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        //<DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        <Text>
+            {t('userTestingTemporary.contentOnThisScreenIsCurrentlyUnderReview')}
+        </Text>
     )
 };

@@ -1,6 +1,10 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
+import { useTranslation } from 'react-i18next';
+import { Text } from 'react-native';
 
 export function VolcanicEruptionGuideScreen() {
+    const { t, i18n } = useTranslation();
+    
     // summarized knowledge from buku saku panduan bencana BNPB
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'volcanoGuide.before.statusLevel', 
@@ -52,6 +56,9 @@ export function VolcanicEruptionGuideScreen() {
     };
 
     return(
-        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        //<DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
+        <Text>
+            {t('userTestingTemporary.contentOnThisScreenIsCurrentlyUnderReview')}
+        </Text>
     )
 };
