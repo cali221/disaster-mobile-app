@@ -631,12 +631,12 @@ const styles = StyleSheet.create({
   /* container of the section with scroll view and explanation/heading text
      or showing recent disasters near user's watched area*/
   disasterNearWatchedAreaSummaryContainer: {
-    height: 220,
+    height: 230,
     backgroundColor: 'white',
     borderRadius: 20,
     width: '100%',
-    paddingHorizontal: 30,
-    paddingVertical: 20,
+    paddingHorizontal: 25,
+    paddingVertical: 15,
     borderColor: 'grey',
     borderWidth: 1,
     elevation: 2
@@ -664,7 +664,8 @@ const styles = StyleSheet.create({
      recent disasters near user's watched area */
   disasterSummaryTxt: {
     width: '100%',
-    color: '#2D3782'
+    color: '#2D3782',
+    fontSize: 16
   },
   /* button to go to the details screen for 
      the disaster shown in the list of recent 
@@ -759,7 +760,8 @@ const styles = StyleSheet.create({
   /* explanation texts inside the 
       sections of the screen */
   sectionExplanationTxt: {
-    color: '#2D3782'
+    color: '#2D3782',
+    fontSize: 16
   },
   // additional styling for text links
   linkText: {
@@ -803,28 +805,28 @@ const styles = StyleSheet.create({
       backgroundColor: 'white'
   },
   // button to show/hide map
-    toggleShowMapBtn: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 15,
-        width: '100%',
-        backgroundColor: '#9EC110',
-        height: 30,
-        elevation: 5
-    },
-    /* content container for text and icon 
-       inside button to show/hide map */
-    toggleShowMapBtnContentContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    // text inside button to show/hide map
-    hideOrShowMapTxt: {
-        fontSize: 17,
-        color: '#2D3782',
-        fontWeight: '600'
-    },
+  toggleShowMapBtn: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 15,
+      width: '100%',
+      backgroundColor: '#9EC110',
+      height: 30,
+      elevation: 5
+  },
+  /* content container for text and icon 
+      inside button to show/hide map */
+  toggleShowMapBtnContentContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center'
+  },
+  // text inside button to show/hide map
+  hideOrShowMapTxt: {
+      fontSize: 17,
+      color: '#2D3782',
+      fontWeight: '600'
+  },
 });

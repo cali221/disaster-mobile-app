@@ -646,10 +646,12 @@ const styles = StyleSheet.create({
         columnGap: 20,
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: '#D2DAE4',
+        backgroundColor: '#white',
         borderRadius: 20,
         width: '100%',
-        marginBottom: 20
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#2D3782'
     },
     // the disclaimer text
     disclaimerTxt: {

@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
        (about picking best estimate) */
     bestEstimateTxt: {
         color: '#2D3782',
+        fontSize: 16
     },
     /* button to open a modal to 
        search and pick a location */
@@ -387,7 +388,8 @@ const styles = StyleSheet.create({
     /* text saying 'Pick a location' 
        on the location picker button */
     pickLocationTxt: {
-        color: '#2D3782'
+        color: '#2D3782',
+        fontSize: 16
     },
     /* container of the input options 
        for perceived severity */
@@ -456,5 +458,6 @@ const styles = StyleSheet.create({
     // explanation text about submitting
     submitExplanationTxt: {
         color: '#2D3782',
+        fontSize: 16
     }
 });

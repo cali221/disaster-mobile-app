@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         display: 'flex',
-        backgroundColor: '#D2DAE4',
+        backgroundColor: 'white',
         borderWidth: 1,
         borderColor: '#2D3782',
         width: '100%'
@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
     // the data attribution text
     attributionTxt: {
         fontSize: 16,
-        color: '#2D3782',
-        fontWeight: '500'
+        color: '#2D3782'
     }
 })

@@ -198,7 +198,8 @@ const styles = StyleSheet.create({
     },
     // explanation text about XP and checklist
     xpExplanationTxt: {
-        color: '#2D3782'
+        color: '#2D3782',
+        fontSize: 16
     },
     // the 'checkbox' cicles
     checkboxCircle: {

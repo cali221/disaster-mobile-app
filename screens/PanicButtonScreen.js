@@ -144,7 +144,7 @@ export function PanicButtonScreen() {
         <View style={styles.screenContainer}>
             <ScrollView contentContainerStyle={[styles.scrollViewContentContainer, 
                                                {paddingBottom: insets.bottom + 30, 
-                                                paddingTop: insets.top + 20, 
+                                                paddingTop: insets.top + 30, 
                                                 paddingLeft: insets.left, 
                                                 paddingRight: insets.right}]}
                         style={styles.scrollContainer}>

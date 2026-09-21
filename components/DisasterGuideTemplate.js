@@ -415,12 +415,14 @@ const styles = StyleSheet.create({
     // container of discaaimer text and heading
     disclaimerContainer: {
         width: '100%',
-        backgroundColor: '#D2DAE4',
+        backgroundColor: 'white',
         borderRadius: 20,
         display: 'flex',
         flexDirection: 'column',
         padding: 20,
-        rowGap: 15
+        rowGap: 15,
+        borderWidth: 1,
+        borderColor: '#2D3782'
     },
     // heading text for disclaimer section
     disclaimerHeadingTxt: {
@@ -431,12 +433,12 @@ const styles = StyleSheet.create({
     // the disclaimer text
     disclaimerContentTxt: {
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 17
     },
     // subheading text for each section containing the source information
     sectionSubheadingTxt: {
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 17,
     },
     // container of heading and subheading
     headingAndSubheadingContainer: {
@@ -448,20 +450,20 @@ const styles = StyleSheet.create({
     },
     // link texts
     subheadingLinkText: {
-        fontSize: 16,
+        fontSize: 17,
         color: 'dodgerblue',
         textDecorationLine: 'underline'
     },
     // explanation text about where academic citation is
     sectionRefExplanation: {
-        fontSize: 16,
+        fontSize: 17,
         fontWeight: '600',
         color: '#2D3782'
     },
     // citation text
     citationTxt: {
         color: '#2D3782',
-        fontSize: 16,
+        fontSize: 17,
         flex: 1,
         flexWrap: 'wrap',
         width: '100%',
@@ -472,7 +474,7 @@ const styles = StyleSheet.create({
     indexTxt: {
         textAlign: 'left',
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 17
     },
     // container of citation
     citationContainer: {
