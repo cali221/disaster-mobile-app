@@ -151,10 +151,6 @@ export function DisasterGuideTemplate(props) {
                                 {t(sectionItem?.heading)}
                             </Text>
 
-                            <Text style={styles.sectionRefExplanation}>
-                                {t('disasterGuide.academicRefLocs')}
-                            </Text>
-
                             <Text style={styles.sectionSubheadingTxt}>
                                 {t(sectionItem?.subheading)}
                             </Text>
@@ -421,7 +417,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: 20,
         rowGap: 15,
-        borderWidth: 1,
+        borderWidth: 3,
         borderColor: '#2D3782'
     },
     // heading text for disclaimer section
@@ -457,7 +453,6 @@ const styles = StyleSheet.create({
     // explanation text about where academic citation is
     sectionRefExplanation: {
         fontSize: 17,
-        fontWeight: '600',
         color: '#2D3782'
     },
     // citation text

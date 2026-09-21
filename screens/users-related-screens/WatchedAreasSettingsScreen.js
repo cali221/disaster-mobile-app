@@ -259,8 +259,8 @@ const styles = StyleSheet.create({
     },
     // explanation text about search
     searchExplanationTxt: {
-        fontSize: 16,
-        fontWeight: '400',
+        fontSize: 17,
+        fontWeight: '600',
         color: '#2D3782'
     },
     // the text input field for searching for locations

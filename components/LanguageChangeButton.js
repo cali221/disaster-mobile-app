@@ -29,7 +29,7 @@ export function LanguageChangeButton() {
                           style={styles.langChangeBtn}>
             {/* the language code text */}
             <Text style={styles.langCodeTxt}>
-                {t('shared.changeLanguageTo')} {currentLang == 'en' ? 'ID' : 'EN'}
+                {currentLang == 'en' ? 'EN ➜ ID' : 'ID ➜ EN'}
             </Text>
         </TouchableOpacity>
     )
@@ -39,9 +39,8 @@ const styles = StyleSheet.create({
     // the language code text
     langCodeTxt: {
         color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-        textDecorationLine: 'underline'
+        fontSize: 17,
+        fontWeight: '900'
     },
     // the container/button of the language code text
     langChangeBtn: {

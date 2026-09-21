@@ -4,30 +4,36 @@ import { Text,
          TouchableOpacity, 
          Switch, 
          Linking, 
-         RefreshControl } from 'react-native';
+         RefreshControl,
+         ScrollView } from 'react-native';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../../utils/show-toast';
-import { ScrollView } from 'react-native-gesture-handler';
-import { ChevronDown} from 'lucide-react-native';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
-import * as mapStyle from '../../assets/map-style/style.json';
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import * as Location from "expo-location";
+import { getStyle } from '../../utils/get-map-style';
 
 export function UsefulLocationScreen() {
+    const [shouldSearch, setShouldSearch] = useState(false);
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [placesData, setPlacesData] = useState([]);
     const [pickedCategory, setPickedCategory] = useState({type: 'amenity', place: 'hospital'});
     const [shouldShowLocPickerModal, setShouldShowLocPickerModal] = useState(false);
     const [pickedCoords, setPickedCoords] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [isUsingCurrentLoc, setIsUsingCurrentLoc] = useState(true);
+    const [currentLoc, setCurrentLoc] = useState(null);
+    const [shouldShowMenu, setShouldShowMenu] = useState(false);
+    const [mapStyle, setMapStyle] = useState(null);
     const mapCamRef = useRef(null);
+    const locationTrackingRef = useRef(null);
  
     /* function for handling picking a location from 
        the location picker modal */
@@ -40,10 +46,43 @@ export function UsefulLocationScreen() {
         setIsUsingCurrentLoc(false);
     };
 
+    const getLocationsInIndonesia = async(type, place) => {
+        console.log('fetching')
+        // fetch the data
+        const res = await fetch('https://maps.mail.ru/osm/tools/overpass/api/interpreter', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body:`[out:json];area["name"="Indonesia"]->.boundaryarea;(nwr(area.boundaryarea)[amenity=hospital];);out center;`
+        });
+
+         console.log('fetching......')
+
+        if(res?.status !== 200){
+            console.log(JSON.stringify(res))
+            throw new Error(res?.statusText);
+        }  
+        else{
+            console.log('about to convert to json')
+
+            try{
+                // convert it to JSON
+                const places = await res.json();
+
+                console.log(JSON.stringify(places));
+            }
+            catch(error){
+                console.log(error)
+            }
+        }
+    };
+
     // function for getting the results from the Overpass API instance
     const getPlacesAroundCoordinates = async(type, place, radius, lat, lon) => {
         setIsLoading(true);
-        
+
         try{
             // fetch the data
             const res = await fetch('https://maps.mail.ru/osm/tools/overpass/api/interpreter', {
@@ -63,15 +102,21 @@ export function UsefulLocationScreen() {
                 const places = await res.json();
 
                 // update the data state
-                console.log(places);
                 setPlacesData(places?.elements);
             }
         }
         catch(error){
             setPlacesData([]);
+            
             showErrorToast(t('usefulLocScreen.failedToFetchPlacesData'), 
                             `${error.message ?? JSON.stringify(error)}`);
         };
+
+        // reset shouldSearch state
+        setShouldSearch(false);
+
+        // hide menu
+        setShouldShowMenu(false);
         setIsLoading(false);
     };
 
@@ -105,14 +150,36 @@ export function UsefulLocationScreen() {
                                      adm2_name: null});
 
                     setIsUsingCurrentLoc(true);
-                }
-                else{
-                    throw new Error(t('usefulLocScreen.currentLocNotFound'));
+
+                    setCurrentLoc({latitude: location?.coords?.latitude, 
+                                   longitude: location?.coords?.longitude});
+
+                    if(!locationTrackingRef.current){
+                        locationTrackingRef.current = await Location.watchPositionAsync(
+                        {
+                            accuracy: Location.Accuracy.Highest,
+                            timeInterval: 1000,
+                            distanceInterval: 1, 
+                            },
+                            (loc) => {
+                                setCurrentLoc({latitude: loc?.coords?.latitude, 
+                                               longitude: loc?.coords?.longitude});
+                                //console.log('actual change in loc detected')
+                            }
+                        );
+                    }
                 }
             }
             catch(error){
                 setPickedCoords(null);
                 setIsUsingCurrentLoc(false);
+                setCurrentLoc(null);
+
+                if(locationTrackingRef.current){
+                   locationTrackingRef.current.remove();
+                   locationTrackingRef.current = null;
+                }
+
                 setIsLoading(false);
 
                 if(error.message == 'No permission to access location'){
@@ -132,274 +199,377 @@ export function UsefulLocationScreen() {
         if(isUsingCurrentLoc == true){
             setToCurrentLocation();
         }
+
+        return () => {
+            if(locationTrackingRef?.current){
+                locationTrackingRef.current.remove();
+                locationTrackingRef.current = null;
+            }
+        }
     }, [isUsingCurrentLoc])
 
     // handle updating search results
     useEffect(()=>{
-        if(pickedCoords && pickedCategory){
-            console.log('useffect pickeddCategroy, pickedcoords');
+        if(pickedCoords !== null && pickedCategory !== null && shouldSearch == true){
+            console.log('pickedCategory && pickedCoords && shouldSearch');
+
             getPlacesAroundCoordinates(pickedCategory?.type, 
                                        pickedCategory?.place, 
                                        7000, 
                                        pickedCoords?.latitude, 
                                        pickedCoords?.longitude);
-        }                          
-    }, [pickedCategory, pickedCoords]);
+            setShouldSearch(false);
+        }                      
+    }, [pickedCategory, pickedCoords, shouldSearch]);
+
+    // get map style on load
+    useEffect(()=>{
+        getStyle().then((style)=>{setMapStyle(style)});
+    }, []);
+
+    // simulate moving current location
+    //useEffect(() => {
+        // const x = setTimeout(() => {
+        //     if(currentLoc){
+        //         setCurrentLoc({longitude: currentLoc?.longitude - 0.001, 
+        //                        latitude: currentLoc?.latitude + 0.001});
+        //     }
+        // }, 1000);
+
+        // if(currentLoc){
+        //     mapCamRef?.current?.easeTo({ center: [currentLoc?.longitude, currentLoc?.latitude], duration: 200});
+        // }
+
+        //return () => clearTimeout(x);
+    //}, [currentLoc]);
 
     return(
         <ScrollView contentContainerStyle={styles.screenContainer}
-                    refreshControl={ <RefreshControl refreshing={refreshing} 
-                                                     onRefresh={onRefresh}
-                                                     colors={['#2D3782']}
-                                                     progressBackgroundColor='#9ec110' />}
                     scrollEnabled={false}
-                    nestedScrollEnabled={true}>              
+                    nestedScrollEnabled={true}>    
             {/* map placeholder */}
             {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
             {/* map showing the places */}
-            {/* <Map mapStyle={mapStyle}
-                 compassPosition={{top: 20, left: 20}}
-                 onStartShouldSetResponder={()=>{return true}}
-                 style={{width: '100%', height: 200}}>
+            {
+                mapStyle !== null ? 
+                (
+                    <Map mapStyle={mapStyle}
+                         compassPosition={{top: 20, left: 20}}
+                         onStartShouldSetResponder={()=>{return true}}
+                         style={styles.map}>
 
-                <Camera maxZoom={23} 
-                        ref={mapCamRef}
-                        bounds={(pickedCoords?.latitude && 
-                                 pickedCoords?.longitude) ? 
-                                 [(pickedCoords?.longitude - 1), 
-                                  (pickedCoords?.latitude - 1), 
-                                  (pickedCoords?.longitude + 1), 
-                                  (pickedCoords?.latitude + 1)] : 
-                                 [93, -12, 142, 10]} />
-                {
-                    (pickedCoords?.latitude && pickedCoords?.longitude) && (
-                        <Marker testID='picked-loc-marker-on-map' 
-                                lngLat={[pickedCoords.longitude, pickedCoords.latitude]}>
-                            <View style={styles.pickedLocMarker}>
-                                <Text style={styles.pickedLocTxtOnMarker}>
-                                    {t('usefulLocScreen.usedLoc')}
-                                </Text>
-                            </View>
-                        </Marker>
-                    )
-                }
+                        <Camera maxZoom={23} 
+                                ref={mapCamRef}
+                                bounds={(pickedCoords?.latitude && 
+                                        pickedCoords?.longitude) ? 
+                                        [(pickedCoords?.longitude - 1), 
+                                        (pickedCoords?.latitude - 1), 
+                                        (pickedCoords?.longitude + 1), 
+                                        (pickedCoords?.latitude + 1)] : 
+                                        [93, -12, 142, 10]} />
 
-                {
-                    placesData?.map((item, index)=>(
-                        <Marker key={index} 
-                                testID='place-marker-on-map'
-                                lngLat={[item.lon, item.lat]}
-                                style={{backgroundColor: 'transparent', overflow: 'visible'}}>
-                            <View style={styles.placeMarker}>
-                                <Text style={styles.placeNamxTxtOnMarker}>
-                                    {item?.tags?.name ? item?.tags?.name : t('usefulLocScreen.unnamed')}
-                                </Text>
-                            </View>
-                        </Marker>
-                    ))
-                }
-            </Map> */}
-
-            <View style={styles.contentBelowMapContainer}>
-                {
-                    placesData.length > 0 && (
-                        <Text style={styles.dataAttributionTxt}>
-                            {t('usefulLocScreen.attributionSentenceStart')}
-                            {' '}
-                            <Text onPress={() => {Linking.openURL('https://openstreetmap.org/copyright')}}
-                                  accessibilityRole='link'
-                                  style={styles.osmLinkTxt}>
-                                OpenStreetMap
-                            </Text>
-                        </Text>
-                    )
-                }
-
-                {/* section containing the category buttons */}
-                <ScrollView horizontal={true} 
-                            style={styles.categoryBtnsScrollView} 
-                            contentContainerStyle={styles.categoryBtnsContainer}>
-                    {/* button for picking "Hospitals" category */}
-                    <TouchableOpacity style={[styles.categoryBtn, 
-                                              pickedCategory.place == 'hospital' ? 
-                                              styles.pickedCategoryBtnColor : 
-                                              styles.unpickedCategoryBtnColor]}
-                                      onPress={()=>{setPickedCategory({type: 'amenity', place: 'hospital'})}}>
-                        <Text style={[styles.categoryBtnTxt, 
-                                      pickedCategory.place == 'hospital' ? 
-                                      styles.pickedCategoryBtnTxtColor : 
-                                      styles.unpickedCategoryBtnTxtColor]}>
-                            {t('usefulLocScreen.hospitals')}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* button for picking "Peaks" category */}
-                    <TouchableOpacity style={[styles.categoryBtn, 
-                                              pickedCategory.place == 'peak' ? 
-                                              styles.pickedCategoryBtnColor : 
-                                              styles.unpickedCategoryBtnColor]}
-                                      onPress={()=>{setPickedCategory({type: 'natural', place: 'peak'})}}>
-                        <Text style={[styles.categoryBtnTxt, 
-                                      pickedCategory.place == 'peak' ? 
-                                      styles.pickedCategoryBtnTxtColor : 
-                                      styles.unpickedCategoryBtnTxtColor]}>
-                            {t('usefulLocScreen.peaks')}
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* button for picking "Assembly Points" category */}
-                    <TouchableOpacity style={[styles.categoryBtn, 
-                                              pickedCategory.place == 'assembly_point' ? 
-                                              styles.pickedCategoryBtnColor : 
-                                              styles.unpickedCategoryBtnColor]}
-                                      onPress={()=>{setPickedCategory({type: 'emergency', place: 'assembly_point'})}}>
-                        <Text style={[styles.categoryBtnTxt, 
-                                      pickedCategory.place == 'assembly_point' ? 
-                                      styles.pickedCategoryBtnTxtColor : 
-                                      styles.unpickedCategoryBtnTxtColor]}>
-                            {t('usefulLocScreen.assemblyPoints')}
-                        </Text>
-                    </TouchableOpacity>
-                </ScrollView>
-
-                {/* section for picking location to view places around */}
-                <View style={styles.locationPickingSection}>
-                    {/* switch for using current's coordinates 
-                        and the explanation text */}
-                    <View style={styles.useCurrentLocToggleContainer}>
-                        <Text style={styles.usingCurrentLocStatusTxt}>
-                            {
-                                isUsingCurrentLoc == true ? 
-                                t('usefulLocScreen.usingCurrentLoc'):
-                                t('usefulLocScreen.useCurrentLoc')
-                            }
-                        </Text>
-
-                        {/* switch for using current coordinates,
-                            can't be switch off but can be switched on */}
-                        <Switch trackColor={{false: '#767577', true: '#9ec110'}}
-                                thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
-                                onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
-                                value={isUsingCurrentLoc}
-                                disabled={isUsingCurrentLoc == false ? false : true} />
-                    </View>
-
-                    {/* location picker, can be pressed to view picker modal */}
-                    <View style={styles.locationSearchContainer}>
-                        {/* location picker, shows picker modal when pressed */}
-                        <TouchableOpacity style={styles.locationPickerBtn}
-                                          onPress={()=>{setShouldShowLocPickerModal(true)}}>
-                            {/* text inside the location picker button, 
-                                if a location was picked, show the area's name,
-                                otherwise show text saying 'Pick another location'  */}
-                            <Text style={styles.locationPickerTxt}>
-                                {
-                                    (pickedCoords?.adm3_name && pickedCoords.adm2_name) ?
-                                    `${pickedCoords?.adm3_name}, ${pickedCoords.adm2_name}` : 
-                                    t('usefulLocScreen.pickAnotherLoc')
-                                }
-                            </Text>
-
-                            {/* 'dropdown' icon */}
-                            <ChevronDown color={'#2D3782'} size={30} />
-                        </TouchableOpacity>       
-                    </View>
-                </View>
-
-                {/* list of the places around the picked coordinates */}
-                <ScrollView style={styles.placesListScrollView} 
-                            contentContainerStyle={[styles.placeListContainer, {paddingBottom: insets.bottom + 50}]}>
-                    {
-                        placesData.length > 0 ?
-                        (
-                            placesData.map((item, index) => (
-                                /* when a list item is pressed, move the map's camera to 
-                                   the marker representing the item that was just pressed */
-                                <TouchableOpacity key={index} 
-                                                  style={styles.placeItemContainer} 
-                                                  onPress={()=>{
-                                                    mapCamRef?.current?.easeTo({ center: [item.lon, item.lat], duration: 200});
-                                                  }}>
-                                    {/* the place's name */}
-                                    {
-                                        item.tags?.name ? 
-                                        (
-                                            <Text style={styles.placeNameTxt}>
-                                                {item.tags.name}
-                                            </Text>
-                                        ):
-                                        (
-                                            <Text style={styles.placeNameTxt}>
-                                                {t('usefulLocScreen.unnamed')}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's street */}
-                                    {
-                                        item.tags['addr:street'] && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.street')}: {item.tags['addr:street']}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's city */}
-                                    {
-                                        item.tags['addr:city'] && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.city')}: {item.tags['addr:city']}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's postcode */}
-                                    {
-                                        item.tags['addr:postcode'] && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.postcode')}: {item.tags['addr:postcode']}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's house number */}
-                                    {
-                                        item.tags['addr:housenumber'] && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.houseNumber')}: {item.tags['addr:housenumber']}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's elevation */}
-                                    {
-                                        item.tags?.ele && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.elevation')}: {item.tags.ele} {t('usefulLocScreen.mAboveSea')}
-                                            </Text>
-                                        )
-                                    }
-
-                                    {/* the place's description */}
-                                    {
-                                        item.tags?.description && (
-                                            <Text style={styles.placeDetailsTxt}>
-                                                {t('usefulLocScreen.description')}: {item.tags.description }
-                                            </Text>
-                                        )
-                                    }
-                                </TouchableOpacity>
+                        {
+                            placesData?.map((item, index)=>(
+                                <Marker key={index} 
+                                        testID='place-marker-on-map'
+                                        lngLat={[item.lon, item.lat]}
+                                        style={{backgroundColor: 'transparent', overflow: 'visible'}}>
+                                    <View style={styles.placeMarker}>
+                                        <Text style={styles.placeNamxTxtOnMarker}>
+                                            {item?.tags?.name ? item?.tags?.name : t('usefulLocScreen.unnamed')}
+                                        </Text>
+                                    </View>
+                                </Marker>
                             ))
+                        }
+
+                        {
+                            (pickedCoords?.latitude && pickedCoords?.longitude) && (
+                                <Marker testID='picked-loc-marker-on-map' 
+                                        lngLat={[pickedCoords?.longitude, pickedCoords?.latitude]}>
+                                    <View style={styles.pickedLocMarker}>
+                                        <Text style={styles.pickedLocTxtOnMarker}>
+                                            {t('usefulLocScreen.usedLoc')}
+                                        </Text>
+                                    </View>
+                                </Marker>
+                            )
+                        }
+
+                        {
+                            (currentLoc?.latitude && currentLoc?.longitude) && (
+                                <Marker lngLat={[currentLoc?.longitude, currentLoc?.latitude]}>
+                                    <View style={styles.currentLocMarker}>
+                                        <Text style={styles.currentLocMarkerTxt}>
+                                           {t('shared.you')}
+                                        </Text>
+                                    </View>
+                                </Marker>
+                            )
+                        }
+                    </Map>
+                ):
+                (
+                    <View style={styles.mapPlaceholder}>
+                        <Text>
+                            Map Placeholder
+                        </Text>
+                    </View>
+                )
+            }
+
+            <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom + 15}]}>
+                <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}
+                                  style={styles.hideShowMenuBtn}>
+                    <Text style={styles.hideShowMenuBtnTxt}>
+                        {
+                            shouldShowMenu == true ?
+                            t('usefulLocScreen.hideMenu'):
+                            t('usefulLocScreen.showMenu')
+                        }
+                    </Text>
+
+                    {
+                        shouldShowMenu == true ? 
+                        (
+                            <ChevronUp color={'#2D3782'} size={30} />
                         ):
-                        // if places data is empty, show text saying there is no search results
-                        placesData.length == 0 && (
-                            <Text style={styles.noResTxt}>
-                                {t('shared.noSearchRes')}
-                            </Text>
+                        (
+                           <ChevronDown color={'#2D3782'} size={30} />
                         )
                     }
-                </ScrollView>
+                </TouchableOpacity>
+
+                {
+                    shouldShowMenu == true ? (
+                        // the search menu
+                        <View style={styles.searchMenuContainer}>
+                            <Text style={styles.pickCategoryTxt}>
+                                {t('usefulLocScreen.pickACategory')}
+                            </Text>
+
+                            {/* section containing the category buttons */}
+                            <ScrollView horizontal={true} 
+                                        style={styles.categoryBtnsScrollView} 
+                                        contentContainerStyle={styles.categoryBtnsContainer}>
+                                {/* button for picking "Hospitals" category */}
+                                <TouchableOpacity style={[styles.categoryBtn, 
+                                                        pickedCategory.place == 'hospital' ? 
+                                                        styles.pickedCategoryBtnColor : 
+                                                        styles.unpickedCategoryBtnColor]}
+                                                  onPress={()=>{setPickedCategory({type: 'amenity', place: 'hospital'})}}>
+                                    <Text style={[styles.categoryBtnTxt, 
+                                                pickedCategory.place == 'hospital' ? 
+                                                styles.pickedCategoryBtnTxtColor : 
+                                                styles.unpickedCategoryBtnTxtColor]}>
+                                        {t('usefulLocScreen.hospitals')}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {/* button for picking "Peaks" category */}
+                                <TouchableOpacity style={[styles.categoryBtn, 
+                                                        pickedCategory.place == 'peak' ? 
+                                                        styles.pickedCategoryBtnColor : 
+                                                        styles.unpickedCategoryBtnColor]}
+                                                onPress={()=>{setPickedCategory({type: 'natural', place: 'peak'})}}>
+                                    <Text style={[styles.categoryBtnTxt, 
+                                                pickedCategory.place == 'peak' ? 
+                                                styles.pickedCategoryBtnTxtColor : 
+                                                styles.unpickedCategoryBtnTxtColor]}>
+                                        {t('usefulLocScreen.peaks')}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                {/* button for picking "Assembly Points" category */}
+                                <TouchableOpacity style={[styles.categoryBtn, 
+                                                        pickedCategory.place == 'assembly_point' ? 
+                                                        styles.pickedCategoryBtnColor : 
+                                                        styles.unpickedCategoryBtnColor]}
+                                                onPress={()=>{setPickedCategory({type: 'emergency', place: 'assembly_point'})}}>
+                                    <Text style={[styles.categoryBtnTxt, 
+                                                pickedCategory.place == 'assembly_point' ? 
+                                                styles.pickedCategoryBtnTxtColor : 
+                                                styles.unpickedCategoryBtnTxtColor]}>
+                                        {t('usefulLocScreen.assemblyPoints')}
+                                    </Text>
+                                </TouchableOpacity>
+                            </ScrollView>
+
+                            {/* section for picking location to view places around */}
+                            <View style={styles.locationPickingSection}>
+                                {/* switch for using current's coordinates 
+                                    and the explanation text */}
+                                <View style={styles.useCurrentLocToggleContainer}>
+                                    <Text style={styles.usingCurrentLocStatusTxt}>
+                                        {
+                                            isUsingCurrentLoc == true ? 
+                                            t('usefulLocScreen.usingCurrentLoc'):
+                                            t('usefulLocScreen.useCurrentLoc')
+                                        }
+                                    </Text>
+
+                                    {/* switch for using current coordinates,
+                                        can't be switch off but can be switched on */}
+                                    <Switch trackColor={{false: '#767577', true: '#9ec110'}}
+                                            thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
+                                            onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
+                                            value={isUsingCurrentLoc}
+                                            disabled={isUsingCurrentLoc == false ? false : true} />
+                                </View>
+
+                                {/* location picker, can be pressed to view picker modal */}
+                                <View style={styles.locationSearchContainer}>
+                                    {/* location picker, shows picker modal when pressed */}
+                                    <TouchableOpacity style={styles.locationPickerBtn}
+                                                    onPress={()=>{setShouldShowLocPickerModal(true)}}>
+                                        {/* text inside the location picker button, 
+                                            if a location was picked, show the area's name,
+                                            otherwise show text saying 'Pick another location'  */}
+                                        <Text style={styles.locationPickerTxt}>
+                                            {
+                                                (pickedCoords?.adm3_name && pickedCoords.adm2_name) ?
+                                                `${pickedCoords?.adm3_name}, ${pickedCoords.adm2_name}` : 
+                                                t('usefulLocScreen.pickAnotherLoc')
+                                            }
+                                        </Text>
+
+                                        {/* 'dropdown' icon */}
+                                        <ChevronDown color={'#2D3782'} size={30} />
+                                    </TouchableOpacity>       
+                                </View>
+                            </View>
+                            
+                            {/* button to start search */}
+                            <TouchableOpacity onPress={()=>{setShouldSearch(true)}} style={styles.searchBtn}>
+                                <Text style={styles.searchBtnTxt}>
+                                    {t('shared.search')}
+                                </Text>
+                            </TouchableOpacity> 
+                        </View>
+                    ):
+                    (
+                        <ScrollView style={styles.placesListScrollView} 
+                                    contentContainerStyle={styles.placeListContainer}
+                                    refreshControl={<RefreshControl refreshing={refreshing} 
+                                                                    onRefresh={onRefresh}
+                                                                    colors={['#2D3782']}
+                                                                    progressBackgroundColor='#9ec110'/>}>
+                            {/* coordinates text */}
+                            <Text style={styles.latLongTxt}>
+                                {t('usefulLocScreen.latitude')}: {currentLoc?.latitude ? currentLoc?.latitude : t('shared.unavailable')}
+                                {' | '} 
+                                {t('usefulLocScreen.longitude')}: {currentLoc?.longitude ? currentLoc?.longitude : t('shared.unavailable')}
+                            </Text>
+
+                            {/* data attribution text */}
+                            {
+                                placesData.length > 0 && (
+                                    <Text style={styles.dataAttributionTxt}>
+                                        {t('usefulLocScreen.attributionSentenceStart')}
+                                        {' '}
+                                        <Text onPress={() => {Linking.openURL('https://openstreetmap.org/copyright')}}
+                                            accessibilityRole='link'
+                                            style={styles.osmLinkTxt}>
+                                            OpenStreetMap
+                                        </Text>
+                                    </Text>
+                                )
+                            }
+
+                            {/* places list */}
+                            {
+                                placesData.length > 0 ?
+                                placesData.map((item, index) => (
+                                    /* when a list item is pressed, move the map's camera to 
+                                    the marker representing the item that was just pressed */
+                                    <TouchableOpacity key={index} 
+                                                    style={styles.placeItemContainer} 
+                                                    onPress={()=>{
+                                                        mapCamRef?.current?.easeTo({ center: [item.lon, item.lat], duration: 200});
+                                                    }}>
+                                        {/* the place's name */}
+                                        {
+                                            item.tags?.name ? 
+                                            (
+                                                <Text style={styles.placeNameTxt}>
+                                                    {item.tags.name}
+                                                </Text>
+                                            ):
+                                            (
+                                                <Text style={styles.placeNameTxt}>
+                                                    {t('usefulLocScreen.unnamed')}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's street */}
+                                        {
+                                            item.tags['addr:street'] && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.street')}: {item.tags['addr:street']}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's city */}
+                                        {
+                                            item.tags['addr:city'] && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.city')}: {item.tags['addr:city']}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's postcode */}
+                                        {
+                                            item.tags['addr:postcode'] && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.postcode')}: {item.tags['addr:postcode']}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's house number */}
+                                        {
+                                            item.tags['addr:housenumber'] && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.houseNumber')}: {item.tags['addr:housenumber']}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's elevation */}
+                                        {
+                                            item.tags?.ele && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.elevation')}: {item.tags.ele} {t('usefulLocScreen.mAboveSea')}
+                                                </Text>
+                                            )
+                                        }
+
+                                        {/* the place's description */}
+                                        {
+                                            item.tags?.description && (
+                                                <Text style={styles.placeDetailsTxt}>
+                                                    {t('usefulLocScreen.description')}: {item.tags.description }
+                                                </Text>
+                                            )
+                                        }
+                                    </TouchableOpacity> 
+                                )):
+                                (
+                                    // if there are no places to show, inform user using text
+                                    <View style={styles.noPlacesContainer}>
+                                        <Text style={styles.noPlacesToShowTxt}>
+                                            {t('usefulLocScreen.noPlacesToShow')}
+                                        </Text>
+                                    </View>
+                                )
+                            }
+                        </ScrollView>
+                    )
+                }
             </View>
 
             {/* loading overlay shown only when isLoading is true */}
@@ -431,7 +601,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        backgroundColor: 'white'
+        backgroundColor: 'red'
     },
     // container of content below the map
     contentBelowMapContainer: {
@@ -440,8 +610,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        paddingHorizontal: 20,
+        justifyContent: 'flex-start',
         backgroundColor: 'white'
     },
     /* container of the buttons for 
@@ -454,7 +623,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        columnGap: 30
+        columnGap: 30,
+        paddingVertical: 15
     },
     // button color for picked category
     pickedCategoryBtnColor: {
@@ -489,23 +659,23 @@ const styles = StyleSheet.create({
     /* horizontal scroll view for
        showing buttons for picking a category */
     categoryBtnsScrollView: {
-       height: 100,
        flexGrow: 0,
        width: '100%'
     },
     /* vertical scroll view for 
        showing list of places */
-    placesListScrollView: {
-        flex: 1,
-        width: '100%'
+    placesListScrollView:{
+        width: '100%', 
+        backgroundColor: 'white'
     },
     /* content container for the scroll view 
        containing the list of places */
     placeListContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        rowGap: 20,
-        justifyContent: 'center'
+        display: 'flex', 
+        flexDirection: 'column', 
+        width: '100%', 
+        rowGap: 20, 
+        padding: 20
     },
     /* container of each place shown 
        in the list of plcaes */
@@ -648,12 +818,126 @@ const styles = StyleSheet.create({
     dataAttributionTxt: {
         fontSize: 16,
         color: '#2D3782',
-        marginTop: 5
+        marginTop: 5,
+        textAlign: 'center'
     },
     // the text link to OpenStreetMap's copyright page
     osmLinkTxt: {
         fontSize: 16,
         textDecorationLine: 'underline',
         color: 'dodgerblue'
+    },
+    // the map
+    map: {
+        width: '100%', 
+        height: 230
+    },
+    // placeholder of map
+    mapPlaceholder: {
+        width: '100%',
+        height: 230,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    // marker for user's current location (subscribed)
+    currentLocMarker: {
+        width: 50, 
+        height: 50, 
+        backgroundColor: '#AB5C82', 
+        borderRadius: 25, 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        elevation: 2,
+        borderWidth: 3,
+        borderColor: '#2D3782'
+    },
+    // text inside user's current location marker
+    currentLocMarkerTxt: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600'
+    },
+    // button to start search
+    searchBtn: {
+        backgroundColor: '#2D3782',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        zIndex: 15,
+        borderRadius: 20,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    // text inside search button
+    searchBtnTxt: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+    // button to show/hide the search menu
+    hideShowMenuBtn: {
+        backgroundColor: '#9ec110',
+        width: '100%',
+        paddingVertical: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 3,
+        columnGap: 5,
+        flexDirection: 'row'
+    },
+    // text inside button to show/hide search menu
+    hideShowMenuBtnTxt: {
+        color: '#2D3782',
+        fontSize: 17,
+        fontWeight: '600'
+    },
+    // text saying if there is no place to list
+    noPlacesToShowTxt: {
+        color: '#2D3782',
+        fontSize: 17,
+        textAlign: 'center'
+    },
+    // latitude and longitude text
+    latLongTxt: {
+        color: '#2D3782',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+    /* container of the content for when 
+       there is no places to show */
+    noPlacesContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20
+    },
+    // text saying 'Please pick a category'
+    pickCategoryTxt: {
+        fontSize: 17,
+        color: '#2D3782'
+    },
+    // container of the search menu
+    searchMenuContainer: {
+        width: '100%', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        paddingBottom: 30, 
+        paddingHorizontal: 20, 
+        borderBottomWidth: 3, 
+        borderLeftWidth: 3, 
+        borderRightWidth: 3, 
+        borderColor: '#2D3782', 
+        borderBottomLeftRadius: 30, 
+        borderBottomRightRadius: 30, 
+        paddingTop: 10
     }
 });

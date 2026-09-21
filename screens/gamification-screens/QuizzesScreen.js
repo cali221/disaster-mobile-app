@@ -396,7 +396,9 @@ const styles = StyleSheet.create({
        option button on quiz menu */
     categoryBtnTxt: {
         color: 'white',
-        fontWeight: '600'
+        fontWeight: '600',
+        fontSize: 17,
+        textAlign: 'center'
     },
     // text saying 'Please pick a category
     pickCategoryTxt: {
@@ -435,7 +437,7 @@ const styles = StyleSheet.create({
     },
     // text on ongoing quiz heading
     quizHeadingTxt: {
-        fontSize: 15,
+        fontSize: 17,
         color: '#2D3782',
         textAlign: 'center',
         fontWeight: '600'
@@ -449,7 +451,7 @@ const styles = StyleSheet.create({
     },
     // text showing question
     questionTxt: {
-        fontSize: 17,
+        fontSize: 18,
         color: '#2D3782',
         fontWeight: '600',
         textAlign: 'center'
@@ -468,7 +470,7 @@ const styles = StyleSheet.create({
     // text inside answer button
     answerBtnTxt: {
         color: 'white',
-        fontSize: 17,
+        fontSize: 18,
         fontWeight: '600',
         textAlign: 'center'
     },

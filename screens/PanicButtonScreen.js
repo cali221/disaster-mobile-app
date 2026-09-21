@@ -143,8 +143,7 @@ export function PanicButtonScreen() {
     return(
         <View style={styles.screenContainer}>
             <ScrollView contentContainerStyle={[styles.scrollViewContentContainer, 
-                                               {paddingBottom: insets.bottom + 30, 
-                                                paddingTop: insets.top + 30, 
+                                               {paddingBottom: insets.bottom + 35, 
                                                 paddingLeft: insets.left, 
                                                 paddingRight: insets.right}]}
                         style={styles.scrollContainer}>
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         display: 'flex',
-        flexDirection: 'column',
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -224,7 +223,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        rowGap: 25
+        rowGap: 20,
+        flex: 1
     },
     // the scroll container of screen content
     scrollContainer: {
@@ -253,9 +253,8 @@ const styles = StyleSheet.create({
        contacts and the button to call 112 */
     contactBtns: {
         backgroundColor: '#2D3782',
-        padding: 7,
+        padding: 8,
         width: '70%',
-        minHeight: (Dimensions.get('window').height * 0.07),
         maxWidth: 350,
         display: 'flex',
         justifyContent: 'center',

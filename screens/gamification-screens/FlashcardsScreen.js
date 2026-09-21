@@ -193,11 +193,6 @@ export function FlashcardsScreen({navigation}) {
         fetchAndSetProfileData(user.id);
         
         setIsLoading(false);
-
-        // when returning pause music
-        return () => {
-            bgMusicPlayer.pause();
-        }
     }, []);
 
     useEffect(()=>{

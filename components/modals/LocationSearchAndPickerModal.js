@@ -164,7 +164,8 @@ const styles = StyleSheet.create({
     },
     // explanation text about searching
     searchExplanationTxt: {
-        color: '#2D3782'
+        color: '#2D3782',
+        fontSize: 16
     },
     // location input section container
     locationInputSection: {

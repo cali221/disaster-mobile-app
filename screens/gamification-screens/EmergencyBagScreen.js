@@ -132,7 +132,7 @@ export function EmergencyBagScreen() {
                                                                   t('emergencyBagScreen.untickCheckboxAccLabel')}>
                                 {
                                     item.is_checked == true && (
-                                        <Check color='white' />
+                                        <Check color='#2D3782' strokeWidth={5} />
                                     )
                                 }
                             </TouchableOpacity>
@@ -191,15 +191,20 @@ const styles = StyleSheet.create({
         columnGap: 20,
         paddingHorizontal: 20,
         paddingVertical: 15,
-        backgroundColor: '#D2DAE4',
+        backgroundColor: '#AB5C82',
         borderRadius: 20,
         elevation: 2,
-        width: '100%'
+        width: '100%',
+        borderWidth: 3,
+        borderColor: '#2D3782',
+        elevation: 2
     },
     // explanation text about XP and checklist
     xpExplanationTxt: {
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 16,
+        textAlign: 'center',
+        fontWeight: '600'
     },
     // the 'checkbox' cicles
     checkboxCircle: {
@@ -210,12 +215,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 5,
-        backgroundColor: '#2D3782'
+        backgroundColor: 'white',
+        borderWidth: 3,
+        borderColor: '#2D3782',
     },
     // the text showing item names in the list
     itemNameTxt: {
-        color: '#2D3782',
-        fontSize: 16,
+        color: 'white',
+        fontSize: 18,
         fontWeight: '600',
         display: 'flex',
         flexWrap: 'wrap',

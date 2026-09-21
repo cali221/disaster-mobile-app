@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 //import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
@@ -20,8 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
 import { BottomModalBase } from '../components/modals-base/BottomModalBase';
-
-import { osm, inlineSources } from '@versatiles/style';
+import { getStyle } from '../utils/get-map-style';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
@@ -65,32 +64,14 @@ export function HomeScreen({ navigation }) {
       console.log(response);
     });
 
-    const getStyle = async() => {
-      const style = await inlineSources(osm({
-        features: {
-          landcover: true
-        },
-        urls: {
-          base: "https://tiles.versatiles.org"
-        }
-      }));
-
-      setMapStyle(style);
-    };
-
-    getStyle();
+    // get map style
+    getStyle().then((style)=>{setMapStyle(style)});
     
     return () => {
       notificationListener.remove();
       responseListener.remove();
     };
   }, []);
-
-
-  // TODO: handle overlapping markers (do it for all maps, implement using a utility function)
-  // possible approach: find coordinate duplicates, offset coordinates to cluster around the actual coordinates
-  // useEffect(()=>{
-  // }, [disastersLast24h])
 
   useEffect(()=>{
     // function to get recent disasters (last 24 hours) around user's watched areas
@@ -185,7 +166,7 @@ export function HomeScreen({ navigation }) {
   return(
     <View style={[styles.homescreenContainer, { paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
-      {/* button to hide/show map */}
+        {/* button to hide/show map */}
         <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
                           style={styles.toggleShowMapBtn}>
             {
@@ -213,30 +194,36 @@ export function HomeScreen({ navigation }) {
 
         {
           shouldShowMap == true && (
-            <View>
+            <View style={styles.mapAndExperiecedDisasterBtnContainer}>
+              <TouchableOpacity style={styles.experiencedDisasterBtn}
+                                onPress={()=>{navigation.navigate('Report Menu')}}>
+                <Text style={styles.experiencedDisasterBtnTxt}>
+                  {t('homeScreen.experiencedDisasterBtnTxt')}
+                </Text>
+              </TouchableOpacity>
+
               {
                   mapStyle ? 
                   (
-                  <View></View>
-                  //   <Map style={styles.disasterMap} 
-                  //        mapStyle={mapStyle}
-                  //        compassPosition={{top: 20, left: 20}}>
-                  //     <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
-                  //     {
-                  //       (disastersLast24h?.map((disaster, index) => (
-                  //         <Marker key={index} 
-                  //                 testID='marker-on-map'
-                  //                 lngLat={[disaster['longitude'], disaster['latitude']]} 
-                  //                 onPress={()=>{navigation.navigate('Disaster Details',
-                  //                                                   {disasterId: disaster['id']}
-                  //                 )}}
-                  //                 accessibilityRole='button'
-                  //                 accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
-                  //           <MapDisasterLegend disasterType={disaster['disaster_type']} />           
-                  //         </Marker>
-                  //       )))
-                  //     }
-                  // </Map> 
+                    <Map style={styles.disasterMap} 
+                         mapStyle={mapStyle}
+                         compassPosition={{top: 20, left: 20}}>
+                      <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
+                      {
+                        (disastersLast24h?.map((disaster, index) => (
+                          <Marker key={index} 
+                                  testID='marker-on-map'
+                                  lngLat={[disaster['longitude'], disaster['latitude']]} 
+                                  onPress={()=>{navigation.navigate('Disaster Details',
+                                                                    {disasterId: disaster['id']}
+                                  )}}
+                                  accessibilityRole='button'
+                                  accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
+                            <MapDisasterLegend disasterType={disaster['disaster_type']} />           
+                          </Marker>
+                        )))
+                      }
+                  </Map> 
                 ):
                 (
                   <View style={{ width: '100%', height: 250, backgroundColor: 'white', borderWidth: 1}}> 
@@ -387,11 +374,6 @@ export function HomeScreen({ navigation }) {
             {/* the section heading */}
             <Text style={styles.sectionHeadingTxt}>
               {t('homeScreen.gamificationHeaderTxt')}
-            </Text>
-
-            {/* explanation text about the features */}
-            <Text style={styles.sectionExplanationTxt}>
-             {t('homeScreen.gamificationSectionExplanationTxt')}
             </Text>
 
             {/* container of the buttons */}
@@ -594,7 +576,7 @@ const styles = StyleSheet.create({
   // map showing disasters 
   disasterMap: {
     width: '100%',
-    height: 200
+    height:  270
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
@@ -621,7 +603,8 @@ const styles = StyleSheet.create({
   mapExplanationTxt: {
     textAlign: 'center',
     color: '#2D3782',
-    fontWeight: '500'
+    fontWeight: '500',
+    fontSize: 16
   },
   /* scroll view for showing a list of disaster summaries 
      of recent disasters near user's watched area */
@@ -685,7 +668,8 @@ const styles = StyleSheet.create({
      disasters near user's watched area  */
   disasterSummaryDetailsBtnTxt: {
     color: '#FFFFFF',
-    fontWeight: '600'
+    fontWeight: '600',
+    fontSize: 16
   },
   // the section heading texts 
   sectionHeadingTxt: {
@@ -695,20 +679,21 @@ const styles = StyleSheet.create({
   },
   // button for editing areas watchlist 
   editWatchlistBtn: {
-    backgroundColor: '#2D3782',
+    backgroundColor: '#AB5C82',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 30
+    borderRadius: 30,
+    elevation: 3
   },
   // text inside button to edit areas watchlist
   editWatchlistBtnTxt: {
-    color: '#FFFFFF',
+    color: 'white',
     fontWeight: '600',
-    fontSize: 16
+    fontSize: 17
   },
   /* non-scrollable sections on the screen */
   homescreenContentSectionsNonScroll: {
@@ -792,7 +777,8 @@ const styles = StyleSheet.create({
   // container of map and explanation text
   mapAndExplanationContainer: {
       width: '100%',
-      paddingBottom: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 15,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -829,4 +815,10 @@ const styles = StyleSheet.create({
       color: '#2D3782',
       fontWeight: '600'
   },
+  mapAndExperiecedDisasterBtnContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    width: '100%'
+  }
 });
