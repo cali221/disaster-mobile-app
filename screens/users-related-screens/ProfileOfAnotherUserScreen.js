@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     // the text inside the following/followers buttons
     followingFollowersBtnsTxt: {
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     },
     // follow/unfollow button

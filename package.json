@@ -25,6 +25,7 @@
     "@supabase/supabase-js": "^2.108.2",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
+    "@versatiles/style": "^6.0.1",
     "expo": "~54.0.37",
     "expo-asset": "~12.0.13",
     "expo-audio": "~1.1.1",

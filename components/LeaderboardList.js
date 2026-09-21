@@ -55,9 +55,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         minHeight: 100,
         marginTop: 15,
-        maxHeight: 500,
-        width: '100%',
-        flexGrow: 0
+        maxHeight: 350,
+        width: '100%'
     },
     // the list showing the leaderboard
     leaderboardListContentContainer: {
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
     },
     // XP texts inside the leaderboard
     leaderboardXpTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     }
 });

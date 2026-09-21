@@ -23,6 +23,7 @@ import { LeaderboardList } from '../components/LeaderboardList';
 import { LevelXpOverviewSection } from '../components/levelXpOverviewSection';
 import { BadgesHorizontalScrollContainer } from '../components/BadgesHorizontalScrollContainer';
 import { BadgeDetailsModal } from '../components/modals/BadgeDetailsModal';
+import { LanguageContext } from '../contexts/LanguageContext';
 
 export function ProfileScreen({ navigation }) {
     const { t, i18n } = useTranslation();
@@ -35,14 +36,13 @@ export function ProfileScreen({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [shouldShowBadgeModal, setShouldShowBadgeModal] = useState(false);
     const [shouldShowAddContactModal, setShouldShowAddContactModal] = useState(false);
-    const [currentLang, setCurrentLang] = useState(i18n.resolvedLanguage);
     const [leaderboardTop3, setLeaderboardTop3] = useState([]);
     const [badgeModalData, setBadgeModalData] = useState(null);
     const [trustedContacts, setTrustedContacts] = useState([]);
     const [newContactPhoneNum, setNewContactPhoneNum] = useState('');
     const [newContactName, setNewContactName] = useState('');
     const [refreshing, setRefreshing] = useState(false);
-
+    const { currentLang, handleLangChange } = useContext(LanguageContext);
     const insets = useSafeAreaInsets();
 
     // function to handle showing badge modal
@@ -67,22 +67,6 @@ export function ProfileScreen({ navigation }) {
         setNewContactPhoneNum('');
     }
 
-    // handle language change
-    const handleLangChange = (langCode) => {
-        try{
-            if(langCode != 'en' && langCode != 'id'){
-                throw new Error(`${t('profileScreen.unrecognizedLangCodeError')}`)
-            }
-
-            i18n.changeLanguage(langCode);
-            setCurrentLang(langCode);
-        }
-        catch(error){
-            showErrorToast(t('profileScreen.failedToChangeLang'), 
-                           `${error.message ?? JSON.stringify(error)}`);
-        }  
-    };
-
     // handle signing out
     const handleSignOut = async () => {
         setIsLoading(true);
@@ -96,6 +80,16 @@ export function ProfileScreen({ navigation }) {
         }
 
         setIsLoading(false);
+    };
+
+    const changeLang = (langCode) => {
+        try{
+            handleLangChange(langCode);
+        }
+        catch(error){
+            showErrorToast(t('shared.failedToChangeLang'), 
+                           `${error.message ?? JSON.stringify(error)}`);
+        }
     };
 
     // handle getting leaderboard
@@ -456,7 +450,7 @@ export function ProfileScreen({ navigation }) {
                         {
                             currentLang == 'en' ? 
                             (
-                                <TouchableOpacity onPress={()=>{handleLangChange('id')}}
+                                <TouchableOpacity onPress={()=>{changeLang('id')}}
                                                   accessibilityRole='button'
                                                   style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
@@ -467,7 +461,7 @@ export function ProfileScreen({ navigation }) {
                             ):
                             currentLang == 'id' &&
                             (
-                                <TouchableOpacity onPress={()=>{handleLangChange('en')}}
+                                <TouchableOpacity onPress={()=>{changeLang('en')}}
                                                   accessibilityRole='button'
                                                   style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
@@ -562,11 +556,11 @@ export function ProfileScreen({ navigation }) {
                 )
             }
 
-         {
-            isLoading == true && (
-                <LoadingOverlay />
-            )
-        }
+            {
+                isLoading == true && (
+                    <LoadingOverlay />
+                )
+            }
         </View>
     )
 };
@@ -608,7 +602,8 @@ const styles = StyleSheet.create({
     // keep practicing explanation text
     keepPracticingTxt: {
         textAlign: 'center',
-        color: '#535353'
+        color: '#2D3782',
+        fontSize: 16
     },
     // the username text
     usernameTxt: {
@@ -638,7 +633,7 @@ const styles = StyleSheet.create({
     // the text inside the following/followers buttons
     followingFollowersBtnsTxt: {
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     },
     /* container of the buttons at the bottom of the screen
@@ -680,11 +675,11 @@ const styles = StyleSheet.create({
     },
     // color of the sign out button
     signOutBtnColor: {
-        backgroundColor: '#D2DAE4',
+        backgroundColor: '#AB5C82'
     },
     // color of the text inside the sign out button
     signOutBtnTxtColor: {
-        color: '#2D3782'
+        color: 'white'
     },
     // color of the button to go to the account settings screen
     accountSettingsBtnColor: {
@@ -717,7 +712,7 @@ const styles = StyleSheet.create({
     },
     // heading texts of the sections on the screen
     headingTxts: {
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '600',
         color: '#2D3782'
     },
@@ -769,14 +764,14 @@ const styles = StyleSheet.create({
     nextLevelTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         width: '100%',
         textAlign: 'center'
     },
     // the XP ratio text under the progress bar
     xpRatioTxt: {
         color: '#2D3782',
-        fontSize: 15
+        fontSize: 16
     },
     // container of the leaderboard section
     leaderboardSection: {
@@ -802,7 +797,7 @@ const styles = StyleSheet.create({
     },
     // view all text in leaderboard section
     viewAllTxt: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600',
         color: '#2D3782'
     },
@@ -925,7 +920,7 @@ const styles = StyleSheet.create({
     // contact number text in the trusted contacts list
     trustedContactNumTxt: {
         color: '#2D3782',
-        fontSize: 15
+        fontSize: 16
     },
     // button to remove trusted contact
     trustedContactRemoveBtn: {
@@ -938,7 +933,7 @@ const styles = StyleSheet.create({
     // text inside the button to remove trusted contact
     trustedContactRemoveBtnTxt: {
         color: '#2D3782',
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600' 
     }
 });

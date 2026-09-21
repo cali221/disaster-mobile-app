@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     // text inside the button to select the recent disaster
     selectBtnTxt: {
         color:'white',
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600'
     },
     // container of the texts for the disaster item

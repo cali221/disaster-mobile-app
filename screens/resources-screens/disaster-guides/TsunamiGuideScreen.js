@@ -12,6 +12,7 @@ export function TsunamiGuideScreen() {
                           'tsunamiGuide.before.fishAtBeach',
                           'tsunamiGuide.before.roarFromOcean',
                           'tsunamiGuide.before.tsunamiWarningFromBMKG']}, 
+
                  {heading: 'tsunamiGuide.before.whatToDoBeforeATsunami', 
                   subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
                   sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 
@@ -23,6 +24,7 @@ export function TsunamiGuideScreen() {
                           'tsunamiGuide.before.knowRisk',
                           'tsunamiGuide.before.evacuateToHigherGroundAfterBigEarthquake',
                           'tsunamiGuide.before.getAwayFromShore']}],
+
         during: [{heading: 'tsunamiGuide.during.whatToDoIfYouReceiveTsunamiWarning', 
                   subheading: 'tsunamiGuide.during.sourceSubheading',
                   sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 
@@ -37,6 +39,7 @@ export function TsunamiGuideScreen() {
                           'tsunamiGuide.during.stayInformed',
                           'tsunamiGuide.during.ifEvacuatingUsingVehicle',
                           'tsunamiGuide.during.ifOnShipOrBoat']}],
+                          
         after: [{heading: 'tsunamiGuide.after.whatToAvoidAfterTsunami', 
                  subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
                  sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 

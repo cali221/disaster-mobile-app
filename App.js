@@ -1,12 +1,13 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Text } from 'react-native';
-import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { House, UserRound, Bell, FileText, Siren, VolumeOffIcon, Volume2 } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AuthProvider from './contexts/AuthContext';
+import LanguageProvider from './contexts/LanguageContext';
 import { useContext } from 'react'; 
 import { AuthContext } from './contexts/AuthContext';
 
@@ -50,6 +51,10 @@ import { ReportFormScreen } from './screens/crowdsourced-reports-screens/ReportF
 import { QuizzesScreen } from './screens/gamification-screens/QuizzesScreen';
 import { FlashcardsScreen } from './screens/gamification-screens/FlashcardsScreen';
 import { EmergencyBagScreen } from './screens/gamification-screens/EmergencyBagScreen';
+
+// header button components imports
+import { LanguageChangeButton } from './components/LanguageChangeButton';
+import { MuteUnmuteButton } from './components/MuteUnmuteButton';
 
 const Stack = createStackNavigator();
 
@@ -97,14 +102,11 @@ const toastConfig = {
   )
 };
 
-// NOTE: translation in screen titles is intentionally only given for some screens 
-// for now since English words are anticipated to be more familiar digitally
-// for the features compared to the Indonesian translation
-
 // stack of screens for home screen
 function homeScreenStack(){
   const { t, i18n } = useTranslation();
   const { user } = useContext(AuthContext);
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: true,     
                                       headerStyle: {
@@ -113,14 +115,18 @@ function homeScreenStack(){
                                       headerTintColor: '#ffffff',
                                       headerTitleStyle: {
                                           fontWeight: 'bold',
-                                      } 
+                                      },
+                                      headerRight: () => (
+                                        <LanguageChangeButton />
+                                      ), 
                                       }}>
 
         {user ? 
           (
             <>
               <Stack.Screen name='Home' 
-                            component={HomeScreen} />
+                            component={HomeScreen}
+                            options={{title: t('screenTitles.home')}} />
                         
               <Stack.Screen name='Disaster Details'
                             component={DisasterDetailsScreen}
@@ -179,12 +185,17 @@ function profileScreenStack(){
                                       headerTintColor: '#ffffff',
                                       headerTitleStyle: {
                                           fontWeight: 'bold',
-                                      } 
+                                      },
+                                      headerRight: () => (
+                                        <LanguageChangeButton />
+                                      )
                                     }}>
         {user ? 
           (
             <>
-              <Stack.Screen name='Profile' component={ProfileScreen} />
+              <Stack.Screen name='Profile' 
+                            component={ProfileScreen} 
+                            options={{title: t('screenTitles.profile')}} />
 
               {/* handle screen titles in Profile screen based on route.params */}
               <Stack.Screen name='Profile of Another User' 
@@ -238,7 +249,10 @@ function panicButtonScreenStack(){
                                       headerTintColor: '#ffffff',
                                       headerTitleStyle: {
                                           fontWeight: 'bold',
-                                      } 
+                                      },
+                                      headerRight: () => (
+                                        <LanguageChangeButton />
+                                      ) 
                                     }}>
         <Stack.Screen name='Panic Button' component={PanicButtonScreen} />
     </Stack.Navigator>
@@ -258,13 +272,21 @@ function notificationScreenStack(){
                                       headerTintColor: '#ffffff',
                                       headerTitleStyle: {
                                           fontWeight: 'bold',
-                                      } 
+                                      },
+                                      headerRight: () => (
+                                        <LanguageChangeButton />
+                                      ) 
                                    }}>
         {user ? 
           (
             <>
-              <Stack.Screen name='Notifications' component={NotificationsScreen} />
+              <Stack.Screen name='Notifications' 
+                            component={NotificationsScreen} 
+                            options={{title: t('screenTitles.notifications')}} />
               <Stack.Screen name='Disaster Details' component={DisasterDetailsScreen} />
+              <Stack.Screen name='Report Form'
+                            component={ReportFormScreen}
+                            options={{title: t('screenTitles.reportFormScreenTitle')}} />
             </>
           ):
           (
@@ -294,7 +316,10 @@ function resourceHubScreenStack(){
                                       headerTintColor: '#ffffff',
                                       headerTitleStyle: {
                                           fontWeight: 'bold',
-                                      } 
+                                      },
+                                      headerRight: () => (
+                                        <LanguageChangeButton />
+                                      ) 
                                    }}>
         <Stack.Screen name='Resource Hub' 
                       component={ResourceHubScreen} />
@@ -432,10 +457,12 @@ export const Navigation = createStaticNavigation(bottomNavigationTabs);
 export default function App() {
   return(
     <SafeAreaProvider>
-      <AuthProvider>
-        <Navigation />
-        <Toast config={toastConfig} />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+            <Navigation />
+            <Toast config={toastConfig} />
+        </AuthProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   )
 }

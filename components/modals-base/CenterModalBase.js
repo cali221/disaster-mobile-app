@@ -11,7 +11,7 @@ export function CenterModalBase(props) {
         <View style={[styles.modalOverlay, {paddingTop: insets.top, 
                                             paddingLeft: insets.left, 
                                             paddingRight: insets.right,
-                                            paddingBottom: insets.bottom}]}>
+                                            paddingBottom: insets.bottom + 30}]}>
             {/* the base of the modal */}
             <View style={[styles.modalBase, {height: props?.modalHeight ? props.modalHeight : 'auto'}]}>
                 {/* the modal header with title and close button */}
@@ -64,11 +64,11 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         paddingHorizontal: 30,
         paddingTop: 35,
-        paddingBottom: 50,
+        paddingBottom: 30,
         backgroundColor: 'white',
         elevation: 2,
-        maxWidth: (Dimensions.get('window').width) - 50,
-        maxHeight: (Dimensions.get('window').height) - 50
+        maxWidth: 350,
+        maxHeight: 350
     },
     // the modal header with title and close button
     modalHeader: {
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     },
     // the 'Close' text of the close button
     closeBtnTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782',
         fontWeight: '600'
     },

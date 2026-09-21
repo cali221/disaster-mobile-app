@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, { createContext, useState, useEffect, useCallback, useMemo, useContext } from "react";
 import { supabase } from '../lib/supabase';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerForPushNotificationsAsync } from "../utils/register-for-notifications";
@@ -6,16 +6,21 @@ import { getUserProfileData,
          getTrustedContacts } from "../utils/users-utilities";
 import { useTranslation } from 'react-i18next';
 import * as Notifications from 'expo-notifications';
+import { LanguageContext } from "./LanguageContext";
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const { t, i18n } = useTranslation();
+
   // authenticated user 
   const [user, setUser] = useState(null);
 
   // profile data of the authenticated user
   const [userProfile, setUserProfile] = useState(null);
+
+  // function to handle language change
+  const { handleLangChange } = useContext(LanguageContext);
 
   // function to update user state
   const setLoggedInUser = useCallback((loggedInUser) => {
@@ -88,7 +93,7 @@ const AuthProvider = ({ children }) => {
     }
 
     // reset language to English (also changes language in AsyncStorage)
-    i18n.changeLanguage('en');
+    handleLangChange('en');
 
     // sign out
     const { error } = await supabase.auth.signOut();
@@ -164,21 +169,6 @@ const AuthProvider = ({ children }) => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(event);
       setLoggedInUser(session?.user);
-    
-      // No need to fetch after auth state change, only fetch on screen where it's needed(?)
-      // if(event !== 'SIGNED_OUT' && session?.user?.id){
-      //   try{
-      //     fetchAndSetProfileData(session.user.id);
-      //   }
-      //   catch(error){
-      //     console.error(error)
-      //     setLoggedInUserProfile(null);
-      //   }
-      // }
-      // else{
-      //   setUser(null);
-      //   setLoggedInUserProfile(null);
-      // }
     });
   }, []);
 

@@ -8,9 +8,18 @@ import { UserProfilePicture } from '../../components/UserProfilePicture';
 import { showErrorToast } from '../../utils/show-toast';
 import { getCardUpdatedValsUsingSM2 } from '../../utils/flashcards-utilities';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
+import { useAudioPlayer } from 'expo-audio';
+import { useIsFocused } from '@react-navigation/native';
+import { MuteUnmuteButton } from '../../components/MuteUnmuteButton';
+import { LanguageChangeButton } from '../../components/LanguageChangeButton';
 
-export function FlashcardsScreen() {
+const bgMusic = require('../../assets/audio/bg-song/442911__scicodedev__calm_happy_rpgtownbackground.mp3');
+const bonkSound = require('../../assets/audio/bonk/466202__harrisando__bonk.wav');
+const powerupSound = require('../../assets/audio/powerup/242501__gabrielaraujo__powerupsuccess.wav');
+
+export function FlashcardsScreen({navigation}) {
     const insets = useSafeAreaInsets();
+    const isFocused = useIsFocused();
     const { user, userProfile, fetchAndSetProfileData } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
     const [ isShowingAns, setIsShowingAns ]= useState(false);
@@ -18,6 +27,22 @@ export function FlashcardsScreen() {
     const flashcardEaseValRangeArr = [...Array(5 + 1).keys()];
     const currentLang = i18n.resolvedLanguage;
     const [isLoading, setIsLoading] = useState(false);
+    const [shouldPlayBgSong, setShouldPlayBgSong] = useState(true);
+
+    // background music player set up
+    const bgMusicPlayer = useAudioPlayer(bgMusic);
+    bgMusicPlayer.loop = true;
+    bgMusicPlayer.volume = 0.6;
+
+    // bonk sound player set up
+    const bonkSoundPlayer = useAudioPlayer(bonkSound);
+    bonkSoundPlayer.loop = false;
+    bonkSoundPlayer.volume = 1;
+
+    // powerup sound player set up
+    const powerupSoundPlayer = useAudioPlayer(powerupSound);
+    bonkSoundPlayer.loop = false;
+    bonkSoundPlayer.volume = 1;
 
     // function to increment the user's total number of flashcard review by 1
     const updateUserFlashcardReviewNumber = async() => {
@@ -106,12 +131,21 @@ export function FlashcardsScreen() {
                     await updateUserFlashcardsData(newUserFlashcardObj);
                 };
 
-                /* if the recall ease value is less than 4,
-                   push the reviewed card (with updated stats)
-                   to the end of array to be reviewed again after
-                   the session */
                 if(recallEaseVal < 4){
+                    /* if the recall ease value is less than 4,
+                       push the reviewed card (with updated stats)
+                       to the end of array to be reviewed again after
+                       the session */
                     newDeckArr.push(newDeckArr[0]);
+
+                    // play bonk sound effect
+                    bonkSoundPlayer.seekTo(0);
+                    bonkSoundPlayer.play();
+                }
+                else{
+                    // play powerup sound effect
+                    powerupSoundPlayer.seekTo(0);
+                    powerupSoundPlayer.play();
                 };
                 
                 // remove the reviewed card from the deck
@@ -159,13 +193,45 @@ export function FlashcardsScreen() {
         fetchAndSetProfileData(user.id);
         
         setIsLoading(false);
+
+        // when returning pause music
+        return () => {
+            bgMusicPlayer.pause();
+        }
     }, []);
+
+    useEffect(()=>{
+        // when the screen is in focus play the background music, otherwise pause it
+        if(isFocused == true && shouldPlayBgSong){
+            bgMusicPlayer.seekTo(0);
+            bgMusicPlayer.play();
+        }
+        else{
+            bgMusicPlayer.pause();
+        }
+    }, [isFocused, shouldPlayBgSong])
 
     /* if deck array state changes, refetch and update user profile so 
        that the updated user avatar is shown */
     useEffect(()=>{
         fetchAndSetProfileData(user.id);
     }, [deckArr]);
+
+    // set up the header buttons
+    useEffect(()=>{
+        navigation.setOptions({
+            headerRight: () => (
+                <View style={styles.headerBtnsContainer}>
+                    {/* mute/unmute button for background song */}
+                    <MuteUnmuteButton isMuted={shouldPlayBgSong} 
+                                       handleMuteToggle={()=>{setShouldPlayBgSong(!shouldPlayBgSong)}} />
+
+                    {/* button to change language */}
+                    <LanguageChangeButton />
+                </View>
+            ),
+        });
+    }, [navigation, shouldPlayBgSong])
 
     return(
         <View style={[styles.screenContainer, 
@@ -180,8 +246,8 @@ export function FlashcardsScreen() {
                                     contentContainerStyle={styles.screenScrollContentContainer}>
                             <View style={styles.avatarAndExplanationContainer}>
                                 <UserProfilePicture imgUrl={userProfile?.avatar_img_url} 
-                                                    width={150} 
-                                                    height={'100%'} 
+                                                    width={135} 
+                                                    height={135} 
                                                     bgColor='#D2DAE4' 
                                                     pfpBorderRadius={20} />
                                 <Text style={styles.avatarExplanationTxt}>
@@ -411,7 +477,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        columnGap: 30,
+        columnGap: 20,
         width: '100%',
         paddingHorizontal: 15,
         paddingVertical: 15,
@@ -424,7 +490,7 @@ const styles = StyleSheet.create({
     // explanation text about connection to avatar
     avatarExplanationTxt: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 16,
         color: '#2D3782',
         maxWidth: 150
     },
@@ -447,8 +513,7 @@ const styles = StyleSheet.create({
        to scroll down to view all texts */
     mayNeedToScrollTxt: {
         color: '#2D3782',
-        fontSize: 15,
-        fontWeight: '600'
+        fontSize: 16
     },
     // flashcard content text
     flashcardContentTxt: {
@@ -634,5 +699,11 @@ const styles = StyleSheet.create({
     // itaic text for citation
     citationTxtItalic: {
         fontStyle: 'italic'
+    },
+    headerBtnsContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        columnGap: 20
     }
 });

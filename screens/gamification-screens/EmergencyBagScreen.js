@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     // the text showing item names in the list
     itemNameTxt: {
         color: '#2D3782',
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600',
         display: 'flex',
         flexWrap: 'wrap',

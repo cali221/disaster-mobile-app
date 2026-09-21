@@ -7,12 +7,14 @@ import { LeaderboardList } from '../../components/LeaderboardList';
 import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { showErrorToast } from '../../utils/show-toast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function LeaderboardScreen() {
     const { user } = useContext(AuthContext);
     const { t, i18n } = useTranslation();
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const insets = useSafeAreaInsets();
 
     // function to fetch leaderboard data
     const handleLeaderboardRefresh = async (userId) => {
@@ -47,7 +49,9 @@ export function LeaderboardScreen() {
     }, [user?.id]);
 
     return(
-        <View style={styles.screenContainer}>
+        <View style={[styles.screenContainer, {paddingBottom: insets.bottom + 50, 
+                                               paddingHorizontal: Math.max(insets.left, insets.right) + 30, 
+                                               paddingTop: insets.top + 20}]}>
             <Text style={styles.explanationTxt}>
                 {t('leaderboardScreen.onlyMutualsTxt')}
             </Text>
@@ -61,6 +65,7 @@ export function LeaderboardScreen() {
                     <RotateCw size={25} color='#2D3782' />
                 </TouchableOpacity>
             </View>
+
             <LeaderboardList leaderboardData={leaderboardData} />
 
             {
@@ -78,7 +83,6 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         backgroundColor: 'white',
-        padding: 30,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'

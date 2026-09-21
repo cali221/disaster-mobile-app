@@ -277,7 +277,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                     }
                 </TouchableOpacity>
 
-                {/* crowndsourced report map, showing disaster location and 
+                {/* crowdsourced report map, showing disaster location and 
                     locations where reports are available, markers of report 
                     location can be pressed to show reports in that location */}
                 {
@@ -653,7 +653,7 @@ export function DisasterDetailsScreen({route, navigation}) {
 
                     {/* button to create report */}
                     <TouchableOpacity style={styles.bottomMenuBtn}
-                                      onPress={()=>{navigation.navigate('Report Form', {disasterId: disasterObj?.general?.id})}}>
+                                      onPress={()=>{console.log(disasterObj?.general?.id); navigation.navigate('Report Form', {disasterId: disasterObj?.general?.id})}}>
                         <Text style={styles.bottomMenuBtnTxt}>
                             {t('disasterDetailsScreen.reportExperience')} {'(+50xp)'}
                         </Text>
@@ -896,7 +896,8 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         elevation: 2,
-        borderColor: 'grey'
+        borderColor: 'grey',
+        borderWidth: 2
     },
     // marker for locations with report(s)
     reportLocMarker: {

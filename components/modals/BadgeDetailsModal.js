@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
     },
     // modal image shown on badge modal
     badgeModalImg: {
-        width: 170,
-        height: 170
+        width: 150,
+        height: 150
     },
     // description text shown on badge modal
     badgeModalDescTxt: {

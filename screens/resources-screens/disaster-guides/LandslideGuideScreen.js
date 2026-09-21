@@ -1,17 +1,12 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
-import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
-// TODO: add attribution/mention source for guide content(?)
-// planned to be based on buku saku panduan bencana BNPB
 export function LandslideGuideScreen() {
-    const { t, i18n } = useTranslation();
-    
     const disasterGuideTextsTranslationKey = {
         before: [{heading: 'landslideGuide.before.whatToDoBeforeLandslide', 
                   subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
                   sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 
                                  'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
+                  citations: [{index: 1, part1: `T. Yanuarto, S. Pinuji, A. C. Utomo, and I. T. Satrio, `, italicTxt: `Buku Saku Tanggap Tangkas Tangguh Menghadapi Bencana. `, part2: `Jakarta: Pusat Data Informasi dan Humas BNPB, 2019. Accessed: Sep. 17, 2026. [Online]. Available: https://ebookbanyuwangi.id/assets/2022/buku-saku-bencana.pdf`}],
                   texts: ['landslideGuide.before.reduceSurfaceSlopeAndGroundWaterSteepness', 
                           'landslideGuide.before.buildRetainingStructures',
                           'landslideGuide.before.dontBuildInDisasterProneArea',
@@ -25,27 +20,26 @@ export function LandslideGuideScreen() {
                           'landslideGuide.before.pileFoundationAvoidLiquefaction',
                           'landslideGuide.before.flexibleUtilitiesInGround',
                           'landslideGuide.before.relocateRecommendedInSomeCases',
-                          'landslideGuide.before.plantAppropriatePlansInAridAreas',
-                          'landslideGuide.before.dontBuildSomethingPermanentOnRiskyArea',
                           'landslideGuide.before.strongGutter',
                           'landslideGuide.before.beAlertWhenHighRainfall',
                           'landslideGuide.before.dontDeforestCarelessly']}],
+
         during: [{heading: 'landslideGuide.during.whatToDoDuringLandslide', 
                   subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
                   sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
+                  citations: [{index: 1, part1: `T. Yanuarto, S. Pinuji, A. C. Utomo, and I. T. Satrio, `, italicTxt: `Buku Saku Tanggap Tangkas Tangguh Menghadapi Bencana. `, part2: `Jakarta: Pusat Data Informasi dan Humas BNPB, 2019. Accessed: Sep. 17, 2026. [Online]. Available: https://ebookbanyuwangi.id/assets/2022/buku-saku-bencana.pdf`}],
                   texts: ['landslideGuide.during.getAway', 
                           'landslideGuide.during.evacuateIfSiren']}],
+                          
         after: [{heading: 'landslideGuide.after.whatToDoAfterLandslide', 
                  subheading: 'disasterGuide.sharedSource.bnpbBookOnly.subheading',
                  sourceLinks: [{'name': 'disasterGuide.sharedSource.bnpbBookOnly.linkTitle', 'link': 'https://bnpb.go.id/buku/buku-saku-tanggap-tangkas-tangguh-cetakan-kelima-2020'}],
+                 citations: [{index: 1, part1: `T. Yanuarto, S. Pinuji, A. C. Utomo, and I. T. Satrio, `, italicTxt: `Buku Saku Tanggap Tangkas Tangguh Menghadapi Bencana. `, part2: `Jakarta: Pusat Data Informasi dan Humas BNPB, 2019. Accessed: Sep. 17, 2026. [Online]. Available: https://ebookbanyuwangi.id/assets/2022/buku-saku-bencana.pdf`}],
                  texts: ['landslideGuide.after.avoidLandslideArea', 
                          'landslideGuide.after.anticipateAnotherIfRain']}]
     };
 
     return(
-        // <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
-        <Text>
-            {t('userTestingTemporary.contentOnThisScreenIsCurrentlyUnderReview')}
-        </Text>
+        <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
     )
 };

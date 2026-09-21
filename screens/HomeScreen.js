@@ -5,13 +5,13 @@ import { Text,
          ScrollView,
          Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
 //import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
-import * as mapStyle from '../assets/map-style/style.json';
+//import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
 import { capitalizeFirstLetter } from '../utils/text-formatting';
@@ -21,13 +21,17 @@ import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
 import { BottomModalBase } from '../components/modals-base/BottomModalBase';
 
+import { osm, inlineSources } from '@versatiles/style';
+
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
          MapIcon, 
          ShieldAlert, 
          BadgeQuestionMark, 
          ScrollText, 
-         Briefcase } from 'lucide-react-native'; 
+         Briefcase,
+         ChevronDown,
+         ChevronUp } from 'lucide-react-native'; 
 import { DataAttributionSection } from '../components/DataAttributionSection';
 
 // set how the notification should be shown if it happens while the app is running
@@ -48,9 +52,10 @@ export function HomeScreen({ navigation }) {
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShowBottomModal, setShouldShowBottomModal] = useState(false);
+  const [shouldShowMap, setShouldShowMap] = useState(false);
+  const [mapStyle, setMapStyle] = useState(null)
 
   useEffect(() => { 
-    // TODO: these are just example listeners, should be removed/changed later
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       showInfoToast('Notification detected', '');
       console.log(notification);
@@ -60,6 +65,21 @@ export function HomeScreen({ navigation }) {
       console.log(response);
     });
 
+    const getStyle = async() => {
+      const style = await inlineSources(osm({
+        features: {
+          landcover: true
+        },
+        urls: {
+          base: "https://tiles.versatiles.org"
+        }
+      }));
+
+      setMapStyle(style);
+    };
+
+    getStyle();
+    
     return () => {
       notificationListener.remove();
       responseListener.remove();
@@ -165,56 +185,84 @@ export function HomeScreen({ navigation }) {
   return(
     <View style={[styles.homescreenContainer, { paddingLeft: insets.left,
                                                 paddingRight: insets.right }]}>
-        <StatusBar style="auto" />
-        {/* disaster map section */}
-        <View style={styles.disasterMapAreaContainer}>
-          {/* button to create a crowdsourced report */}
-          <TouchableOpacity style={styles.experiencedDisasterBtn}
-                            accessibilityLabel={t('homeScreen.experiencedDisasterBtnTxt')}
-                            accessibilityRole='button'
-                            onPress={()=>{navigation.navigate('Report Menu')}}>
-            <Text style={styles.experiencedDisasterBtnTxt}>
-              {t('homeScreen.experiencedDisasterBtnTxt')}
-            </Text>
-          </TouchableOpacity>
-
-          {/* map placeholder, use when testing on web */}
-          {/* <View style={{ width: '100%', height: '100%', backgroundColor: 'plum'}}></View> */}
-    
-          {/* the disaster map component */}
-          {/* <Map style={styles.disasterMap} 
-               mapStyle={mapStyle}
-               compassPosition={{top: 20, left: 20}}
-               onStartShouldSetResponder={()=>{return true}}>
-            <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
+      {/* button to hide/show map */}
+        <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
+                          style={styles.toggleShowMapBtn}>
             {
-              (disastersLast24h?.map((disaster, index) => (
-                <Marker key={index} 
-                        testID='marker-on-map'
-                        lngLat={[disaster['longitude'], disaster['latitude']]} 
-                        onPress={()=>{navigation.navigate('Disaster Details',
-                                                          {disasterId: disaster['id']}
-                        )}}
-                        accessibilityRole='button'
-                        accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
-                  <MapDisasterLegend disasterType={disaster['disaster_type']} />
-                </Marker>
-              )))
+                shouldShowMap == true ?
+                (
+                    <View style={styles.toggleShowMapBtnContentContainer}>
+                        <Text style={styles.hideOrShowMapTxt}>
+                            {t('homeScreen.hideMap')}
+                        </Text>
+
+                        <ChevronUp color={'#2D3782'} size={30} />
+                    </View>
+                ):
+                (
+                    <View style={styles.toggleShowMapBtnContentContainer}>
+                        <Text style={styles.hideOrShowMapTxt}>
+                            {t('homeScreen.showMap')}
+                        </Text>
+
+                        <ChevronDown color={'#2D3782'} size={30} />
+                    </View>
+                )
             }
-          </Map>  */}
-      </View>
+        </TouchableOpacity>
+
+        {
+          shouldShowMap == true && (
+            <View>
+              {
+                  mapStyle ? 
+                  (
+                  <View></View>
+                  //   <Map style={styles.disasterMap} 
+                  //        mapStyle={mapStyle}
+                  //        compassPosition={{top: 20, left: 20}}>
+                  //     <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
+                  //     {
+                  //       (disastersLast24h?.map((disaster, index) => (
+                  //         <Marker key={index} 
+                  //                 testID='marker-on-map'
+                  //                 lngLat={[disaster['longitude'], disaster['latitude']]} 
+                  //                 onPress={()=>{navigation.navigate('Disaster Details',
+                  //                                                   {disasterId: disaster['id']}
+                  //                 )}}
+                  //                 accessibilityRole='button'
+                  //                 accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
+                  //           <MapDisasterLegend disasterType={disaster['disaster_type']} />           
+                  //         </Marker>
+                  //       )))
+                  //     }
+                  // </Map> 
+                ):
+                (
+                  <View style={{ width: '100%', height: 250, backgroundColor: 'white', borderWidth: 1}}> 
+                    <Text>
+                      Map Placeholder
+                    </Text>
+                  </View>
+                )
+              }
+
+              <View style={styles.mapAndExplanationContainer}>
+                {/* explanation text about the disaster map */}
+                <Text style={styles.mapExplanationTxt}>
+                  {t('homeScreen.disasterMapExplanation')}
+                </Text>
+              </View>
+            </View>  
+          )
+      }
 
       {/* scroll view for content below disaster map */}
       <ScrollView style={styles.homescreenContainer} 
                   contentContainerStyle={styles.scrollViewContentContainer}
                   nestedScrollEnabled={true}
                   accessibilityRole='scrollbar'>
-       
-          {/* explanation text about the disaster map */}
-          <Text style={styles.mapExplanationTxt}>
-            {t('homeScreen.disasterMapExplanation')}
-          </Text>
-
+      
           {/* section for showing recent disasters near user's watched area */}
           <View style={styles.disasterNearWatchedAreaSummaryContainer}>
             {/* the section's heading text */}
@@ -521,9 +569,11 @@ export function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   // container of all of the screen's content
   homescreenContainer: {
+    backgroundColor: 'white',
     width: '100%',
     height: '100%',
-    backgroundColor: 'white'
+    display: 'flex',
+    flexDirection: 'column'
   },
   // content container of the scroll view for content below disaster map
   scrollViewContentContainer: { 
@@ -539,40 +589,27 @@ const styles = StyleSheet.create({
   },
   // container of the disaster map
   disasterMapAreaContainer:{
-    backgroundColor: 'white',
-    height: '45%', 
-    maxHeight: 550
-  },
-  // button to go to watched areas settings screen
-  accountSettingsBtn: {
-    width: 250,
-    backgroundColor: 'lavenderblush',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 30,
-    borderRadius: 20,
-    marginBottom: 20
+    backgroundColor: 'white'
   },
   // map showing disasters 
   disasterMap: {
     width: '100%',
-    height: '100%'
+    height: 200
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
-    position: 'absolute',
     backgroundColor: '#2D3782',
-    top: 20,
+    width: '70%',
+    top: 15,
     right: 20,
-    width: 270,
-    height: 50,
+    position: 'absolute',
     borderRadius: 50,
     zIndex: 15,
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 5
   },
   // text inside the button that says "Experienced a disaster (...)"
   experiencedDisasterBtnTxt: {
@@ -670,7 +707,7 @@ const styles = StyleSheet.create({
   editWatchlistBtnTxt: {
     color: '#FFFFFF',
     fontWeight: '600',
-    fontSize: 15
+    fontSize: 16
   },
   /* non-scrollable sections on the screen */
   homescreenContentSectionsNonScroll: {
@@ -749,5 +786,45 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 17
-  }
+  },
+  // container of map and explanation text
+  mapAndExplanationContainer: {
+      width: '100%',
+      paddingBottom: 10,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderBottomLeftRadius: 20,
+      borderBottomRightRadius: 20,
+      elevation: 2,
+      borderColor: 'grey',
+      borderWidth: 2,
+      backgroundColor: 'white'
+  },
+  // button to show/hide map
+    toggleShowMapBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 15,
+        width: '100%',
+        backgroundColor: '#9EC110',
+        height: 30,
+        elevation: 5
+    },
+    /* content container for text and icon 
+       inside button to show/hide map */
+    toggleShowMapBtnContentContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    // text inside button to show/hide map
+    hideOrShowMapTxt: {
+        fontSize: 17,
+        color: '#2D3782',
+        fontWeight: '600'
+    },
 });

@@ -1,6 +1,5 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
 export function FloodGuideScreen() {
     const { t, i18n } = useTranslation();
@@ -17,6 +16,7 @@ export function FloodGuideScreen() {
                           'floodGuide.before.strenghtenAndHeightenHouse',
                           'floodGuide.before.stayUpdatedAboutWeather',
                           'floodGuide.before.scanDocuments']}],
+
         during: [{heading: 'floodGuide.during.whatToDoWhenFloodHapperning', 
                   subheading: 'floodGuide.during.sourceSubheading',
                   sourceLinks: [{'name': 'floodGuide.during.sourceLinkTitle', 
@@ -28,6 +28,7 @@ export function FloodGuideScreen() {
                           'floodGuide.during.avoidWatershedsAndChannels',
                           'floodGuide.during.stayUpdated',
                           'floodGuide.during.dontTouchElectricalStuff']}],
+                          
         after: [{heading: 'floodGuide.after.whatToDoAfterFlood', 
                  subheading: 'floodGuide.after.sourceSubheading',
                  sourceLinks: [{'name': 'floodGuide.before.sourceLinkTitle', 
@@ -41,8 +42,5 @@ export function FloodGuideScreen() {
 
     return(
         <DisasterGuideTemplate guideContent={disasterGuideTextsTranslationKey} />
-        // <Text>
-        //     {t('userTestingTemporary.contentOnThisScreenIsCurrentlyUnderReview')}
-        // </Text>
     )
 };

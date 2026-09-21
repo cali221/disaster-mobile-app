@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     },
     // text showing username of user in follow data
     usernameTxt: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600',
         color: '#2D3782',
         width: '100%',
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     },
     // 'Follows You' text, shown conditionally
     followsYouTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     },
     // action button for each data item 
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     actionBtnTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         textAlign: 'center'
     }
 });

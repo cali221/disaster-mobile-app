@@ -273,17 +273,17 @@ const styles = StyleSheet.create({
     },
     // color of button for the picked notification category
     pickedNotifCategoryBtnColor: {
-        backgroundColor: '#2D3782'
+        backgroundColor: '#AB5C82'
     },
     /* color of button for the notification 
        categories that are not picked */
     notPickedNotifCategoryBtnColor: {
-        backgroundColor: '#D2DAE4'
+        backgroundColor: '#2D3782'
     },
     /* text inside the buttons for switching
        notification type to show  */
     notifCategoryBtnTxt: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600',
         textAlign: 'center'
     },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     /* color of text inside the category 
        buttons that are not picked */
     notPickedNotifCategoryBtnTxtColor: {
-        color: '#2D3782'
+        color: '#FFFFFF'
     },
     // scroll view showing list of notifications 
     notificationScrollContainer: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     notificationItemBtnTxt: {
         color: '#FFFFFF',
         fontWeight: '600',
-        fontSize: 14
+        fontSize: 16
     },
     // container of text and icon for 'Pull Down to Refresh' information 
     pullToRefreshTextContainer: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     },
     // the 'Pull Down to Refresh' text
     pullToRefreshTxt: {
-       fontSize: 15,
+       fontSize: 16,
        fontWeight: '600',
        color: '#2D3782'
     },
@@ -371,6 +371,6 @@ const styles = StyleSheet.create({
     nowMutualsTxt: {
         color: '#2D3782',
         fontWeight: '600',
-        fontSize: 14
+        fontSize: 16
     }
 });

@@ -1,10 +1,7 @@
 import { DisasterGuideTemplate } from '../../../components/DisasterGuideTemplate';
 
-// TODO: add attribution/mention source for guide content(?)
-// these are based on various sources (buku saku bencana BNPB, international drop cover hold on guidance and educational youtube video from BMKG)
 export function EarthquakeGuideScreen() {
     const disasterGuideTextsTranslationKey = {
-        // https://www.bmkg.go.id/gempabumi/mitigasi/antisipasi-gempabumi
         before: [{heading: 'earthquakeGuide.before.heading', 
                   subheading: 'earthquakeGuide.before.sourceSubheading',
                   sourceLinks: [{'name': 'earthquakeGuide.before.sourceLinkTitle', 
@@ -21,10 +18,10 @@ export function EarthquakeGuideScreen() {
                   subheading: 'earthquakeGuide.during.indoorsSourceSubheading',
                   sourceLinks: [{'name': 'earthquakeGuide.during.bmkgVidSourceLinkTitle', 
                                  'link': 'https://www.youtube.com/watch?v=DeafytS3Rjw'},
-                                {'name': 'earthquakeGuide.during.shakeOutArticleLinkTitle', 
-                                 'link': 'https://www.shakeout.org/dropcoverholdon/'}],
+                                {'name': 'earthquakeGuide.during.readyGovLinkTitle', 
+                                 'link': 'https://www.ready.gov/earthquakes'}],
                   citations: [{index: 1, part1: `Info BMKG, `, italicTxt: `Video Animasi Mitigasi Gempabumi (BMKG), `, part2: `(Jan. 14, 2019). Accessed: Sep. 17, 2026. [Online Video]. Available: https://www.youtube.com/watch?v=DeafytS3Rjw`},
-                              {index: 2, part1: `“Drop, Cover, and Hold On!,” shakeout.org. Accessed: Sep. 17, 2026. [Online]. Available: https://www.shakeout.org/dropcoverholdon/`}],
+                              {index: 2, part1: `“Earthquakes,” ready.gov. Accessed: Sep. 17, 2026. [Online]. Available: https://www.ready.gov/earthquakes`, italicTxt: '', part2: ''}],
                   texts: ['earthquakeGuide.during.protectHead', 
                           'earthquakeGuide.during.drop', 
                           'earthquakeGuide.during.cover', 
@@ -55,7 +52,7 @@ export function EarthquakeGuideScreen() {
                   subheading: 'earthquakeGuide.during.inBedSourceSubheading',
                   sourceLinks: [{'name': 'earthquakeGuide.during.readyGovLinkTitle', 
                                  'link': 'https://www.ready.gov/earthquakes'}],
-                  citations: [{index: 1, part1: 'Ready.gov, “Earthquakes,” ready.gov. Accessed: Sep. 17, 2026. [Online]. Available: https://www.ready.gov/earthquakes'}],
+                  citations: [{index: 1, part1: `“Earthquakes,” ready.gov. Accessed: Sep. 17, 2026. [Online]. Available: https://www.ready.gov/earthquakes`, italicTxt: '', part2: ''}],
                   texts: ['earthquakeGuide.during.lieFaceDownIfInBed']}],
        
         after: [{heading: 'earthquakeGuide.after.whatToDoAfterwards', 

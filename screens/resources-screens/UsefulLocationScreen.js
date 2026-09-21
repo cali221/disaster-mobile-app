@@ -458,11 +458,11 @@ const styles = StyleSheet.create({
     },
     // button color for picked category
     pickedCategoryBtnColor: {
-        backgroundColor: '#2D3782'
+        backgroundColor: '#AB5C82'
     },
     // button color for categories that aren't picked
     unpickedCategoryBtnColor: {
-        backgroundColor: '#D2DAE4'
+        backgroundColor: '#2D3782'
     },
     // the buttons for picking a category
     categoryBtn: {
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     },
     // color for text in the unpicked category button 
     unpickedCategoryBtnTxtColor: {
-        color: '#2D3782'
+        color: 'white'
     },
     /* horizontal scroll view for
        showing buttons for picking a category */

@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
     },
     // the text showing the level/league name
     levelNameTxt: {
-        fontSize: 17,
+        fontSize: 20,
         fontWeight: '600',
         color: '#2D3782'
     },
     // the text showing total XP
     totalXpTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782'
     }
 });

@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     // explanation text about search
     searchExplanationTxt: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '400',
         color: '#2D3782'
     },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     searchBtnTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 15
+        fontSize: 16
     },
     // container of search results scroll view
     searchResultsContainer: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     // text inside the watch area button
     watchAreaBtnTxt: {
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         color: 'white',
         textAlign: 'center'
     },
@@ -390,13 +390,13 @@ const styles = StyleSheet.create({
     // text showing admin 2 name 
     adm2Txt: {
         color: '#2D3782',
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '600'
     },
     // text showing admin 1 name
     adm1Txt: {
         color: '#2D3782',
-        fontSize: 15
+        fontSize: 16
     },
     // button to remove location from watchlist
     removeAreaBtn: {
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     // text inside button to remove area from watchlist
     removeAreaBtnTxt: {
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: 16,
         color: 'white',
         textAlign: 'center'
     }

@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     },
     // the 'Close' text of the close button
     closeBtnTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782',
         fontWeight: '600'
     },

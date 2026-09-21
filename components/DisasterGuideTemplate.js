@@ -283,12 +283,12 @@ const styles = StyleSheet.create({
     },
     // button color for the picked disaster stage
     pickedMenuBtnColor: {
-        backgroundColor: '#2D3782'
+        backgroundColor: '#AB5C82'
     },
     /* button color for the disaster 
        stage that's not picked */
     unpickedMenuBtnColor: {
-        backgroundColor: '#D2DAE4'
+        backgroundColor: '#2D3782'
     },
     /* text color inside the button for 
        the picked disaster stage */
@@ -298,11 +298,11 @@ const styles = StyleSheet.create({
     /* text color inside the button for 
        the disaster stage that is not picked */
     unpickedMenuBtnTxtColor: {
-        color: '#2D3782'
+        color: 'white'
     },
     // container of each step 
     guideStepContainer: {
-        backgroundColor: '#D2DAE4',
+        backgroundColor: 'white',
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
@@ -310,7 +310,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         columnGap: 20,
         paddingHorizontal: 30,
-        paddingVertical: 30
+        paddingVertical: 30,
+        borderWidth: 3,
+        borderColor: '#2D3782'
     },
     // step number container
     guideStepNumberContainer: {

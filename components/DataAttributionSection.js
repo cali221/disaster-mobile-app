@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     },
     // the data attribution text
     attributionTxt: {
-        fontSize: 15,
+        fontSize: 16,
         color: '#2D3782',
         fontWeight: '500'
     }

@@ -141,12 +141,12 @@ export function PanicButtonScreen() {
     }, []);
 
     return(
-        <View style={[styles.screenContainer, 
-                      {paddingBottom: insets.bottom, 
-                       paddingTop: insets.top, 
-                       paddingLeft: insets.left, 
-                       paddingRight: insets.right}]}>
-            <ScrollView contentContainerStyle={styles.scrollViewContentContainer}
+        <View style={styles.screenContainer}>
+            <ScrollView contentContainerStyle={[styles.scrollViewContentContainer, 
+                                               {paddingBottom: insets.bottom + 30, 
+                                                paddingTop: insets.top + 20, 
+                                                paddingLeft: insets.left, 
+                                                paddingRight: insets.right}]}
                         style={styles.scrollContainer}>
                 {/* button to play/stop SOS sound */}
                 <TouchableOpacity onPress={()=>{setIsSoundingSOS(!isSoundingSOS)}}
@@ -154,10 +154,10 @@ export function PanicButtonScreen() {
                     {
                         isSoundingSOS == false ? 
                         (
-                            <Bell size={100} stroke={'white'} />
+                            <Bell size={70} stroke={'white'} />
                         ):
                         (
-                            <BellRing size={100} stroke={'white'} />
+                            <BellRing size={70} stroke={'white'} />
                         )
                     }
                 </TouchableOpacity>
@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        height: '100%',
         rowGap: 25
     },
     // the scroll container of screen content
@@ -236,9 +235,9 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        width: (Dimensions.get('window').height * 0.22),
-        height: (Dimensions.get('window').height * 0.22),
-        borderRadius: (Dimensions.get('window').height * 0.22)/2,
+        width: (Dimensions.get('window').height * 0.20),
+        height: (Dimensions.get('window').height * 0.20),
+        borderRadius: (Dimensions.get('window').height * 0.20)/2,
         backgroundColor: '#AB5C82',
         elevation: 5
     },
@@ -254,10 +253,9 @@ const styles = StyleSheet.create({
        contacts and the button to call 112 */
     contactBtns: {
         backgroundColor: '#2D3782',
-        padding: 15,
-        width: '65%',
-        height: (Dimensions.get('window').height * 0.08),
-        maxHeight: 85,
+        padding: 7,
+        width: '70%',
+        minHeight: (Dimensions.get('window').height * 0.07),
         maxWidth: 350,
         display: 'flex',
         justifyContent: 'center',
@@ -270,7 +268,7 @@ const styles = StyleSheet.create({
     contactBtnsTxt: {
         color: 'white',
         textAlign: 'center',
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: '600'
     },
 });
