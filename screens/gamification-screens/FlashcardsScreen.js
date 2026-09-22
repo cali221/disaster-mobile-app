@@ -176,23 +176,33 @@ export function FlashcardsScreen({navigation}) {
                 /* add is_repeeating property to track if the card is reviewed 
                    in a new session or if it's a card repeated after session because 
                    its last recall ease value was rated < 4 */
-                   console.log(data);
                 const deck = data.map((card) => {return {...card, is_repeating: false, reference: card.reference?.sort((a, b) => a.index - b.index)}})
 
-                console.log(deck)
                 setDeckArr(deck);
             }
         };
-        
-        setIsLoading(true);
 
-        // fetch flashcards to review for authenticated user
-        fetchFlashcard();
+        // function to fetch flashcards and profile data
+        const tryToFetchFlashcardsAndProfileData = async () => {
+            try{
+                setIsLoading(true);
 
-        // fetch the user's profile data (to get current avatar)
-        fetchAndSetProfileData(user.id);
-        
-        setIsLoading(false);
+                // fetch flashcards to review for authenticated user
+                await fetchFlashcard();
+
+                // fetch the user's profile data (to get current avatar)
+                await fetchAndSetProfileData(user?.id);
+
+                setIsLoading(false);
+            }
+            catch(error){
+                showErrorToast(t('flashcardsScreen.failedToFetchFlashcardsAndProfileData'), 
+                                 `${error.message ?? JSON.stringify(error)}`);
+            }
+        };
+
+        tryToFetchFlashcardsAndProfileData();
+
     }, []);
 
     useEffect(()=>{
@@ -219,7 +229,7 @@ export function FlashcardsScreen({navigation}) {
                 <View style={styles.headerBtnsContainer}>
                     {/* mute/unmute button for background song */}
                     <MuteUnmuteButton isMuted={shouldPlayBgSong} 
-                                       handleMuteToggle={()=>{setShouldPlayBgSong(!shouldPlayBgSong)}} />
+                                      handleMuteToggle={()=>{setShouldPlayBgSong(!shouldPlayBgSong)}} />
 
                     {/* button to change language */}
                     <LanguageChangeButton />

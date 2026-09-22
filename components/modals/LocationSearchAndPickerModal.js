@@ -128,9 +128,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 7,
         borderRadius: 20,
-        color: '#2D3782',
         flex: 1,
-        width: '100%'
+        width: '100%',
+        color: '#2D3782',
+        fontSize: 16
     },
     // button to search for location
     searchLocBtn: {

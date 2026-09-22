@@ -428,9 +428,13 @@ const styles = StyleSheet.create({
     descriptionTxtInput: {
         borderWidth: 1,
         borderColor: '#2D3782',
-        borderRadius: 10,
-        padding: 7,
+        borderRadius: 20,
+        padding: 10,
+        height: 80,
         color: '#2D3782',
+        fontSize: 16,
+        width: '100%',
+        textAlignVertical: 'top'
     },
     /* section for submitting with submit 
        button and explanation text */
@@ -453,7 +457,8 @@ const styles = StyleSheet.create({
     submitBtnTxt: {
         color: 'white',
         fontWeight: '600',
-        fontSize: 16
+        fontSize: 16,
+        textAlign: 'center'
     },
     // explanation text about submitting
     submitExplanationTxt: {

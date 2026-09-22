@@ -268,7 +268,8 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 30,
         paddingHorizontal: 20,
-        color: 'black'
+        color: '#2D3782',
+        fontSize: 16
     },
     // container of text input and its label
     newValInputContainer: {

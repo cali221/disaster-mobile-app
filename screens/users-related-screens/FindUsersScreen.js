@@ -91,7 +91,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 7,
         borderRadius: 50,
-        flex: 1
+        flex: 1,
+        color: '#2D3782',
+        fontSize: 16
     },
     // container of search text input and button
     searchContainer: {

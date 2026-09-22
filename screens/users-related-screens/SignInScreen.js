@@ -62,8 +62,8 @@ export function SignInScreen({navigation}){
           <View style={styles.signInInputFormFields}>
             <Text style={styles.inputFormLabelTxt}>{t('authWords.email')}</Text>
             <TextInput onChangeText={setEmail}
-                      value={email}
-                      style={styles.signInTextInputPasswordEmail} />
+                       value={email}
+                       style={styles.signInTextInputPasswordEmail} />
           </View>
 
           {/* password input area */}
@@ -152,7 +152,9 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 15,
     elevation: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    fontSize: 16,
+    color: '#2D3782',
   },
   // label texts in input form
   inputFormLabelTxt: {
@@ -190,7 +192,8 @@ const styles = StyleSheet.create({
   // texts inside the sign up area
   signUpAreaTxts: {
     fontSize: 17,
-    fontWeight: '500'
+    fontWeight: '500',
+    color: '#2D3782',
   },
   // the "Sign up here" text, should be underline so it looks like a link
   signUpTxt: {

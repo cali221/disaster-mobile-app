@@ -138,6 +138,8 @@ export function UsefulLocationScreen() {
     /* handle using current location */
     useEffect(() => {
         const setToCurrentLocation = async () => {
+            setIsLoading(true);
+
             try{
                 // get the user's location
                 const location = await getUserCurrentLocation();
@@ -158,13 +160,12 @@ export function UsefulLocationScreen() {
                         locationTrackingRef.current = await Location.watchPositionAsync(
                         {
                             accuracy: Location.Accuracy.Highest,
-                            timeInterval: 1000,
-                            distanceInterval: 1, 
+                            timeInterval: 2000, // update every 2 seconds
+                            distanceInterval: 1, // minium distance change of 1 meter 
                             },
                             (loc) => {
                                 setCurrentLoc({latitude: loc?.coords?.latitude, 
                                                longitude: loc?.coords?.longitude});
-                                //console.log('actual change in loc detected')
                             }
                         );
                     }
@@ -191,6 +192,8 @@ export function UsefulLocationScreen() {
                                      `${error.message ?? JSON.stringify(error)}`);
                 }
             };
+
+            setIsLoading(false);
         };
 
         /* re-obtain the user's coordinates and make it the 
@@ -202,8 +205,8 @@ export function UsefulLocationScreen() {
 
         return () => {
             if(locationTrackingRef?.current){
-                locationTrackingRef.current.remove();
-                locationTrackingRef.current = null;
+               locationTrackingRef.current.remove();
+               locationTrackingRef.current = null;
             }
         }
     }, [isUsingCurrentLoc])
@@ -601,7 +604,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        backgroundColor: 'red'
+        backgroundColor: 'white'
     },
     // container of content below the map
     contentBelowMapContainer: {
@@ -838,7 +841,8 @@ const styles = StyleSheet.create({
         height: 230,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white'
     },
     // marker for user's current location (subscribed)
     currentLocMarker: {

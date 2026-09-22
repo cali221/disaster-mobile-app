@@ -150,7 +150,9 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 15,
     elevation: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    color: '#2D3782',
+    fontSize: 16
   },
   // label texts in input form
   inputFormLabelTxt: {
@@ -180,11 +182,14 @@ const styles = StyleSheet.create({
   // text inside sign in area
   signInAreaTxt: {
     fontSize: 17,
-    fontWeight: '500'
+    fontWeight: '500',
+    color: '#2D3782'
   },
   // sign in here text 
   signInHereTxt: {
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
+    fontSize: 17,
+    color: '#2D3782'
   },
   /* container of area for showing 'Already have an account?' text 
      and touchable opacity to sign in*/
@@ -192,6 +197,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 })

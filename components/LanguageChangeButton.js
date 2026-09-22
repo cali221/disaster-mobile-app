@@ -26,7 +26,8 @@ export function LanguageChangeButton() {
                                         changeLang('en') : 
                                         currentLang == 'en' && 
                                         changeLang('id')}}
-                          style={styles.langChangeBtn}>
+                          style={styles.langChangeBtn}
+                          accessibilityLabel={currentLang == 'en' ? t('shared.changeLangToId') : t('shared.changeLangToEn')}>
             {/* the language code text */}
             <Text style={styles.langCodeTxt}>
                 {currentLang == 'en' ? 'EN ➜ ID' : 'ID ➜ EN'}

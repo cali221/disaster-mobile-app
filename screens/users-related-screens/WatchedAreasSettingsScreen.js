@@ -266,11 +266,13 @@ const styles = StyleSheet.create({
     // the text input field for searching for locations
     searchTextInput: {
         borderWidth: 1,
-        borderColor: 'black',
+        borderColor: '#2D3782',
         borderRadius: 20,
         paddingHorizontal: 10,
         height: '100%',
-        flex: 1
+        flex: 1,
+        color: '#2D3782',
+        fontSize: 16
     },
     // container of search form (text input + search button)
     searchArea: {

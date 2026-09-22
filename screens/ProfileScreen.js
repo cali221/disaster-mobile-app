@@ -454,7 +454,7 @@ export function ProfileScreen({ navigation }) {
                                                   accessibilityRole='button'
                                                   style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                        {t('profileScreen.changeLangToId')}
+                                        {t('shared.changeLangToId')}
                                     </Text>
                                 </TouchableOpacity>
                                 
@@ -465,7 +465,7 @@ export function ProfileScreen({ navigation }) {
                                                   accessibilityRole='button'
                                                   style={[styles.bottomButtonsBase, styles.changeLangButtonColor]}>
                                     <Text style={[styles.bottomButtonTextBase, styles.changeLangButtonTxtColor]}>
-                                        {t('profileScreen.changeLangToEn')}
+                                        {t('shared.changeLangToEn')}
                                     </Text>
                                 </TouchableOpacity>
                             )
@@ -785,7 +785,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        flexWrap: 'wrap'
     },
     /* container of leaderboard heading 
        text and refresh button */
