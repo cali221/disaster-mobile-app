@@ -147,12 +147,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 20,
     width: '100%',
-    height: 45,
-    paddingHorizontal: 15,
     elevation: 1,
     backgroundColor: 'white',
     color: '#2D3782',
-    fontSize: 16
+    fontSize: 16,
+    padding: 15
   },
   // label texts in input form
   inputFormLabelTxt: {

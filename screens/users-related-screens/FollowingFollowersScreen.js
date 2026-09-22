@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     /* container of the find users to follow button 
        at bottom of screen ('sticky') */
     findUsersBtnContainer: {
-        backgroundColor: '#F4F4F4',
+        backgroundColor: 'white',
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
         borderWidth: 1.5,

@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         elevation: 2,
         maxWidth: 350,
-        maxHeight: 350
+        maxHeight: 400
     },
     // the modal header with title and close button
     modalHeader: {

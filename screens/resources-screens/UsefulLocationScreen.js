@@ -347,7 +347,7 @@ export function UsefulLocationScreen() {
                 {
                     shouldShowMenu == true ? (
                         // the search menu
-                        <View style={styles.searchMenuContainer}>
+                        <View style={[styles.searchMenuContainer, {marginBottom: insets.bottom}]}>
                             <Text style={styles.pickCategoryTxt}>
                                 {t('usefulLocScreen.pickACategory')}
                             </Text>
@@ -626,8 +626,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        columnGap: 30,
-        paddingVertical: 15
+        columnGap: 20
     },
     // button color for picked category
     pickedCategoryBtnColor: {
@@ -639,12 +638,11 @@ const styles = StyleSheet.create({
     },
     // the buttons for picking a category
     categoryBtn: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 20,
+        borderRadius: 70,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 5
     },
     // text inside buttons for picking a category
     categoryBtnTxt: {
@@ -662,7 +660,6 @@ const styles = StyleSheet.create({
     /* horizontal scroll view for
        showing buttons for picking a category */
     categoryBtnsScrollView: {
-       flexGrow: 0,
        width: '100%'
     },
     /* vertical scroll view for 
@@ -866,9 +863,8 @@ const styles = StyleSheet.create({
     // button to start search
     searchBtn: {
         backgroundColor: '#2D3782',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        zIndex: 15,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
         borderRadius: 20,
         width: '100%',
         justifyContent: 'center',
@@ -942,6 +938,8 @@ const styles = StyleSheet.create({
         borderColor: '#2D3782', 
         borderBottomLeftRadius: 30, 
         borderBottomRightRadius: 30, 
-        paddingTop: 10
+        paddingTop: 10,
+        backgroundColor: 'white',
+        rowGap: 10
     }
 });

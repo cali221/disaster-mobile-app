@@ -223,9 +223,9 @@ const styles = StyleSheet.create({
     /* container of the two buttons at the 
        bottom of the screen (always visible) */
     bottomButtonsContainer: {
-        backgroundColor: '#F4F4F4',
-        borderTopRightRadius: 20,
-        borderTopLeftRadius: 20,
+        backgroundColor: 'white',
+        borderTopRightRadius: 25,
+        borderTopLeftRadius: 25,
         borderWidth: 1.5,
         borderColor: '#2D3782',
         display: 'flex',
@@ -264,12 +264,12 @@ const styles = StyleSheet.create({
     // text input field for new values
     newValTextInput: {
         borderWidth: 1,
-        height: 45,
         width: '100%',
         borderRadius: 30,
         paddingHorizontal: 20,
         color: '#2D3782',
-        fontSize: 16
+        fontSize: 16,
+        padding: 15
     },
     // container of text input and its label
     newValInputContainer: {

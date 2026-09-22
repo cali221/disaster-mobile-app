@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         minHeight: 200,
-        backgroundColor: '#F4F4F4',
+        backgroundColor: 'white',
         rowGap: 20,
         paddingTop: 30
     },
