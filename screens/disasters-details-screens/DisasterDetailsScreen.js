@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
 import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
-import { getStyle } from '../../utils/get-map-style';
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
@@ -111,11 +110,6 @@ export function DisasterDetailsScreen({route, navigation}) {
         // hide the modal
         setShouldShowUserReportsModal(false);
     };
-
-    // on load get map style
-    useEffect(()=>{
-        getStyle().then((style)=>{setMapStyle(style)});
-    }, []);
 
     // if language is changed, get the disaster title again 
     useEffect(()=>{
@@ -291,54 +285,43 @@ export function DisasterDetailsScreen({route, navigation}) {
                         <View style={styles.mapAndExplanationContainer}>
                             {/* crowdsourced reports map placeholder */}
                             {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
-                
-                            {
-                                mapStyle ? 
-                                (
-                                    <Map style={styles.map} 
-                                         mapStyle={mapStyle}
-                                         compassPosition={{top: 20, left: 20}}
-                                         onStartShouldSetResponder={()=>{return true}}>
-                                        <Camera maxZoom={14} 
-                                                    zoom={10} 
-                                                    bounds={(disasterObj?.general?.latitude && 
-                                                            disasterObj?.general?.longitude) ? 
-                                                            [(disasterObj?.general?.longitude - 5), 
-                                                            (disasterObj?.general?.latitude - 5), 
-                                                            (disasterObj?.general?.longitude + 5), 
-                                                            (disasterObj?.general?.latitude + 5)] : 
-                                                            [93, -12, 142, 10]}/>
+            
+                            <Map style={styles.map} 
+                                    mapStyle='https://tiles.openfreemap.org/styles/liberty'
+                                    compassPosition={{top: 20, left: 20}}
+                                    onStartShouldSetResponder={()=>{return true}}>
+                                <Camera maxZoom={23} 
+                                            zoom={10} 
+                                            bounds={(disasterObj?.general?.latitude && 
+                                                    disasterObj?.general?.longitude) ? 
+                                                    [(disasterObj?.general?.longitude - 5), 
+                                                    (disasterObj?.general?.latitude - 5), 
+                                                    (disasterObj?.general?.longitude + 5), 
+                                                    (disasterObj?.general?.latitude + 5)] : 
+                                                    [93, -12, 142, 10]}/>
 
-                                        {reportLocations?.map((item, index) => (
-                                            <Marker key={index}
-                                                    lngLat={[item?.center_lon, item?.center_lat]}
-                                                    onPress={()=>{handleReportMarkerPress(item?.adm3, 
-                                                                                        item?.city_or_regency, 
-                                                                                        item?.province, 
-                                                                                        item?.ogc_fid)}}>
-                                                <View style={styles.reportLocMarker}>
-                                                    <Text style={styles.reportCountTxt}>
-                                                        {item?.report_count}
-                                                    </Text>
-                                                </View>
-                                            </Marker>
-                                        ))}
+                                {reportLocations?.map((item, index) => (
+                                    <Marker key={index}
+                                            lngLat={[item?.center_lon, item?.center_lat]}
+                                            onPress={()=>{handleReportMarkerPress(item?.adm3, 
+                                                                                item?.city_or_regency, 
+                                                                                item?.province, 
+                                                                                item?.ogc_fid)}}>
+                                        <View style={styles.reportLocMarker}>
+                                            <Text style={styles.reportCountTxt}>
+                                                {item?.report_count}
+                                            </Text>
+                                        </View>
+                                    </Marker>
+                                ))}
 
-                                        <Marker testID='disaster-marker-on-map'
-                                                lngLat={[disasterObj?.general?.longitude, 
-                                                        disasterObj?.general?.latitude]}>
-                                            <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
-                                        </Marker>
-                                    </Map>  
-                                ):
-                                (
-                                    <View style={styles.mapPlaceholder}>
-                                        <Text>
-                                            Map Placeholder
-                                        </Text>
-                                    </View>
-                                )
-                            }
+                                <Marker testID='disaster-marker-on-map'
+                                        lngLat={[disasterObj?.general?.longitude, 
+                                                disasterObj?.general?.latitude]}>
+                                    <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
+                                </Marker>
+                            </Map>  
+                                
 
                             {/* explanation text about map markers */}
                             <Text style={styles.mapMarkingExplanationTxt}>

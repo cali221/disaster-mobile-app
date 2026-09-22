@@ -11,7 +11,6 @@ import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
 import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
-//import * as mapStyle from '../assets/map-style/style.json';
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
 import { capitalizeFirstLetter } from '../utils/text-formatting';
@@ -20,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
 import { BottomModalBase } from '../components/modals-base/BottomModalBase';
-import { getStyle } from '../utils/get-map-style';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
@@ -52,7 +50,6 @@ export function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShowBottomModal, setShouldShowBottomModal] = useState(false);
   const [shouldShowMap, setShouldShowMap] = useState(false);
-  const [mapStyle, setMapStyle] = useState(null)
 
   useEffect(() => { 
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
@@ -63,9 +60,6 @@ export function HomeScreen({ navigation }) {
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
       console.log(response);
     });
-
-    // get map style
-    getStyle().then((style)=>{setMapStyle(style)});
     
     return () => {
       notificationListener.remove();
@@ -201,47 +195,37 @@ export function HomeScreen({ navigation }) {
                   {t('homeScreen.experiencedDisasterBtnTxt')}
                 </Text>
               </TouchableOpacity>
+              
+              <Map style={styles.disasterMap} 
+                    mapStyle='https://tiles.openfreemap.org/styles/liberty'
+                    compassPosition={{top: 20, left: 20}}>
+                <Camera maxZoom={23} 
+                        zoom={10} 
+                        bounds={[93, -12, 142, 10]} />
+                {
+                  (disastersLast24h?.map((disaster, index) => (
+                    <Marker key={index} 
+                            testID='marker-on-map'
+                            lngLat={[disaster['longitude'], disaster['latitude']]} 
+                            onPress={()=>{navigation.navigate('Disaster Details',
+                                                              {disasterId: disaster['id']}
+                            )}}
+                            accessibilityRole='button'
+                            accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
+                      <MapDisasterLegend disasterType={disaster['disaster_type']} />           
+                    </Marker>
+                  )))
+                }
+            </Map>
 
-              {
-                  mapStyle ? 
-                  (
-                    <Map style={styles.disasterMap} 
-                         mapStyle={mapStyle}
-                         compassPosition={{top: 20, left: 20}}>
-                      <Camera maxZoom={14} zoom={10} bounds={[93, -12, 142, 10]} />
-                      {
-                        (disastersLast24h?.map((disaster, index) => (
-                          <Marker key={index} 
-                                  testID='marker-on-map'
-                                  lngLat={[disaster['longitude'], disaster['latitude']]} 
-                                  onPress={()=>{navigation.navigate('Disaster Details',
-                                                                    {disasterId: disaster['id']}
-                                  )}}
-                                  accessibilityRole='button'
-                                  accessibilityLabel={t('homeScreen.goToDisastersDetailsScreenAccLbl')}>
-                            <MapDisasterLegend disasterType={disaster['disaster_type']} />           
-                          </Marker>
-                        )))
-                      }
-                  </Map> 
-                ):
-                (
-                  <View style={{ width: '100%', height: 250, backgroundColor: 'white', borderWidth: 1}}> 
-                    <Text>
-                      Map Placeholder
-                    </Text>
-                  </View>
-                )
-              }
-
-              <View style={styles.mapAndExplanationContainer}>
-                {/* explanation text about the disaster map */}
-                <Text style={styles.mapExplanationTxt}>
-                  {t('homeScreen.disasterMapExplanation')}
-                </Text>
-              </View>
-            </View>  
-          )
+            <View style={styles.mapAndExplanationContainer}>
+              {/* explanation text about the disaster map */}
+              <Text style={styles.mapExplanationTxt}>
+                {t('homeScreen.disasterMapExplanation')}
+              </Text>
+            </View>
+          </View>  
+        )
       }
 
       {/* scroll view for content below disaster map */}

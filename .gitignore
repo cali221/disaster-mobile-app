@@ -47,3 +47,6 @@ yarn-error.*
 
 # google services file
 google-services.json
+
+# exclude file used just for trying things out
+playground.js

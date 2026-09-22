@@ -14,9 +14,8 @@ import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker, OfflineManager } from "@maplibre/maplibre-react-native"; 
 import * as Location from "expo-location";
-import { getStyle } from '../../utils/get-map-style';
 
 export function UsefulLocationScreen() {
     const [shouldSearch, setShouldSearch] = useState(false);
@@ -31,7 +30,7 @@ export function UsefulLocationScreen() {
     const [isUsingCurrentLoc, setIsUsingCurrentLoc] = useState(true);
     const [currentLoc, setCurrentLoc] = useState(null);
     const [shouldShowMenu, setShouldShowMenu] = useState(false);
-    const [mapStyle, setMapStyle] = useState(null);
+    const mapRef = useRef(null);
     const mapCamRef = useRef(null);
     const locationTrackingRef = useRef(null);
  
@@ -46,39 +45,7 @@ export function UsefulLocationScreen() {
         setIsUsingCurrentLoc(false);
     };
 
-    const getLocationsInIndonesia = async(type, place) => {
-        console.log('fetching')
-        // fetch the data
-        const res = await fetch('https://maps.mail.ru/osm/tools/overpass/api/interpreter', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body:`[out:json];area["name"="Indonesia"]->.boundaryarea;(nwr(area.boundaryarea)[amenity=hospital];);out center;`
-        });
-
-         console.log('fetching......')
-
-        if(res?.status !== 200){
-            console.log(JSON.stringify(res))
-            throw new Error(res?.statusText);
-        }  
-        else{
-            console.log('about to convert to json')
-
-            try{
-                // convert it to JSON
-                const places = await res.json();
-
-                console.log(JSON.stringify(places));
-            }
-            catch(error){
-                console.log(error)
-            }
-        }
-    };
-
+    
     // function for getting the results from the Overpass API instance
     const getPlacesAroundCoordinates = async(type, place, radius, lat, lon) => {
         setIsLoading(true);
@@ -225,9 +192,53 @@ export function UsefulLocationScreen() {
         }                      
     }, [pickedCategory, pickedCoords, shouldSearch]);
 
-    // get map style on load
+
+    // create offline pack for map -> havent figured it out, dont know how it's used
+    const createMapOfflinePack = async() => {
+        console.log('createMapOfflinePack')
+        try{
+            const offlinePack = await OfflineManager.createPack(
+                {
+                    mapStyle: 'https://tiles.openfreemap.org/styles/liberty',
+                    minZoom: 14,
+                    maxZoom: 23,
+                    bounds: [106.562326, -6.447648, 106.907076, -6.272255],
+                    metadata: { name: "Tangerang Selatan Area" },
+                },
+                (offlineRegion, status) => console.log(offlineRegion, status),
+                (offlineRegion, error) => console.log(offlineRegion, error)
+            );
+
+            if(offlinePack){
+                offlinePack.resume();
+            }
+        }
+        catch(error){
+            alert(JSON.stringify(error.message))
+        }
+    };
+
+
     useEffect(()=>{
-        getStyle().then((style)=>{setMapStyle(style)});
+        // get map style on load
+        //getStyle().then((style)=>{setMapStyle(style)});
+
+        const getPacks = async() => {
+            await OfflineManager.getPacks().then((data)=>{
+                console.log(data);
+            });
+        }
+
+        const deletePack = async(id) => {
+            console.log('deleting packs')
+            await OfflineManager.deletePack(id);
+        }
+
+        const invalidateCache = async() => {
+            await OfflineManager.invalidateAmbientCache();
+        }
+
+        getPacks();
     }, []);
 
     // simulate moving current location
@@ -253,76 +264,70 @@ export function UsefulLocationScreen() {
             {/* map placeholder */}
             {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
+            <TouchableOpacity style={styles.downloadForOfflineBtn} 
+                              onPress={()=>{createMapOfflinePack()}}>
+                <Text style={styles.downloadForOfflineBtnTxt}>
+                    {t('usefulLocScreen.downloadLocationDataForOfflineUse')}
+                </Text>
+            </TouchableOpacity>
+
             {/* map showing the places */}
-            {
-                mapStyle !== null ? 
-                (
-                    <Map mapStyle={mapStyle}
-                         compassPosition={{top: 20, left: 20}}
-                         onStartShouldSetResponder={()=>{return true}}
-                         style={styles.map}>
+            <Map mapStyle={'https://tiles.openfreemap.org/styles/liberty'}
+                    compassPosition={{top: 20, left: 20}}
+                    onStartShouldSetResponder={()=>{return true}}
+                    style={styles.map}
+                    ref={mapRef}>
+                <Camera maxZoom={23} 
+                        ref={mapCamRef}
+                        bounds={(pickedCoords?.latitude && 
+                                pickedCoords?.longitude) ? 
+                                [(pickedCoords?.longitude - 1), 
+                                (pickedCoords?.latitude - 1), 
+                                (pickedCoords?.longitude + 1), 
+                                (pickedCoords?.latitude + 1)] : 
+                                [93, -12, 142, 10]} />
+                {
+                    placesData?.map((item, index)=>(
+                        <Marker key={index} 
+                                testID='place-marker-on-map'
+                                lngLat={[item.lon, item.lat]}
+                                style={{backgroundColor: 'transparent', overflow: 'visible'}}>
+                            <View style={styles.placeMarker}>
+                                <Text style={styles.placeNamxTxtOnMarker}>
+                                    {item?.tags?.name ? item?.tags?.name : t('usefulLocScreen.unnamed')}
+                                </Text>
+                            </View>
+                        </Marker>
+                    ))
+                }
 
-                        <Camera maxZoom={23} 
-                                ref={mapCamRef}
-                                bounds={(pickedCoords?.latitude && 
-                                        pickedCoords?.longitude) ? 
-                                        [(pickedCoords?.longitude - 1), 
-                                        (pickedCoords?.latitude - 1), 
-                                        (pickedCoords?.longitude + 1), 
-                                        (pickedCoords?.latitude + 1)] : 
-                                        [93, -12, 142, 10]} />
+                {
+                    (pickedCoords?.latitude && pickedCoords?.longitude) && (
+                        <Marker testID='picked-loc-marker-on-map' 
+                                lngLat={[pickedCoords?.longitude, pickedCoords?.latitude]}>
+                            <View style={styles.pickedLocMarker}>
+                                <Text style={styles.pickedLocTxtOnMarker}>
+                                    {t('usefulLocScreen.usedLoc')}
+                                </Text>
+                            </View>
+                        </Marker>
+                    )
+                }
 
-                        {
-                            placesData?.map((item, index)=>(
-                                <Marker key={index} 
-                                        testID='place-marker-on-map'
-                                        lngLat={[item.lon, item.lat]}
-                                        style={{backgroundColor: 'transparent', overflow: 'visible'}}>
-                                    <View style={styles.placeMarker}>
-                                        <Text style={styles.placeNamxTxtOnMarker}>
-                                            {item?.tags?.name ? item?.tags?.name : t('usefulLocScreen.unnamed')}
-                                        </Text>
-                                    </View>
-                                </Marker>
-                            ))
-                        }
+                {
+                    (currentLoc?.latitude && currentLoc?.longitude) && (
+                        <Marker lngLat={[currentLoc?.longitude, currentLoc?.latitude]}>
+                            <View style={styles.currentLocMarker}>
+                                <Text style={styles.currentLocMarkerTxt}>
+                                    {t('shared.you')}
+                                </Text>
+                            </View>
+                        </Marker>
+                    )
+                }
+            </Map>
 
-                        {
-                            (pickedCoords?.latitude && pickedCoords?.longitude) && (
-                                <Marker testID='picked-loc-marker-on-map' 
-                                        lngLat={[pickedCoords?.longitude, pickedCoords?.latitude]}>
-                                    <View style={styles.pickedLocMarker}>
-                                        <Text style={styles.pickedLocTxtOnMarker}>
-                                            {t('usefulLocScreen.usedLoc')}
-                                        </Text>
-                                    </View>
-                                </Marker>
-                            )
-                        }
-
-                        {
-                            (currentLoc?.latitude && currentLoc?.longitude) && (
-                                <Marker lngLat={[currentLoc?.longitude, currentLoc?.latitude]}>
-                                    <View style={styles.currentLocMarker}>
-                                        <Text style={styles.currentLocMarkerTxt}>
-                                           {t('shared.you')}
-                                        </Text>
-                                    </View>
-                                </Marker>
-                            )
-                        }
-                    </Map>
-                ):
-                (
-                    <View style={styles.mapPlaceholder}>
-                        <Text>
-                            Map Placeholder
-                        </Text>
-                    </View>
-                )
-            }
-
-            <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom + 15}]}>
+            <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom}]}>
                 <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}
                                   style={styles.hideShowMenuBtn}>
                     <Text style={styles.hideShowMenuBtnTxt}>
@@ -941,5 +946,19 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         backgroundColor: 'white',
         rowGap: 10
+    },
+    downloadForOfflineBtn: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        padding: 8,
+        zIndex: 15,
+        backgroundColor: '#2D3782',
+        borderRadius: 30
+    },
+    downloadForOfflineBtnTxt: {
+        color: 'white',
+        fontSize: 17,
+        fontWeight: '600'
     }
 });
