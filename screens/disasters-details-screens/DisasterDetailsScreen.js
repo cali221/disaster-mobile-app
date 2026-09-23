@@ -18,6 +18,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react-native';
 import { BottomModalBase } from '../../components/modals-base/BottomModalBase';
 import { SeverityIconAndLabel } from '../../components/SeverityIconAndLabel';
 import { useIsFocused } from '@react-navigation/native';
+import { MapAttribution } from '../../components/MapAttribution';
 
 export function DisasterDetailsScreen({route, navigation}) {
     const insets = useSafeAreaInsets();
@@ -321,6 +322,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
                             </Map>  
+
+                            {/* attribution text just in case it's needed */}
+                            <MapAttribution />
                                 
 
                             {/* explanation text about map markers */}

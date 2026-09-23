@@ -14,8 +14,9 @@ import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-import { Map, Camera, Marker, OfflineManager } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker, OfflineManager, NetworkManager } from "@maplibre/maplibre-react-native"; 
 import * as Location from "expo-location";
+import { MapAttribution } from '../../components/MapAttribution';
 
 export function UsefulLocationScreen() {
     const [shouldSearch, setShouldSearch] = useState(false);
@@ -181,8 +182,6 @@ export function UsefulLocationScreen() {
     // handle updating search results
     useEffect(()=>{
         if(pickedCoords !== null && pickedCategory !== null && shouldSearch == true){
-            console.log('pickedCategory && pickedCoords && shouldSearch');
-
             getPlacesAroundCoordinates(pickedCategory?.type, 
                                        pickedCategory?.place, 
                                        7000, 
@@ -195,8 +194,12 @@ export function UsefulLocationScreen() {
 
     // create offline pack for map -> havent figured it out, dont know how it's used
     const createMapOfflinePack = async() => {
-        console.log('createMapOfflinePack')
+        console.log('createMapOfflinePack');
+        setIsLoading(true);
+
         try{
+            await OfflineManager.resetDatabase();
+
             const offlinePack = await OfflineManager.createPack(
                 {
                     mapStyle: 'https://tiles.openfreemap.org/styles/liberty',
@@ -214,15 +217,15 @@ export function UsefulLocationScreen() {
             }
         }
         catch(error){
-            alert(JSON.stringify(error.message))
+            showErrorToast(t('usefulLocScreen.failedToDownloadData'), 
+                             `${error.message ?? JSON.stringify(error)}`);
         }
+
+        setIsLoading(false);
     };
 
 
     useEffect(()=>{
-        // get map style on load
-        //getStyle().then((style)=>{setMapStyle(style)});
-
         const getPacks = async() => {
             await OfflineManager.getPacks().then((data)=>{
                 console.log(data);
@@ -238,7 +241,16 @@ export function UsefulLocationScreen() {
             await OfflineManager.invalidateAmbientCache();
         }
 
-        getPacks();
+        const clearCache = async() => {
+            await OfflineManager.clearAmbientCache();
+        }
+
+        // temporarily set to false to check offline mode
+        //NetworkManager.setConnected(true);
+        //getPacks();
+
+        // clear chache to check offline mode
+        //clearCache();
     }, []);
 
     // simulate moving current location
@@ -265,18 +277,19 @@ export function UsefulLocationScreen() {
             {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
 
             <TouchableOpacity style={styles.downloadForOfflineBtn} 
-                              onPress={()=>{createMapOfflinePack()}}>
+                              onPress={()=>{showInfoToast(t('usefulLocScreen.featureUnavailable'), '')}}>
                 <Text style={styles.downloadForOfflineBtnTxt}>
                     {t('usefulLocScreen.downloadLocationDataForOfflineUse')}
                 </Text>
             </TouchableOpacity>
 
             {/* map showing the places */}
-            <Map mapStyle={'https://tiles.openfreemap.org/styles/liberty'}
+            <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
                     compassPosition={{top: 20, left: 20}}
                     onStartShouldSetResponder={()=>{return true}}
                     style={styles.map}
-                    ref={mapRef}>
+                    ref={mapRef}
+                    onDidFailLoadingMap={()=>{alert('Failed to load map')}}>
                 <Camera maxZoom={23} 
                         ref={mapCamRef}
                         bounds={(pickedCoords?.latitude && 
@@ -300,7 +313,6 @@ export function UsefulLocationScreen() {
                         </Marker>
                     ))
                 }
-
                 {
                     (pickedCoords?.latitude && pickedCoords?.longitude) && (
                         <Marker testID='picked-loc-marker-on-map' 
@@ -326,6 +338,9 @@ export function UsefulLocationScreen() {
                     )
                 }
             </Map>
+            
+            {/* attribution text just in case it's needed */}
+            <MapAttribution />
 
             <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom}]}>
                 <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}

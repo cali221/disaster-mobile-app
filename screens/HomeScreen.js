@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { MapDisasterLegend } from '../components/MapDisasterLegend';
 import { BottomModalBase } from '../components/modals-base/BottomModalBase';
+import { MapAttribution } from '../components/MapAttribution';
 
 // name Map as MapIcon to differentiate from Map Libre's Map
 import { Phone, 
@@ -217,6 +218,9 @@ export function HomeScreen({ navigation }) {
                   )))
                 }
             </Map>
+
+            {/* attribution text just in case it's needed */}
+            <MapAttribution />
 
             <View style={styles.mapAndExplanationContainer}>
               {/* explanation text about the disaster map */}
