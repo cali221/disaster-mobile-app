@@ -283,9 +283,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                     location can be pressed to show reports in that location */}
                 {
                     shouldShowMap == true && (
-                        <View style={styles.mapAndExplanationContainer}>
+                        <View style={[styles.mapAndExplanationContainer, {paddingBottom: insets.bottom}]}>
                             {/* crowdsourced reports map placeholder */}
-                            {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
+                            {/* <View style={styles.map}></View> */}
             
                             <Map style={styles.map} 
                                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
@@ -897,13 +897,15 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
         elevation: 2,
         borderColor: 'grey',
-        borderWidth: 2
+        borderWidth: 2,
+        backgroundColor: 'white',
+        rowGap: 5
     },
     // marker for locations with report(s)
     reportLocMarker: {
@@ -951,14 +953,7 @@ const styles = StyleSheet.create({
     },
     // the map showing the disaster and user report locations
     map: {
-        width: '100%', 
-        height: 250, 
-        overflow: 'hidden'
-    },
-    // map placeholder for if map style is unavailable
-    mapPlaceholder: {
-        height: 250,
         width: '100%',
-        backgroundColor: 'white'
+        height: 200
     }
 });

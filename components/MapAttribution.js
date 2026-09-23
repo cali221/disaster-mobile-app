@@ -1,6 +1,6 @@
 /**
  * Map attribution section intended to be placed adjacent to a map using OpenFreeMap.
- * In this app, it's usually on the bottom of the map
+ * In this app, it's usually on top or bototm of the map
  */
 import { View, Text, Linking, StyleSheet } from 'react-native';
 

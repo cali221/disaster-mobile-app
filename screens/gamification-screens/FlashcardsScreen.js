@@ -474,7 +474,8 @@ const styles = StyleSheet.create({
     noFlashcardsToReviewTxt: {
         fontSize: 18,
         color: '#2D3782',
-        fontWeight: '600'
+        fontWeight: '600',
+        textAlign: 'center'
     },
     // container of current user's avatar and explanation text
     avatarAndExplanationContainer: {

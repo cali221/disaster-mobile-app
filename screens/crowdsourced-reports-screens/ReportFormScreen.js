@@ -199,7 +199,7 @@ export function ReportFormScreen({route, navigation}) {
                     <DataAttributionSection attributionTxt={t('reportFormScreen.dataAttribution')} />    
                 </View>
 
-                {/* perveived severity section */}
+                {/* perceived severity section */}
                 <View style={styles.perceivedSeveritySection}>
                     {/* heading text */}
                     <Text style={styles.sectionHeadingTxt}>

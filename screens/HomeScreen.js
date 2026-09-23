@@ -196,6 +196,9 @@ export function HomeScreen({ navigation }) {
                   {t('homeScreen.experiencedDisasterBtnTxt')}
                 </Text>
               </TouchableOpacity>
+
+              {/* map placeholder */}
+              {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
               
               <Map style={styles.disasterMap} 
                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
@@ -564,7 +567,7 @@ const styles = StyleSheet.create({
   // map showing disasters 
   disasterMap: {
     width: '100%',
-    height:  270
+    height: 200
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
@@ -681,7 +684,8 @@ const styles = StyleSheet.create({
   editWatchlistBtnTxt: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 17
+    fontSize: 17,
+    textAlign: 'center'
   },
   /* non-scrollable sections on the screen */
   homescreenContentSectionsNonScroll: {

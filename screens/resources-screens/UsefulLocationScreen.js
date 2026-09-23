@@ -273,15 +273,11 @@ export function UsefulLocationScreen() {
         <ScrollView contentContainerStyle={styles.screenContainer}
                     scrollEnabled={false}
                     nestedScrollEnabled={true}>    
+             {/* attribution text just in case it's needed */}
+            <MapAttribution />
+            
             {/* map placeholder */}
-            {/* <View style={{width: '100%', height: 180, backgroundColor: 'plum'}}></View> */}
-
-            <TouchableOpacity style={styles.downloadForOfflineBtn} 
-                              onPress={()=>{showInfoToast(t('usefulLocScreen.featureUnavailable'), '')}}>
-                <Text style={styles.downloadForOfflineBtnTxt}>
-                    {t('usefulLocScreen.downloadLocationDataForOfflineUse')}
-                </Text>
-            </TouchableOpacity>
+            {/* <View style={styles.map}></View> */}
 
             {/* map showing the places */}
             <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
@@ -338,9 +334,6 @@ export function UsefulLocationScreen() {
                     )
                 }
             </Map>
-            
-            {/* attribution text just in case it's needed */}
-            <MapAttribution />
 
             <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom}]}>
                 <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}
@@ -366,8 +359,8 @@ export function UsefulLocationScreen() {
 
                 {
                     shouldShowMenu == true ? (
-                        // the search menu
-                        <View style={[styles.searchMenuContainer, {marginBottom: insets.bottom}]}>
+                        <ScrollView style={[styles.menuScroll]} 
+                                    contentContainerStyle={[styles.searchMenuContainer]}>
                             <Text style={styles.pickCategoryTxt}>
                                 {t('usefulLocScreen.pickACategory')}
                             </Text>
@@ -419,29 +412,25 @@ export function UsefulLocationScreen() {
                                 </TouchableOpacity>
                             </ScrollView>
 
-                            {/* section for picking location to view places around */}
-                            <View style={styles.locationPickingSection}>
-                                {/* switch for using current's coordinates 
-                                    and the explanation text */}
-                                <View style={styles.useCurrentLocToggleContainer}>
-                                    <Text style={styles.usingCurrentLocStatusTxt}>
-                                        {
-                                            isUsingCurrentLoc == true ? 
-                                            t('usefulLocScreen.usingCurrentLoc'):
-                                            t('usefulLocScreen.useCurrentLoc')
-                                        }
-                                    </Text>
+                            <View style={styles.useCurrentLocToggleContainer}>
+                                <Text style={styles.usingCurrentLocStatusTxt}>
+                                    {
+                                        isUsingCurrentLoc == true ? 
+                                        t('usefulLocScreen.usingCurrentLoc'):
+                                        t('usefulLocScreen.useCurrentLoc')
+                                    }
+                                </Text>
 
-                                    {/* switch for using current coordinates,
-                                        can't be switch off but can be switched on */}
-                                    <Switch trackColor={{false: '#767577', true: '#9ec110'}}
-                                            thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
-                                            onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
-                                            value={isUsingCurrentLoc}
-                                            disabled={isUsingCurrentLoc == false ? false : true} />
-                                </View>
+                                {/* switch for using current coordinates,
+                                    can't be switch off but can be switched on */}
+                                <Switch trackColor={{false: '#767577', true: '#9ec110'}}
+                                        thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
+                                        onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
+                                        value={isUsingCurrentLoc}
+                                        disabled={isUsingCurrentLoc == false ? false : true} />
+                            </View>
 
-                                {/* location picker, can be pressed to view picker modal */}
+                            {/* location picker, can be pressed to view picker modal */}
                                 <View style={styles.locationSearchContainer}>
                                     {/* location picker, shows picker modal when pressed */}
                                     <TouchableOpacity style={styles.locationPickerBtn}
@@ -461,7 +450,6 @@ export function UsefulLocationScreen() {
                                         <ChevronDown color={'#2D3782'} size={30} />
                                     </TouchableOpacity>       
                                 </View>
-                            </View>
                             
                             {/* button to start search */}
                             <TouchableOpacity onPress={()=>{setShouldSearch(true)}} style={styles.searchBtn}>
@@ -469,7 +457,7 @@ export function UsefulLocationScreen() {
                                     {t('shared.search')}
                                 </Text>
                             </TouchableOpacity> 
-                        </View>
+                        </ScrollView>
                     ):
                     (
                         <ScrollView style={styles.placesListScrollView} 
@@ -634,7 +622,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         justifyContent: 'flex-start',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+
     },
     /* container of the buttons for 
        picking the category of places 
@@ -662,7 +651,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 5
+        padding: 9
     },
     // text inside buttons for picking a category
     categoryBtnTxt: {
@@ -711,13 +700,6 @@ const styles = StyleSheet.create({
         elevation: 2,
         borderRadius: 20
     },
-    // location input section container
-    locationInputSection: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        rowGap: 10
-    },
     // location search area container
     locationSearchContainer: {
         display: 'flex',
@@ -731,27 +713,25 @@ const styles = StyleSheet.create({
     locationPickerBtn: {
         borderColor: '#2D3782',
         borderWidth: 1,
-        paddingHorizontal: 20,
-        paddingVertical: 7,
+        paddingVertical: 5,
         borderRadius: 20,
         flex: 1,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 10,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        paddingHorizontal: 20
     },
     /* container of switch for using current 
        coordinates and the explanation text */
     useCurrentLocToggleContainer: {
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
         columnGap: 25,
-        width: '100%',
-        maxWidth: 350
+        backgroundColor: 'white'
     },
     /* location picking area, with both the 
        switch for using current coordinate 
@@ -760,9 +740,10 @@ const styles = StyleSheet.create({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        marginBottom: 20
+        backgroundColor:'white',
+        rowGap: 10
     },
     // text showing each place's name
     placeNameTxt: {
@@ -849,17 +830,9 @@ const styles = StyleSheet.create({
     },
     // the map
     map: {
-        width: '100%', 
-        height: 230
-    },
-    // placeholder of map
-    mapPlaceholder: {
         width: '100%',
-        height: 230,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white'
+        height: '35%',
+        backgroundColor: "red"
     },
     // marker for user's current location (subscribed)
     currentLocMarker: {
@@ -883,8 +856,7 @@ const styles = StyleSheet.create({
     // button to start search
     searchBtn: {
         backgroundColor: '#2D3782',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
+        paddingVertical: 5,
         borderRadius: 20,
         width: '100%',
         justifyContent: 'center',
@@ -893,7 +865,7 @@ const styles = StyleSheet.create({
     // text inside search button
     searchBtnTxt: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 17,
         fontWeight: '600',
         textAlign: 'center'
     },
@@ -901,7 +873,7 @@ const styles = StyleSheet.create({
     hideShowMenuBtn: {
         backgroundColor: '#9ec110',
         width: '100%',
-        paddingVertical: 10,
+        paddingVertical: 5,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -912,7 +884,7 @@ const styles = StyleSheet.create({
     // text inside button to show/hide search menu
     hideShowMenuBtnTxt: {
         color: '#2D3782',
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: '600'
     },
     // text saying if there is no place to list
@@ -941,26 +913,27 @@ const styles = StyleSheet.create({
     },
     // text saying 'Please pick a category'
     pickCategoryTxt: {
-        fontSize: 17,
+        fontSize: 16,
+        fontWeight: '600',
         color: '#2D3782'
+    },
+    menuScroll: {
+       width: '100%',
+       borderWidth: 3,
+       borderBottomLeftRadius: 30,
+       borderBottomRightRadius: 30,
+       backgroundColor: 'white',
+       flexGrow: 0,
+       height: '100%',
+       marginBottom: 20,
+       borderColor: '#2D3782'
     },
     // container of the search menu
     searchMenuContainer: {
-        width: '100%', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        justifyContent: 'center', 
-        paddingBottom: 30, 
-        paddingHorizontal: 20, 
-        borderBottomWidth: 3, 
-        borderLeftWidth: 3, 
-        borderRightWidth: 3, 
-        borderColor: '#2D3782', 
-        borderBottomLeftRadius: 30, 
-        borderBottomRightRadius: 30, 
-        paddingTop: 10,
-        backgroundColor: 'white',
-        rowGap: 10
+       display: 'flex',
+       flexDirection: 'column',
+       padding: 20,
+       rowGap: 15
     },
     downloadForOfflineBtn: {
         position: 'absolute',
