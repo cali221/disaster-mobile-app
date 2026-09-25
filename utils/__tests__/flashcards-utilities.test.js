@@ -3,7 +3,6 @@ import { getNDaysFromNowISOTimeStr } from "../get-time";
 
 jest.useFakeTimers();
 
-
 /**
  *  parameter order:
  *  cardReps, 
