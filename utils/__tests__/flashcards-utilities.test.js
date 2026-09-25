@@ -34,4 +34,20 @@ describe('getCardUpdatedValsUsingSM2 function', () => {
                                                                         newDueDate: getNDaysFromNowISOTimeStr(6)});
         }
     );
+
+    it('should return the right object card repetition is > 1, current interval is 6, current ease factor is 2.5 and recall ease value is > 3', () => {
+        expect(getCardUpdatedValsUsingSM2(2, 6, 2.5, 4)).toStrictEqual({newCardReps: 3,
+                                                                        newCardInterval: 15,  // 6 * 2.5 then rounded up
+                                                                        newCardEF: 2.5 + (0.1 - (5 - 4) * (0.08 + (5 - 4) * 0.02)),
+                                                                        newDueDate: getNDaysFromNowISOTimeStr(15)});
+        }
+    );
+
+    it('should return the right object card repetition is > 1, current interval is 6, new ease factor is < 1.3 and recall ease value is > 3', () => {
+        expect(getCardUpdatedValsUsingSM2(2, 6, 1.2, 4)).toStrictEqual({newCardReps: 3,
+                                                                        newCardInterval: 8,  // 6 * 1.2 then rounded up
+                                                                        newCardEF: 1.3,
+                                                                        newDueDate: getNDaysFromNowISOTimeStr(8)});
+        }
+    );
 });

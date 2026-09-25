@@ -28,12 +28,12 @@ export function getCardUpdatedValsUsingSM2(cardReps,
         } 
         else {  
             // if interval is a fraction/float, round it up to an integer.
-            cardInterval = Math.ceil(cardReps * cardEaseFactor);
+            cardInterval = Math.ceil(cardInterval * cardEaseFactor);
         }  
 
         cardReps += 1;
 
-        const newCardEaseFactor =  cardEaseFactor + (0.1 - (5 - recallEaseVal) * (0.08 + (5 - recallEaseVal) * 0.02));
+        let newCardEaseFactor =  cardEaseFactor + (0.1 - (5 - recallEaseVal) * (0.08 + (5 - recallEaseVal) * 0.02));
 
         if(newCardEaseFactor < 1.3){
             newCardEaseFactor = 1.3
@@ -44,7 +44,7 @@ export function getCardUpdatedValsUsingSM2(cardReps,
         return {
             newCardReps: cardReps,
             newCardInterval: cardInterval,
-            newCardEF: newCardEaseFactor,
+            newCardEF: cardEaseFactor,
             newDueDate: getNDaysFromNowISOTimeStr(cardInterval)
         }
     }   
