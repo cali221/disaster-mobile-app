@@ -254,27 +254,24 @@ export function DisasterDetailsScreen({route, navigation}) {
             <View style={styles.screenContainer}>
                 {/* button to hide/show map */}
                 <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
-                                  style={styles.toggleShowMapBtn}>
+                                  style={styles.toggleShowMapBtn}
+                                  accessibilityRole='button'>
                     {
-                        shouldShowMap == true ?
-                        (
-                            <View style={styles.toggleShowMapBtnContentContainer}>
-                                <Text style={styles.hideOrShowMapTxt}>
-                                    {t('disasterDetailsScreen.hideMap')}
-                                </Text>
-
+                        <View style={styles.toggleShowMapBtnContentContainer}>
+                            <Text style={styles.hideOrShowMapTxt}>
+                                {shouldShowMap == true ? t('homeScreen.hideMap'):t('homeScreen.showMap')}
+                            </Text>
+        
+                            {
+                            shouldShowMap == true ? 
+                            (
                                 <ChevronUp color={'#2D3782'} size={30} />
-                            </View>
-                        ):
-                        (
-                            <View style={styles.toggleShowMapBtnContentContainer}>
-                                <Text style={styles.hideOrShowMapTxt}>
-                                    {t('disasterDetailsScreen.showMap')}
-                                </Text>
-
+                            ):
+                            (
                                 <ChevronDown color={'#2D3782'} size={30} />
-                            </View>
-                        )
+                            )
+                            }
+                    </View>
                     }
                 </TouchableOpacity>
 

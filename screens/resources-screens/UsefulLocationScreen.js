@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         justifyContent: 'flex-start',
-        backgroundColor: 'white',
+        backgroundColor: 'white'
 
     },
     /* container of the buttons for 
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
     map: {
         width: '100%',
         height: '35%',
-        backgroundColor: "red"
+        backgroundColor: 'white'
     },
     // marker for user's current location (subscribed)
     currentLocMarker: {

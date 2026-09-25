@@ -50,7 +50,7 @@ export function HomeScreen({ navigation }) {
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShowBottomModal, setShouldShowBottomModal] = useState(false);
-  const [shouldShowMap, setShouldShowMap] = useState(false);
+  const [shouldShowMap, setShouldShowMap] = useState(true);
 
   useEffect(() => { 
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
@@ -163,35 +163,34 @@ export function HomeScreen({ navigation }) {
                                                 paddingRight: insets.right }]}>
         {/* button to hide/show map */}
         <TouchableOpacity onPress={()=>{setShouldShowMap(!shouldShowMap)}}
-                          style={styles.toggleShowMapBtn}>
+                          style={styles.toggleShowMapBtn}
+                          accessibilityRole='button'
+                          accessibilityLabel={shouldShowMap == true ? t('homeScreen.hideMap'):t('homeScreen.showMap')}>
             {
-                shouldShowMap == true ?
-                (
-                    <View style={styles.toggleShowMapBtnContentContainer}>
-                        <Text style={styles.hideOrShowMapTxt}>
-                            {t('homeScreen.hideMap')}
-                        </Text>
+              <View style={styles.toggleShowMapBtnContentContainer}>
+                  <Text style={styles.hideOrShowMapTxt}>
+                      {shouldShowMap == true ? t('homeScreen.hideMap'):t('homeScreen.showMap')}
+                  </Text>
 
-                        <ChevronUp color={'#2D3782'} size={30} />
-                    </View>
-                ):
-                (
-                    <View style={styles.toggleShowMapBtnContentContainer}>
-                        <Text style={styles.hideOrShowMapTxt}>
-                            {t('homeScreen.showMap')}
-                        </Text>
-
-                        <ChevronDown color={'#2D3782'} size={30} />
-                    </View>
-                )
-            }
+                  {
+                    shouldShowMap == true ? 
+                    (
+                      <ChevronUp color={'#2D3782'} size={30} />
+                    ):
+                    (
+                      <ChevronDown color={'#2D3782'} size={30} />
+                    )
+                  }
+            </View>
+          }
         </TouchableOpacity>
 
         {
           shouldShowMap == true && (
             <View style={styles.mapAndExperiecedDisasterBtnContainer}>
               <TouchableOpacity style={styles.experiencedDisasterBtn}
-                                onPress={()=>{navigation.navigate('Report Menu')}}>
+                                onPress={()=>{navigation.navigate('Report Menu')}}
+                                accessibilityRole='button'>
                 <Text style={styles.experiencedDisasterBtnTxt}>
                   {t('homeScreen.experiencedDisasterBtnTxt')}
                 </Text>
@@ -567,7 +566,7 @@ const styles = StyleSheet.create({
   // map showing disasters 
   disasterMap: {
     width: '100%',
-    height: 200
+    height: 300
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
@@ -700,8 +699,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     rowGap: 10,
-    columnGap: 20,
-    backgroundColor: 'white'
+    columnGap: 20
   },
   /* container of buttons in the non-scrollable 
      sections of the screen */
@@ -811,6 +809,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    width: '100%'
+    width: '100%',
+    backgroundColor: 'white'
   }
 });

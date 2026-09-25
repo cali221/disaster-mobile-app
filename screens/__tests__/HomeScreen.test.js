@@ -3,6 +3,7 @@ import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { HomeScreen } from '../HomeScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Navigation } from '../../App';
+import { LanguageContext } from '../../contexts/LanguageContext';
 
 jest.useFakeTimers();
 
@@ -35,13 +36,16 @@ jest.mock('lucide-react-native', () => {
         XCircle: 'XCircle',
         // up arrow icon (shown on disaster guide screens)
         ArrowBigUp: 'ArrowBigUp',
-        // resouce hub extra icons that aren't alreadu included
+        // resouce hub extra icons that aren't already included
         Map: 'Map',
         SlashIcon: 'SlashIcon',
         WavesArrowUp: 'WavesArrowUp',
-        // disaster details scren icons
+        // chevrons (for show/hide toggles)
         ChevronUp: 'ChevronUp', 
-        ChevronDown: 'ChevronDown'
+        ChevronDown: 'ChevronDown',
+        // mute/unmute icons
+        VolumeOff: 'VolumeOff', 
+        Volume2: 'Volume2'
     }
 });
 
@@ -119,9 +123,11 @@ describe('Home Screen', () => {
 
     it('should show the right number of disaster summary item according to data', async () => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <HomeScreen/>
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen/>
+                </AuthContext>
+            </LanguageContext.Provider>
         )
 
         const listItemShownArr = await screen.getAllByTestId('disaster-summary-item-container');
@@ -130,9 +136,11 @@ describe('Home Screen', () => {
 
     it('should show the right number of disaster markers on map according to data', async() => {
        await render(
-            <AuthContext value={{user: testUser}}>
-                <HomeScreen/>
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen/>
+                </AuthContext>
+            </LanguageContext.Provider>
         )
 
         const markersShownArr = await screen.getAllByTestId('marker-on-map');
@@ -141,9 +149,11 @@ describe('Home Screen', () => {
 
     it('should navigate to disaster details screen when map marker is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -169,9 +179,11 @@ describe('Home Screen', () => {
 
     it('should navigate to disaster details screen when disaster details button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -197,9 +209,11 @@ describe('Home Screen', () => {
 
     it('should navigate to create report screen when create report button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -225,9 +239,11 @@ describe('Home Screen', () => {
 
     it('should navigate to emergency numbers screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -253,9 +269,11 @@ describe('Home Screen', () => {
 
     it('should navigate to useful locations screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -281,9 +299,11 @@ describe('Home Screen', () => {
 
     it('should navigate to quizzes screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -309,9 +329,11 @@ describe('Home Screen', () => {
 
     it('should navigate to flashcards screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -337,9 +359,11 @@ describe('Home Screen', () => {
 
     it('should navigate to emergency bag screen when the corresponding button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -365,9 +389,11 @@ describe('Home Screen', () => {
 
     it('should navigate to resource hub screen when the resouce hub link is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+           <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -393,9 +419,11 @@ describe('Home Screen', () => {
     
     it('should show disaster types menu modal when evacuation steps button is pressed', async() => {
         await render(
-            <AuthContext value={{user: testUser}}>
-                <HomeScreen />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -411,9 +439,11 @@ describe('Home Screen', () => {
 
     it('should navigate to the earthquake guide screen if the flood button is pressed on disaster types menu modal', async()=>{
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -439,9 +469,11 @@ describe('Home Screen', () => {
 
     it('should navigate to the tsunami guide screen if the tsunami button is pressed on disaster types menu modal', async()=>{
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -467,9 +499,11 @@ describe('Home Screen', () => {
 
     it('should navigate to the flood guide screen if the flood button is pressed on disaster types menu modal', async()=>{
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -495,9 +529,11 @@ describe('Home Screen', () => {
 
     it('should navigate to the landslide guide screen if the landslide button is pressed on disaster types menu modal', async()=>{
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -523,9 +559,11 @@ describe('Home Screen', () => {
 
     it('should navigate to the volcanic eruption guide screen if the volcanic eruption button is pressed on disaster types menu modal', async()=>{
         await render(
-            <AuthContext value={{user: testUser}}>
-                <Navigation />
-            </AuthContext>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();

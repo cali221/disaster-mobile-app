@@ -9,6 +9,7 @@
 import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { Navigation } from '../App';
 import { AuthContext } from '../contexts/AuthContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 
 jest.useFakeTimers();
 
@@ -61,7 +62,13 @@ jest.mock('lucide-react-native', () => {
         WavesArrowUp: 'WavesArrowUp',
         Activity: 'Activity',
         Waves: 'Waves',
-        Mountain: 'Mountain'
+        Mountain: 'Mountain',
+        // mute/unmute icons
+        VolumeOff: 'VolumeOff', 
+        Volume2: 'Volume2',
+        // chevrons (for show/hide toggles)
+        ChevronUp: 'ChevronUp', 
+        ChevronDown: 'ChevronDown',
     }
 });
 
@@ -76,19 +83,23 @@ describe('Navigation when logged in', ()=>{
 
     it('shows home screen when user is not null and user has not navigated', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
-        await expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'screenTitles.home'})).toBeOnTheScreen();
     });
 
     it('shows home screen when user is not null and user navigated to home screen', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
-                <Navigation />
-            </AuthContext.Provider>
+             <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
         const user = userEvent.setup();
@@ -97,14 +108,16 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        await expect(screen.getByRole('heading', {name: 'Home'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'screenTitles.home'})).toBeOnTheScreen();
     });
 
     it('shows resource hub screen when user is not null and user navigated to resource hub', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
         const user = userEvent.setup();
@@ -118,9 +131,11 @@ describe('Navigation when logged in', ()=>{
 
     it('shows panic button screen when user is not null and user navigated to panic button', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
-                <Navigation />
-            </AuthContext.Provider>
+             <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
         const user = userEvent.setup();
@@ -134,9 +149,11 @@ describe('Navigation when logged in', ()=>{
 
     it('shows notifications screen when user is not null and user navigated to notifications screen', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser}}>
-                <Navigation />
-            </AuthContext.Provider>
+             <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
         const user = userEvent.setup();
@@ -145,14 +162,16 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        await expect(screen.getByRole('heading', {name: 'Notifications'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'screenTitles.notifications'})).toBeOnTheScreen();
     });
 
-    it('shows notifications screen when user is not null and user navigated to notifications screen', async()=>{
+    it('shows notifications screen when user is not null and user navigated to profile screen', async()=>{
         await render(
-            <AuthContext.Provider value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
-                <Navigation />
-            </AuthContext.Provider>
+             <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         )
 
         const user = userEvent.setup();
@@ -161,7 +180,7 @@ describe('Navigation when logged in', ()=>{
         
         await act(() => jest.runAllTimers());
 
-        await expect(screen.getByRole('heading', {name: 'Profile'})).toBeOnTheScreen();
+        await expect(screen.getByRole('heading', {name: 'screenTitles.profile'})).toBeOnTheScreen();
     });
 });
 
@@ -169,9 +188,11 @@ describe('Navigation when logged in', ()=>{
 describe('Navigation when logged out', ()=>{
     it('shows sign in screen when user is null and has not navigated', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
         
         await expect(screen.getByRole('heading', {name: 'authWords.signIn'})).toBeOnTheScreen();
@@ -179,9 +200,11 @@ describe('Navigation when logged out', ()=>{
 
     it('shows sign in screen when user is null and navigated to homescreen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -195,9 +218,11 @@ describe('Navigation when logged out', ()=>{
 
     it('shows resource hub screen when user is null and navigated to resource hub screen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -211,9 +236,11 @@ describe('Navigation when logged out', ()=>{
 
     it('shows panic button screen when user is null and navigated to panic button screen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -227,9 +254,11 @@ describe('Navigation when logged out', ()=>{
 
     it('shows sign in screen when user is null and navigated to notifiations screen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
@@ -243,9 +272,11 @@ describe('Navigation when logged out', ()=>{
 
     it('shows sign in screen when user is null and navigated to profile screen', async ()=>{
         await render(
-            <AuthContext.Provider value={{user: null}}>
-                <Navigation />
-            </AuthContext.Provider>
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext.Provider value={{user: null}}>
+                    <Navigation />
+                </AuthContext.Provider>
+            </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
