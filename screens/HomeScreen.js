@@ -237,8 +237,7 @@ export function HomeScreen({ navigation }) {
       {/* scroll view for content below disaster map */}
       <ScrollView style={styles.homescreenContainer} 
                   contentContainerStyle={styles.scrollViewContentContainer}
-                  nestedScrollEnabled={true}
-                  accessibilityRole='scrollbar'>
+                  nestedScrollEnabled={true}>
       
           {/* section for showing recent disasters near user's watched area */}
           <View style={styles.disasterNearWatchedAreaSummaryContainer}>
@@ -249,8 +248,7 @@ export function HomeScreen({ navigation }) {
             
             {/* scroll view showing a list of the recent disaster near user's watched areas  */}
             <ScrollView nestedScrollEnabled={true} 
-                        style={styles.disasterNearWatchedAreaSummaryScrolLView}
-                        accessibilityRole='scrollbar'>
+                        style={styles.disasterNearWatchedAreaSummaryScrolLView}>
               {
                 (disastersSummaryFollowingWatchedAreas?.map((summary, index) => (
                   /* map the corresponding array state into views with disaster 

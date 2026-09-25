@@ -349,7 +349,6 @@ export function ProfileScreen({ navigation }) {
 
                                 {/* horizontal scroll view for showing badges */}
                                 <BadgesHorizontalScrollContainer badgesArr={userProfile?.user_badges}
-                                                                 accessibilityRole='scrollbar' 
                                                                  handleBadgePress={showBadgeModal} />
 
                             </View>

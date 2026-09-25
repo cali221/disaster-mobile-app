@@ -32,8 +32,7 @@ export function BottomModalBase(props) {
                 </View>
 
                 <ScrollView style={[styles.contentScrollView, {marginBottom: insets.bottom + 35}]}
-                            contentContainerStyle={styles.contentScrollViewContentContainer}
-                            accessibilityRole='scrollbar'>
+                            contentContainerStyle={styles.contentScrollViewContentContainer}>
                     {/* content of the modal */}
                     {props.children}
                 </ScrollView>
