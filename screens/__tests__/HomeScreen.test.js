@@ -203,7 +203,7 @@ describe('Home Screen', () => {
             // expect to be redirected to the disaster details screen
             await expect(screen.getByRole('heading', 
                                           {name: 'screenTitles.disasterDetailsScreenTitle'}))
-                            .toBeOnTheScreen();
+                               .toBeOnTheScreen();
         }
     });
 

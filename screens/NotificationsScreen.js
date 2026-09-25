@@ -112,7 +112,7 @@ export function NotificationsScreen({ navigation }) {
 
     // fetch notification on first load and user/notification category change
     useEffect(()=>{
-        handleFetchNotifications();
+       handleFetchNotifications();
     }, [user?.id, notifCategoryChosen]);
 
     return(
@@ -127,7 +127,8 @@ export function NotificationsScreen({ navigation }) {
                                           notifCategoryChosen == 'disasters' ? 
                                                                  styles.pickedNotifCategoryBtnColor :
                                                                  styles.notPickedNotifCategoryBtnColor]}
-                                  onPress={()=>{setNotifCategoryChosen('disasters')}}>
+                                  onPress={()=>{setNotifCategoryChosen('disasters')}}
+                                  accessibilityRole='button'>
                     <Text style={[styles.notifCategoryBtnTxt, 
                                   notifCategoryChosen == 'disasters' ? 
                                                          styles.pickedNotifCategoryBtnTxtColor : 
@@ -141,7 +142,8 @@ export function NotificationsScreen({ navigation }) {
                                           notifCategoryChosen == 'followers' ?
                                           styles.pickedNotifCategoryBtnColor :
                                           styles.notPickedNotifCategoryBtnColor]}
-                                  onPress={()=>{setNotifCategoryChosen('followers')}}>
+                                  onPress={()=>{setNotifCategoryChosen('followers')}}
+                                  accessibilityRole='button'>
                     <Text style={[styles.notifCategoryBtnTxt, 
                                   notifCategoryChosen == 'followers' ? 
                                                          styles.pickedNotifCategoryBtnTxtColor : 
@@ -212,7 +214,6 @@ export function NotificationsScreen({ navigation }) {
                             (
                                 <TouchableOpacity style={styles.notificationItemBtn}
                                                   accessibilityRole='button'
-                                                  accessibilityLabel={t('shared.followBack')}
                                                   onPress={()=>{handleFollow(user.id, item.mentioned_user_user_id, item)}}> 
                                     <Text style={styles.notificationItemBtnTxt}>
                                         {t('shared.followBack')}
