@@ -18,7 +18,7 @@ jest.mock('@supabase/supabase-js', () => {
     return {
         createClient: jest.fn()
     }
-})
+});
 
 describe('Panic Button Screen', () => {
     it('should show the button to sound SOS by default', async () => {
