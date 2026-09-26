@@ -42,6 +42,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToUsefulLocationScreen')}
                                       onPress={()=>{navigation.navigate('Useful Locations')}}>
                         <Map size={45} stroke={'white'} />
 
@@ -55,6 +56,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToEarthquakeGuideScreen')}
                                       onPress={()=>{navigation.navigate('Earthquake Guide')}}>
                         <Activity size={45} stroke={'white'} />
 
@@ -68,6 +70,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToTsunamiGuideScreen')}
                                       onPress={()=>{navigation.navigate('Tsunami Guide')}}>
                         <WavesArrowUp size={45} stroke={'white'} />
 
@@ -81,6 +84,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToFloodGuideScreen')}
                                       onPress={()=>{navigation.navigate('Flood Guide')}}>
                         <Waves size={45} stroke={'white'} />
 
@@ -94,6 +98,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToLandslideGuideScreen')}
                                       onPress={()=>{navigation.navigate('Landslide Guide')}}>
                         <SlashIcon size={45} stroke={'white'} />
 
@@ -107,6 +112,7 @@ export function ResourceHubScreen({navigation}){
                 <View style={styles.menuBtnContainer}>
                     <TouchableOpacity style={styles.menuBtn}
                                       accessibilityRole='button'
+                                      accessibilityLabel={t('resourceHubScreen.goToVolcanicEruptionGuideScreen')}
                                       onPress={()=>{navigation.navigate('Volcanic Eruption Guide')}}>
                         <Mountain size={45} stroke={'white'} />
 
