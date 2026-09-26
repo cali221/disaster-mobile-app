@@ -283,7 +283,9 @@ function notificationScreenStack(){
               <Stack.Screen name='Notifications' 
                             component={NotificationsScreen} 
                             options={{title: t('screenTitles.notifications')}} />
-              <Stack.Screen name='Disaster Details' component={DisasterDetailsScreen} />
+              <Stack.Screen name='Disaster Details' 
+                            component={DisasterDetailsScreen}
+                            options={{title: t('screenTitles.disasterDetailsScreenTitle')}} />
               <Stack.Screen name='Report Form'
                             component={ReportFormScreen}
                             options={{title: t('screenTitles.reportFormScreenTitle')}} />

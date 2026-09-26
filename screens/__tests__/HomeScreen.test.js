@@ -66,48 +66,59 @@ jest.mock('@supabase/supabase-js', () => {
                         unsubscribe: jest.fn()
                     }
                 }),
-                schema: jest.fn().mockReturnThis(),
-                from: jest.fn().mockReturnThis(),
-                order: jest.fn().mockReturnThis(),
-                select: jest.fn().mockReturnThis(),
-                gt: jest.fn().mockReturnValue({ data: [{
-                                                        disaster_longitude: 10, 
-                                                        disaster_latitude: 10, 
-                                                        disaster_type: 'earthquake'
-                                                        },
-                                                        {
-                                                        disaster_longitude: 5, 
-                                                        disaster_latitude: 5, 
-                                                        disaster_type: 'flood'
-                                                        }], 
-                                                error: null}),
-                eq: jest.fn().mockReturnThis(),
-                rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
-                    if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
-                        return {
-                            data: [{ 
-                                    disaster_type: 'hurricane', 
-                                    dist_in_m_from_disaster: 1000, 
-                                    adm2_name: 'Jakarta Pusat', 
-                                    adm1_name: 'DKI Jakarta', 
-                                    disaster_datetime: new Date ,
-                                    disaster_id: 'someid'
-                                    },
-                                    { 
-                                    disaster_type: 'flood', 
-                                    dist_in_m_from_disaster: 20, 
-                                    adm2_name: 'Denpasar', 
-                                    adm1_name: 'Bali', 
-                                    disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
-                                    disaster_id: 'someid2'
-                                    }],
-                            error: null
+                schema: jest.fn().mockImplementation((schemaName)=>{
+                    if(schemaName == 'public'){
+                        return{
+                            from: jest.fn().mockReturnThis(),
+                            order: jest.fn().mockReturnThis(),
+                            select: jest.fn().mockReturnThis(),
+                            eq: jest.fn().mockReturnThis(),
+                            rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
+                                if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
+                                    return {
+                                        data: [{ 
+                                                    disaster_type: 'hurricane', 
+                                                    dist_in_m_from_disaster: 1000, 
+                                                    adm2_name: 'Jakarta Pusat', 
+                                                    adm1_name: 'DKI Jakarta', 
+                                                    disaster_datetime: new Date ,
+                                                    disaster_id: 'someid'
+                                                },
+                                                { 
+                                                    disaster_type: 'flood', 
+                                                    dist_in_m_from_disaster: 20, 
+                                                    adm2_name: 'Denpasar', 
+                                                    adm1_name: 'Bali', 
+                                                    disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
+                                                    disaster_id: 'someid2'
+                                                }],
+                                        error: null
+                                    }
+                                }
+                                else{
+                                    return {
+                                        data: []
+                                    }
+                                }
+                            }),
                         }
                     }
-                    else{
-                        return {
-                            data: []
-                        }
+                    else if(schemaName == 'disasters_related_data'){
+                       return{
+                        from: jest.fn().mockReturnThis(),
+                        select: jest.fn().mockReturnThis(),
+                        gt: jest.fn().mockReturnValue({ data: [{
+                                                                    disaster_longitude: 10, 
+                                                                    disaster_latitude: 10, 
+                                                                    disaster_type: 'earthquake'
+                                                                },
+                                                                {
+                                                                    disaster_longitude: 5, 
+                                                                    disaster_latitude: 5, 
+                                                                    disaster_type: 'flood'
+                                                                }], 
+                                                error: null}),
+                       }
                     }
                 }),
                 auth: {
@@ -143,6 +154,12 @@ describe('Home Screen', () => {
             </LanguageContext.Provider>
         )
 
+        const user = userEvent.setup();
+
+        // press button to show map
+        await user.press(screen.getByRole('button', { name: 'homeScreen.showMap' }));
+        await act(() => jest.runAllTimers());
+        
         const markersShownArr = await screen.getAllByTestId('marker-on-map');
         await expect(markersShownArr.length).toBe(2);
     });
@@ -160,6 +177,10 @@ describe('Home Screen', () => {
 
         // navigate to home screen first to be sure it's on home screen
         await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press button to show map
+        await user.press(screen.getByRole('button', { name: 'homeScreen.showMap' }));
         await act(() => jest.runAllTimers());
 
         // get markers
@@ -220,6 +241,10 @@ describe('Home Screen', () => {
 
         // navigate to home screen first to be sure it's on home screen
         await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
+        await act(() => jest.runAllTimers());
+
+        // press button to show map
+        await user.press(screen.getByRole('button', { name: 'homeScreen.showMap' }));
         await act(() => jest.runAllTimers());
 
         // get create report button

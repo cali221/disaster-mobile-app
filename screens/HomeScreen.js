@@ -4,8 +4,7 @@ import { Text,
          StyleSheet, 
          ScrollView,
          Linking } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
@@ -50,7 +49,7 @@ export function HomeScreen({ navigation }) {
   const [disastersSummaryFollowingWatchedAreas, setDisastersSummaryFollowingWatchedAreas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShowBottomModal, setShouldShowBottomModal] = useState(false);
-  const [shouldShowMap, setShouldShowMap] = useState(true);
+  const [shouldShowMap, setShouldShowMap] = useState(false);
 
   useEffect(() => { 
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
@@ -72,7 +71,8 @@ export function HomeScreen({ navigation }) {
     // function to get recent disasters (last 24 hours) around user's watched areas
     const fetchRecentDisastersNearWatchedAreaSummary = async (user_id) => {
         if(user_id){
-          const {data, error} = await supabase.rpc('get_homescreen_summary_of_disasters_for_user',
+          const {data, error} = await supabase.schema('public')
+                                              .rpc('get_homescreen_summary_of_disasters_for_user',
                                                    {user_id_input: user_id});
               
           if(error){
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   // map showing disasters 
   disasterMap: {
     width: '100%',
-    height: 300
+    height: 230
   },
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
