@@ -9,11 +9,13 @@ export function BadgeDetailsModal(props) {
     return(
        <CenterModalBase title={props.badgeModalData.name} 
                         closeFunc={()=>{props.hideBadgeModalFunc()}}>
-            <View style={styles.badgeModalContentContainer}>
+            <View style={styles.badgeModalContentContainer}
+                  testID='badge-details-modal-content-container'>
                 {/* the badge's image */}
                 <Image source={{uri: props.badgeModalData.badgeImgUrl}} 
                                 style={[styles.badgeModalImg, 
-                                        props.badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}/>
+                                        props.badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}
+                       testID={`badge-image-on-modal-${(props.badgeModalData.name).toLowerCase().replace(' ', '-')}`}/>
                 {/* the badge's description */}
                 <Text style={styles.badgeModalDescTxt}>
                     {currentLang == 'id' ? props.badgeModalData.badgeDescIdn : props.badgeModalData.badgeDesc}

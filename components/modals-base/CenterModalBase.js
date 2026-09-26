@@ -24,7 +24,8 @@ export function CenterModalBase(props) {
                     {/* close button */}
                     <TouchableOpacity style={styles.closeBtn} 
                                       onPress={props.closeFunc}
-                                      accessibilityRole='button'>
+                                      accessibilityRole='button'
+                                      accessibilityLabel={t('shared.close')}>
                         <XCircle size={25} color='#2D3782' />
                         <Text style={styles.closeBtnTxt}>
                             {t('shared.close')}

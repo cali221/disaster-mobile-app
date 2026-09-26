@@ -12,16 +12,21 @@ export function LeaderboardList(props) {
     
     return(
         <ScrollView contentContainerStyle={styles.leaderboardListContentContainer}
-                    style={styles.leaderboardListScrollView}>
+                    style={styles.leaderboardListScrollView}
+                    testID='leaderboard-list'>
             {props.leaderboardData &&
                 (props.leaderboardData.map((item, index) => {
                     return(
-                    <View key={index} style={[styles.leaderboardItem, 
-                                              index!=(props.leaderboardData.length - 1) && {borderBottomWidth: 2}]}>
+                    <View key={index} 
+                          style={[styles.leaderboardItem, 
+                                  index!=(props.leaderboardData.length - 1) && {borderBottomWidth: 2}]}
+                          testID={`${item.username}-leaderboard-item-container`}>
                         <View style={styles.leaderboardItemTxtsContainer}>
                             {/* username of the user */}
                             <Text style={styles.leaderboardUsernameTxt} 
                                   accessibilityRole='link'
+                                  accessibilityLabel={t('leaderboardList.goToUserProfile')}
+                                  testID={`user-link-${item.username}`}
                                   onPress={()=>{navigation.navigate('Profile of Another User', 
                                                                     {
                                                                         screenTitle: `@${item.username}`,
@@ -32,12 +37,20 @@ export function LeaderboardList(props) {
                             </Text>
 
                             {/* total XP of the user */}
-                            <Text style={styles.leaderboardXpTxt}>
+                            <Text style={styles.leaderboardXpTxt}
+                                  testID={`${item.username}-xp-text`}>
                                 Total XP: {item.xp}
                             </Text>
                         </View>
 
-                        { index == 0 && (<Trophy size={30} fill={'#eba103'} color={'#2D3782'} />) }
+                        { 
+                            index == 0 && (
+                                <Trophy size={30} 
+                                        fill={'#eba103'} 
+                                        color={'#2D3782'}
+                                        testID='leaderboard-trophy' />
+                            )  
+                        }
                     </View>
                     )
                 }))

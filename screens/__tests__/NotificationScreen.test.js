@@ -5,6 +5,7 @@ import { NotificationsScreen } from '../NotificationsScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { LanguageContext } from '../../contexts/LanguageContext';
 import { Navigation } from '../../App';
+import { renderWithToasts } from '../../utils/render-with-toasts'; 
 
 jest.useFakeTimers();
 
@@ -60,7 +61,6 @@ jest.mock('@supabase/supabase-js', () => {
                                                     eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
                                                         return {
                                                             order: jest.fn().mockImplementation(() => {
-                                                                console.log('Notification type: ' + notifTypeToFetch);
                                                                 if(notifTypeToFetch == 'disaster_notification'){
                                                                     return {
                                                                         data: [{body: 'this is as disaster notification body',
@@ -347,15 +347,19 @@ describe('Notification Screen', () => {
     });
 
     it('should make the follow back button disappears after it is pressed and successful', async() => {
-        await render(
+        await renderWithToasts(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
+                    <Navigation />
                 </AuthContext>
             </LanguageContext.Provider>
         );
 
         const user = userEvent.setup();
+
+        // go to the notifications screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
+        await act(() => jest.runAllTimers());
 
         // make sure followers category is picked
         await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
@@ -369,5 +373,36 @@ describe('Notification Screen', () => {
         await act(() => jest.runAllTimers());
 
         await expect(followBtn).not.toBeOnTheScreen();
+    });
+
+    it('should show success toast after follow back button is pressed and successful', async() => {
+        await renderWithToasts(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
+
+        const user = userEvent.setup();
+
+        // go to the notifications screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
+        await act(() => jest.runAllTimers());
+
+        // make sure followers category is picked
+        await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
+        await act(() => jest.runAllTimers());
+
+        // get the folllow back button (there should be only 1)
+        const followBtn = await screen.getByRole('button', 
+                                                  { name: 'shared.followBack'});
+
+        await user.press(followBtn);
+        await act(() => jest.runAllTimers());
+    
+        // expect to see toast saying the follow was done
+        const toast = await screen.getByTestId('toastAnimatedContainer');
+        expect(toast).toContainElement(screen.getByText('shared.followed'));
     });
 });

@@ -450,7 +450,7 @@ export function HomeScreen({ navigation }) {
       {/* the bottom modal to show when shouldShowBottomModal is true */}
       {
         shouldShowBottomModal == true && (
-          <BottomModalBase title={t('homeScreen.pickDisasterModalTitle')}
+          <BottomModalBase modalTitle={t('homeScreen.pickDisasterModalTitle')}
                            closeFunc={()=>{setShouldShowBottomModal(false)}}>
 
               {/* earthquake button */}

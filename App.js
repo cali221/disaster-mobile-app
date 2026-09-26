@@ -1,8 +1,8 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { House, UserRound, Bell, FileText, Siren, VolumeOffIcon, Volume2 } from 'lucide-react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import { House, UserRound, Bell, FileText, Siren } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -54,7 +54,6 @@ import { EmergencyBagScreen } from './screens/gamification-screens/EmergencyBagS
 
 // header button components imports
 import { LanguageChangeButton } from './components/LanguageChangeButton';
-import { MuteUnmuteButton } from './components/MuteUnmuteButton';
 
 const Stack = createStackNavigator();
 
@@ -103,7 +102,7 @@ const toastConfig = {
 };
 
 // stack of screens for home screen
-function homeScreenStack(){
+export function homeScreenStack(){
   const { t, i18n } = useTranslation();
   const { user } = useContext(AuthContext);
 
@@ -173,7 +172,7 @@ function homeScreenStack(){
 }
 
 // stack of screens for profile screens
-function profileScreenStack(){
+export function profileScreenStack(){
   const { t, i18n } = useTranslation();
   const { user } = useContext(AuthContext);
 
@@ -240,7 +239,7 @@ function profileScreenStack(){
 }
 
 // stack of screens for panic button screens (currently planed to be just one screen)
-function panicButtonScreenStack(){
+export function panicButtonScreenStack(){
   return(
     <Stack.Navigator screenOptions={{ headerShown: true,
                                       headerStyle: {
@@ -260,7 +259,7 @@ function panicButtonScreenStack(){
 }
 
 // stack of screens for notifications screen
-function notificationScreenStack(){
+export function notificationScreenStack(){
   const { t, i18n } = useTranslation();
   const { user } = useContext(AuthContext);
   
@@ -358,7 +357,7 @@ function resourceHubScreenStack(){
 }
 
 // the bottom tab navigator
-const bottomNavigationTabs = createBottomTabNavigator({
+export const bottomNavigationTabs = createBottomTabNavigator({
   // set styling
   screenOptions: ({ route }) => ({
     headerShown: false,
@@ -468,6 +467,8 @@ export default function App() {
     </SafeAreaProvider>
   )
 }
+
+export { toastConfig }
 
 const styles = StyleSheet.create({
   // the panic button in the middle of the bottom tab bar

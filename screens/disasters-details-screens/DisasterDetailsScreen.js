@@ -672,7 +672,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                 {/* modal for showing reports around a location, 
                     shown when a report marker on the map is pressed */}
                 {shouldShowUserReportsModal == true && (
-                    <BottomModalBase title={reportsModalTitle} 
+                    <BottomModalBase modalTitle={reportsModalTitle} 
                                      closeFunc={()=>{hideReportsModal()}}
                                      minHeight={350}>
                         {/* data attribution for the title shown on the title of the modal */}

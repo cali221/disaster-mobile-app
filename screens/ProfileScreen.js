@@ -281,6 +281,7 @@ export function ProfileScreen({ navigation }) {
                                 {/* following button */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
                                                   accessibilityRole='button'
+                                                  accessibilityLabel={t('shared.goToFollowingScreen')}
                                                   onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
@@ -296,6 +297,7 @@ export function ProfileScreen({ navigation }) {
                                 {/* followers count */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
                                                   accessibilityRole='button'
+                                                  accessibilityLabel={t('shared.goToFollowersScreen')}
                                                   onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
@@ -377,7 +379,7 @@ export function ProfileScreen({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
 
-                                <LeaderboardList leaderboardData={leaderboardTop3}  />
+                                <LeaderboardList leaderboardData={leaderboardTop3} />
                             </View>
 
                             <View style={styles.trustedContactSection}>
@@ -421,12 +423,10 @@ export function ProfileScreen({ navigation }) {
                                     {/* button to add trusted contact */}
                                     <TouchableOpacity style={styles.trustedContactListAddBtn} 
                                                       accessibilityRole='button'
-                                                      onPress={()=>{setShouldShowAddContactModal(true)}}
-                                                      disabled={true}>
+                                                      accessibilityLabel={t('profileScreen.addTrustedContactBtnAccLabel')}
+                                                      onPress={()=>{setShouldShowAddContactModal(true)}}>
                                         <Text style={styles.trustedContactListAddBtnTxt}>
                                             {t('shared.add')}
-                                            {"\n"}
-                                            ({t('shared.disabledForUserTesting')})
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
@@ -475,7 +475,7 @@ export function ProfileScreen({ navigation }) {
                                           style={[styles.bottomButtonsBase, styles.accountSettingsBtnColor]}
                                           accessibilityRole='button'>
                             <Text style={[styles.bottomButtonTextBase, styles.accountSettingsBtnTxtColor]}>
-                            {t('profileScreen.accountSettingsBtnTxt')}
+                                {t('profileScreen.accountSettingsBtnTxt')}
                             </Text>
                         </TouchableOpacity>
 
@@ -510,11 +510,10 @@ export function ProfileScreen({ navigation }) {
                 shown when shouldShowAddContactModal is true */}
             {
                 shouldShowAddContactModal == true && (
-                    <BottomModalBase title={t('profileScreen.addNewTrustedContact')} 
+                    <BottomModalBase modalTitle={t('profileScreen.addNewTrustedContact')} 
                                      closeFunc={()=>{handleClosingNewTrustedContactModal()}}>
-                                    
-                        
-                        <View style={styles.addContactModalContentContainer}>
+                        <View style={styles.addContactModalContentContainer}
+                              testID='add-trusted-contact-modal-content-container'>
                             {/* phone number input area */}
                             <View style={styles.addContactModaTextInputContainer}>
                                 {/* input label */}

@@ -170,6 +170,7 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
                         {/* following button */}
                         <TouchableOpacity style={styles.followingFollowersBtns}
                                           accessibilityRole='button'
+                                          accessibilityLabel={t('shared.goToFollowingScreen')}
                                           onPress={()=>{
                                             navigation.navigate('Following/Followers', 
                                                                 {
@@ -185,6 +186,7 @@ export function ProfileOfAnotherUserScreen({navigation, route}) {
                         {/* followers button */}
                         <TouchableOpacity style={styles.followingFollowersBtns}
                                           accessibilityRole='button'
+                                          accessibilityLabel={t('shared.goToFollowersScreen')}
                                           onPress={()=>{
                                           navigation.navigate('Following/Followers', 
                                                               {

@@ -17,7 +17,7 @@ export function BottomModalBase(props) {
                 <View style={styles.modalHeader}>
                     {/* modal title */}
                     <Text style={styles.modalTitleTxt}>
-                        {props.title} 
+                        {props.modalTitle} 
                     </Text>
 
                     {/* close button */}

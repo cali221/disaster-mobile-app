@@ -16,10 +16,15 @@ export function BadgesHorizontalScrollContainer(props) {
                             <TouchableOpacity key={index} 
                                               accessibilityRole='button'
                                               style={styles.badgeItemContainer}
-                                              onPress={()=>{props?.handleBadgePress(item)}}>
+                                              onPress={()=>{props?.handleBadgePress(item)}}
+                                              accessibilityLabel={t('badgeScrollContainer.badgeBtnAccLabel')}
+                                              testID={`${(item.name).toLowerCase().replace(' ', '-')}-badge-btn`}>
                                 {/* the badge image, grayscale if unearned */}
-                                <Image source={{uri: item.badgeImgUrl}} style={[styles.badgeImg, 
-                                                                                item.earned == false && {filter: 'grayscale(100%)'}]}/>
+                                <Image source={{uri: item.badgeImgUrl}} 
+                                       style={[styles.badgeImg, 
+                                       item.earned == false && {filter: 'grayscale(100%)'}]}
+                                       alt={item.name}
+                                       testID={`${(item.name).toLowerCase().replace(' ', '-')}-badge-img`}/>
                                 {/* the badge name */}
                                 <Text style={styles.badgeNameTxt}>{item.name}</Text>
                             </TouchableOpacity>
