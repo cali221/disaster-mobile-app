@@ -149,7 +149,11 @@ export function PanicButtonScreen() {
                         style={styles.scrollContainer}>
                 {/* button to play/stop SOS sound */}
                 <TouchableOpacity onPress={()=>{setIsSoundingSOS(!isSoundingSOS)}}
-                                  style={styles.sosBtn}>
+                                  style={styles.sosBtn}
+                                  accessibilityRole='button'
+                                  accessibilityLabel={isSoundingSOS == false ? 
+                                                      t('panicButtonScreen.soundSOSAccLabel') : 
+                                                      t('panicButtonScreen.stopSoundingSOSAccLabel')}>
                     {
                         isSoundingSOS == false ? 
                         (
@@ -178,7 +182,8 @@ export function PanicButtonScreen() {
 
                 {/* button to call 112 */}
                 <TouchableOpacity style={styles.contactBtns}
-                                  onPress={()=>{Linking.openURL(`tel:112`)}}>
+                                  onPress={()=>{Linking.openURL(`tel:112`)}}
+                                  accessibilityRole='button'>
                     <Text style={styles.contactBtnsTxt}>
                         {t('panicButtonScreen.call12')}
                     </Text>
@@ -186,7 +191,8 @@ export function PanicButtonScreen() {
 
                 {/* button to send SMS to trusted contacts */}
                 <TouchableOpacity style={styles.contactBtns}
-                                  onPress={()=>{sendSMSToTrustedContacts()}}>
+                                  onPress={()=>{sendSMSToTrustedContacts()}}
+                                  accessibilityRole='button'>
                     <Text style={styles.contactBtnsTxt}>
                         {t('panicButtonScreen.sendSMS')}
                     </Text>

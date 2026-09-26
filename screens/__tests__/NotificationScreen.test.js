@@ -1,9 +1,10 @@
+// to run: npm test -- NotificationScreen.test.js
+
 import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { NotificationsScreen } from '../NotificationsScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { LanguageContext } from '../../contexts/LanguageContext';
 import { Navigation } from '../../App';
-import { addFollow } from '../../utils/users-utilities';
 
 jest.useFakeTimers();
 
