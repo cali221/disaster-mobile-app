@@ -6,14 +6,12 @@ import { showErrorToast } from '../../utils/show-toast';
 import { supabase } from '../../lib/supabase';
 import { UsersList } from '../../components/UsersList';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { AuthContext } from '../../contexts/AuthContext';
 
 export function FollowingFollowersScreen({ navigation, route }) {
     const { t, i18n } = useTranslation();
     const insets = useSafeAreaInsets();
     const [followData, setFollowData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const { user } = useContext(AuthContext);
 
     // function to get following and followers data of user
     const getUserFollowData = async(userToFindDataForId) => {
@@ -41,12 +39,12 @@ export function FollowingFollowersScreen({ navigation, route }) {
                 /* if viewing following screen, filter to only show 
                    users the authenticated user is following */
                 if(route.params.screenTitle == t('shared.following')){
-                    setFollowData(fetchedFollowData.filter((item) => item.viewed_user_is_following == true));
+                    setFollowData(fetchedFollowData?.filter((item) => item.viewed_user_is_following == true));
                 }
                 /* if viewing followers screen, filter to only show 
                    users following the authenticated users */
                 else if(route.params.screenTitle == t('shared.followers')){
-                    setFollowData(fetchedFollowData.filter((item) => item.is_following_user_viewed == true));
+                    setFollowData(fetchedFollowData?.filter((item) => item.is_following_user_viewed == true));
                 }
             }
             catch(error){

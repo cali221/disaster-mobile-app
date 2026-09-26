@@ -129,9 +129,9 @@ jest.mock('@supabase/supabase-js', () => {
     }
 });
 
-describe('Home Screen', () => {
-    const testUser = { id: 'some-user-id' };
+const testUser = { id: 'some-user-id' };
 
+describe('Home Screen', () => {
     it('should show the right number of disaster summary item according to data', async () => {
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
@@ -163,7 +163,29 @@ describe('Home Screen', () => {
         const markersShownArr = await screen.getAllByTestId('marker-on-map');
         await expect(markersShownArr.length).toBe(2);
     });
+    
+    it('should show disaster types menu modal when evacuation steps button is pressed', async() => {
+        await render(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
 
+        const user = userEvent.setup();
+
+        // press evacuation steps button (in the quick access section)
+        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
+        await act(() => jest.runAllTimers());
+
+        // expect modal title to be visible
+        await expect(screen.getByText('homeScreen.pickDisasterModalTitle')).toBeVisible();
+
+    });
+});
+
+describe('Home Screen Navigation Checks', () => {
     it('should navigate to disaster details screen when map marker is pressed', async() => {
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
@@ -442,26 +464,6 @@ describe('Home Screen', () => {
         }
     });
     
-    it('should show disaster types menu modal when evacuation steps button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <HomeScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
-        const user = userEvent.setup();
-
-        // press evacuation steps button (in the quick access section)
-        await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
-        await act(() => jest.runAllTimers());
-
-        // expect modal title to be visible
-        await expect(screen.getByText('homeScreen.pickDisasterModalTitle')).toBeVisible();
-
-    });
-
     it('should navigate to the earthquake guide screen if the flood button is pressed on disaster types menu modal', async()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>

@@ -151,7 +151,6 @@ describe('Profile Screen', () => {
         await act(() => jest.runAllTimers());
     });
 
-
     it('should show user avatar', async() => {
         await expect(screen.getByLabelText('Avatar')).toBeOnTheScreen();
     });
@@ -169,24 +168,6 @@ describe('Profile Screen', () => {
     it('should show earned badge image(s) as greyscale', async () => {    
         await expect(screen.getByTestId('badge-2-badge-img')).toHaveStyle({filter: 'grayscale(100%)'});
         await expect(screen.getByTestId('badge-3-badge-img')).toHaveStyle({filter: 'grayscale(100%)'});
-    });
-
-    it('should navigate to followers screen when the followers button is pressed', async () => {
-        const user = userEvent.setup();
-
-        await user.press(screen.getByRole('button', { name: 'shared.goToFollowersScreen' }));
-        await act(() => jest.runAllTimers());
-
-        await expect(screen.getByRole('heading', {name: 'shared.followers'})).toBeOnTheScreen();
-    });
-
-    it('should navigate to following screen when the following button is pressed', async () => {
-        const user = userEvent.setup();
-        
-        await user.press(screen.getByRole('button', { name: 'shared.goToFollowingScreen' }));
-        await act(() => jest.runAllTimers());
-
-        await expect(screen.getByRole('heading', {name: 'shared.following'})).toBeOnTheScreen();
     });
 
     it('should show the modal to add trusted contact when the corresponding button is pressed', async () => {
@@ -225,16 +206,6 @@ describe('Profile Screen', () => {
         await user.press(screen.getByRole('button', {name: 'shared.close'}));
         await act(() => jest.runAllTimers()); 
     });
-    
-    it('should navigate to the account settings screen when the account settings button is pressed', async () => {
-        const user = userEvent.setup();
-
-        // press account settings button
-        await user.press(screen.getByRole('button', {name: 'profileScreen.accountSettingsBtnTxt'}));
-        await act(() => jest.runAllTimers());
-
-        await expect(screen.getByRole('heading', {name: 'screenTitles.accountSettingsScreenTitle'})).toBeOnTheScreen();
-    });
 
     it('should show the leaderboard data correctly on leaderboard', async () => {
         const leaderboard = await screen.getByTestId('leaderboard-list');
@@ -255,4 +226,52 @@ describe('Profile Screen', () => {
         // it should show (You) for the authenticated user's username link
         await expect(someusernameLeaderboardItemContainer).toContainElement(screen.getByText('@someusername (shared.you)'));
     })
+});
+
+describe('Profile Screen Navigation Checks', () => {
+    beforeEach(async()=>{
+        await render(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: {id: testUserId},
+                                     userProfile: testUserProfile, 
+                                     setLoggedInUser: jest.fn()}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
+        
+        const user = userEvent.setup();
+        
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.profile' }));
+        
+        await act(() => jest.runAllTimers());
+    });
+    
+    it('should navigate to the account settings screen when the account settings button is pressed', async () => {
+        const user = userEvent.setup();
+
+        // press account settings button
+        await user.press(screen.getByRole('button', {name: 'profileScreen.accountSettingsBtnTxt'}));
+        await act(() => jest.runAllTimers());
+
+        await expect(screen.getByRole('heading', {name: 'screenTitles.accountSettingsScreenTitle'})).toBeOnTheScreen();
+    });
+
+     it('should navigate to followers screen when the followers button is pressed', async () => {
+        const user = userEvent.setup();
+
+        await user.press(screen.getByRole('button', { name: 'shared.goToFollowersScreen' }));
+        await act(() => jest.runAllTimers());
+
+        await expect(screen.getByRole('heading', {name: 'shared.followers'})).toBeOnTheScreen();
+    });
+
+    it('should navigate to following screen when the following button is pressed', async () => {
+        const user = userEvent.setup();
+        
+        await user.press(screen.getByRole('button', { name: 'shared.goToFollowingScreen' }));
+        await act(() => jest.runAllTimers());
+
+        await expect(screen.getByRole('heading', {name: 'shared.following'})).toBeOnTheScreen();
+    });
 });

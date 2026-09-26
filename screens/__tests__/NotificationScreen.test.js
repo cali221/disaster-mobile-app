@@ -154,9 +154,9 @@ jest.mock('../../utils/users-utilities', () => {
     }
 });
 
-describe('Notification Screen', () => {
-    const testUser = { id: 'some-user-id' };
+const testUser = { id: 'some-user-id' };
 
+describe('Notification Screen', () => {
     it('should show disaster notification category button', async () => {
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
@@ -316,36 +316,6 @@ describe('Notification Screen', () => {
         expect(followBtns.length).toBe(1)
     });
 
-    it('should navigate to disaster details screen when the details button is pressed on a disaster notification', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
-        const user = userEvent.setup();
-
-        // go to the notifications screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
-        await act(() => jest.runAllTimers());
-
-        // make sure disaster category is picked
-        await user.press(screen.getByRole('button', { name: 'notifScreen.disastersCategoryBtn'}));
-        await act(() => jest.runAllTimers());
-
-        // press disaster details button on notification
-        await user.press(await screen.getByRole('button', 
-                                                { name: 'notifScreen.detailsBtnAccLbl'}));
-        await act(() => jest.runAllTimers());
-
-        // expect to be redirected to disaster details screen
-        await expect(screen.getByRole('heading', 
-                                    {name: 'screenTitles.disasterDetailsScreenTitle'}))
-              .toBeOnTheScreen();
-    });
-
     it('should make the follow back button disappears after it is pressed and successful', async() => {
         await renderWithToasts(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
@@ -406,3 +376,39 @@ describe('Notification Screen', () => {
         expect(toast).toContainElement(screen.getByText('shared.followed'));
     });
 });
+
+describe('Notification Screen Navigation Checks', () => {
+    beforeEach(async ()=>{
+        await render(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <Navigation />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
+
+        const user = userEvent.setup();
+
+        // go to the notifications screen
+        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
+        await act(() => jest.runAllTimers());
+    });
+
+    it('should navigate to disaster details screen when the details button is pressed on a disaster notification', async () => {
+        const user = userEvent.setup();
+        
+        // make sure disaster category is picked
+        await user.press(screen.getByRole('button', { name: 'notifScreen.disastersCategoryBtn'}));
+        await act(() => jest.runAllTimers());
+
+        // press disaster details button on notification
+        await user.press(await screen.getByRole('button', 
+                                                { name: 'notifScreen.detailsBtnAccLbl'}));
+        await act(() => jest.runAllTimers());
+
+        // expect to be redirected to disaster details screen
+        await expect(screen.getByRole('heading', 
+                                      {name: 'screenTitles.disasterDetailsScreenTitle'}))
+              .toBeOnTheScreen();
+    });
+})
