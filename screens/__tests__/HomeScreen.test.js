@@ -132,7 +132,7 @@ jest.mock('@supabase/supabase-js', () => {
 const testUser = { id: 'some-user-id' };
 
 describe('Home Screen', () => {
-    it('should show the right number of disaster summary item according to data', async () => {
+    beforeEach(async()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -140,20 +140,14 @@ describe('Home Screen', () => {
                 </AuthContext>
             </LanguageContext.Provider>
         )
+    });
 
+    it('should show the right number of disaster summary item according to data', async () => {
         const listItemShownArr = await screen.getAllByTestId('disaster-summary-item-container');
         expect(listItemShownArr.length).toBe(2);
     });
 
     it('should show the right number of disaster markers on map according to data', async() => {
-       await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <HomeScreen/>
-                </AuthContext>
-            </LanguageContext.Provider>
-        )
-
         const user = userEvent.setup();
 
         // press button to show map
@@ -165,14 +159,6 @@ describe('Home Screen', () => {
     });
     
     it('should show disaster types menu modal when evacuation steps button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <HomeScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // press evacuation steps button (in the quick access section)
@@ -186,10 +172,10 @@ describe('Home Screen', () => {
 });
 
 describe('Home Screen Navigation Checks', () => {
-    it('should navigate to disaster details screen when map marker is pressed', async() => {
+    beforeEach(async ()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
+                <AuthContext value={{user: testUser, fetchAndSetProfileData: ()=>{jest.fn()}}}>
                     <Navigation />
                 </AuthContext>
             </LanguageContext.Provider>
@@ -200,6 +186,10 @@ describe('Home Screen Navigation Checks', () => {
         // navigate to home screen first to be sure it's on home screen
         await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
         await act(() => jest.runAllTimers());
+    });
+
+    it('should navigate to disaster details screen when map marker is pressed', async() => {
+        const user = userEvent.setup();
 
         // press button to show map
         await user.press(screen.getByRole('button', { name: 'homeScreen.showMap' }));
@@ -221,19 +211,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to disaster details screen when disaster details button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get details button
         const disasterSummaryItemArr = await screen.getAllByRole('button', {name: 'homeScreen.goToDisastersDetailsScreenAccLbl'})
@@ -251,19 +229,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to create report screen when create report button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press button to show map
         await user.press(screen.getByRole('button', { name: 'homeScreen.showMap' }));
@@ -285,19 +251,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to emergency numbers screen when the corresponding button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the emergency numbers button
         const emergencyNumsBtn = await screen.getByRole('button', {name: 'homeScreen.emergencyNumberBtnAccLbl'})
@@ -315,19 +269,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to useful locations screen when the corresponding button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the useful locations button
         const usefulLocBtn = await screen.getByRole('button', {name: 'homeScreen.usefulLocBtnAccLbl'})
@@ -345,19 +287,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to quizzes screen when the corresponding button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the quizzes button
         const quizzesBtn = await screen.getByRole('button', {name: 'homeScreen.quizzesBtnAccLbl'})
@@ -375,19 +305,7 @@ describe('Home Screen Navigation Checks', () => {
     });    
 
     it('should navigate to flashcards screen when the corresponding button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser, setLoggedInUser: jest.fn(), fetchAndSetProfileData: jest.fn()}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the flashcards button
         const flashcardsBtn = await screen.getByRole('button', {name: 'homeScreen.flashcardsBtnAccLbl'})
@@ -405,19 +323,7 @@ describe('Home Screen Navigation Checks', () => {
     });    
 
     it('should navigate to emergency bag screen when the corresponding button is pressed', async() => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the emergency bag button
         const emergencyBagBtn = await screen.getByRole('button', {name: 'homeScreen.emergencyBagBtnAccLbl'})
@@ -435,19 +341,7 @@ describe('Home Screen Navigation Checks', () => {
     });    
 
     it('should navigate to resource hub screen when the resouce hub link is pressed', async() => {
-        await render(
-           <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // get the resource hub link
         const resourceHubLink = await screen.getByRole('link', {name: 'Resource Hub'})
@@ -465,19 +359,7 @@ describe('Home Screen Navigation Checks', () => {
     });
     
     it('should navigate to the earthquake guide screen if the flood button is pressed on disaster types menu modal', async()=>{
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press evacuation steps button to show menu modal
         await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
@@ -495,19 +377,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to the tsunami guide screen if the tsunami button is pressed on disaster types menu modal', async()=>{
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press evacuation steps button to show menu modal
         await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
@@ -525,19 +395,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to the flood guide screen if the flood button is pressed on disaster types menu modal', async()=>{
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press evacuation steps button to show menu modal
         await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
@@ -555,19 +413,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to the landslide guide screen if the landslide button is pressed on disaster types menu modal', async()=>{
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press evacuation steps button to show menu modal
         await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));
@@ -585,19 +431,7 @@ describe('Home Screen Navigation Checks', () => {
     });
 
     it('should navigate to the volcanic eruption guide screen if the volcanic eruption button is pressed on disaster types menu modal', async()=>{
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // navigate to home screen first to be sure it's on home screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.home' }));
-        await act(() => jest.runAllTimers());
 
         // press evacuation steps button to show menu modal
         await user.press(screen.getByRole('button', { name: 'homeScreen.evacuationStepsBtnAccLbl' }));

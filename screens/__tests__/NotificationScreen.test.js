@@ -157,7 +157,7 @@ jest.mock('../../utils/users-utilities', () => {
 const testUser = { id: 'some-user-id' };
 
 describe('Notification Screen', () => {
-    it('should show disaster notification category button', async () => {
+    beforeEach(async ()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -165,49 +165,27 @@ describe('Notification Screen', () => {
                 </AuthContext>
             </LanguageContext.Provider>
         );
+    });
 
+    it('should show disaster notification category button', async () => {
         const disasterCategoryBtn = await screen.getByRole('button', 
                                                            {name: 'notifScreen.disastersCategoryBtn'});
         expect(disasterCategoryBtn).toBeVisible();
     });
 
     it('should show follow notification category button', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const disasterCategoryBtn = await screen.getByRole('button', 
                                                            { name: 'notifScreen.newFollowersCategoryBtn'});
         expect(disasterCategoryBtn).toBeVisible();
     });
 
     it('should show initially show disaster notifications by default', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const disasterNotifBody = await screen.getByText('this is as disaster notification body');
 
         expect(disasterNotifBody).toBeVisible();
     });
 
     it('should show initially show disaster details button on disaster notification', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // make sure disaster category is picked
@@ -223,14 +201,6 @@ describe('Notification Screen', () => {
     });
 
     it('should show the disaster category button as pink when it is picked', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // make sure disaster category is picked
@@ -246,14 +216,6 @@ describe('Notification Screen', () => {
     });  
 
     it('should show follow notification when the category is picked', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // make sure followers category is picked
@@ -274,14 +236,6 @@ describe('Notification Screen', () => {
     });
 
     it('should show the followers category button as pink when it is picked', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // make sure followers category is picked
@@ -294,14 +248,6 @@ describe('Notification Screen', () => {
     });  
 
     it('should show show follow button on follow notification where the users are not yet mutual', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <NotificationsScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // make sure followers category is picked
@@ -317,19 +263,7 @@ describe('Notification Screen', () => {
     });
 
     it('should make the follow back button disappears after it is pressed and successful', async() => {
-        await renderWithToasts(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: testUser}}>
-                    <Navigation />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
-
-        // go to the notifications screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
-        await act(() => jest.runAllTimers());
 
         // make sure followers category is picked
         await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
@@ -344,8 +278,10 @@ describe('Notification Screen', () => {
 
         await expect(followBtn).not.toBeOnTheScreen();
     });
+});
 
-    it('should show success toast after follow back button is pressed and successful', async() => {
+describe('Notification Screen Toasts Checks', () => {
+    beforeEach(async ()=>{
         await renderWithToasts(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -359,6 +295,10 @@ describe('Notification Screen', () => {
         // go to the notifications screen
         await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
         await act(() => jest.runAllTimers());
+    });
+
+    it('should show success toast after follow back button is pressed and successful', async() => {
+        const user = userEvent.setup();
 
         // make sure followers category is picked
         await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
@@ -375,7 +315,7 @@ describe('Notification Screen', () => {
         const toast = await screen.getByTestId('toastAnimatedContainer');
         expect(toast).toContainElement(screen.getByText('shared.followed'));
     });
-});
+})
 
 describe('Notification Screen Navigation Checks', () => {
     beforeEach(async ()=>{
@@ -411,4 +351,4 @@ describe('Notification Screen Navigation Checks', () => {
                                       {name: 'screenTitles.disasterDetailsScreenTitle'}))
               .toBeOnTheScreen();
     });
-})
+});

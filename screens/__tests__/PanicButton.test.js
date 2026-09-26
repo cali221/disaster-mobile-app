@@ -21,7 +21,7 @@ jest.mock('@supabase/supabase-js', () => {
 });
 
 describe('Panic Button Screen', () => {
-    it('should show the button to sound SOS by default', async () => {
+    beforeEach(async ()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: null}}>
@@ -29,19 +29,13 @@ describe('Panic Button Screen', () => {
                 </AuthContext>
             </LanguageContext.Provider>
         );
+    });
 
+    it('should show the button to sound SOS by default', async () => {
         expect(screen.getByRole('button', {name: 'panicButtonScreen.soundSOSAccLabel'})).toBeOnTheScreen();
     });
 
     it('should show the button to stop sounding SOS when sounding SOS', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
         await user.press(screen.getByRole('button', {name: 'panicButtonScreen.soundSOSAccLabel'}));
         await act(() => jest.runOnlyPendingTimers());
@@ -50,14 +44,6 @@ describe('Panic Button Screen', () => {
     });
 
     it('should show button to sound SOS when not sounding SOS', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // sound SOS
@@ -73,26 +59,10 @@ describe('Panic Button Screen', () => {
     });
 
     it('should show sound SOS button explanation text by default', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         expect(screen.getByText('panicButtonScreen.soundSOS')).toBeOnTheScreen();
     });
 
     it('should show the explanation text about stopping sounding SOS when sounding SOS', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
         await user.press(screen.getByRole('button', {name: 'panicButtonScreen.soundSOSAccLabel'}));
         await act(() => jest.runOnlyPendingTimers());
@@ -101,14 +71,6 @@ describe('Panic Button Screen', () => {
     });
 
     it('should show explanation text about sounding SOS when not sounding SOS', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         const user = userEvent.setup();
 
         // sound SOS
@@ -124,26 +86,10 @@ describe('Panic Button Screen', () => {
     });
 
     it('should show button to call 112', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         await expect(screen.getByRole('button', {name: 'panicButtonScreen.call12'})).toBeOnTheScreen();
     });
 
     it('should show button to send SMS to trusted contacts', async () => {
-        await render(
-            <LanguageContext.Provider value={{currentLang: 'en'}}>
-                <AuthContext value={{user: null}}>
-                    <PanicButtonScreen />
-                </AuthContext>
-            </LanguageContext.Provider>
-        );
-
         await expect(screen.getByRole('button', {name: 'panicButtonScreen.sendSMS'})).toBeOnTheScreen();
     });
 });
