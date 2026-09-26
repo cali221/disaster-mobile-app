@@ -221,7 +221,7 @@ export function QuizzesScreen() {
     return(
         <View style={[styles.screenContainer, {paddingLeft: insets.left, 
                                                paddingRight: insets.right,
-                                               paddingBottom: insets.bottom + 70}]}>
+                                               paddingBottom: insets.bottom + 20}]}>
             {
                 chosenCategory ? (
                     <ScrollView contentContainerStyle={styles.quizContent}>
@@ -408,15 +408,13 @@ const styles = StyleSheet.create({
     },
     // scroll view of quiz content
     quizContentScrollView: {
-        width: '100%',
-        height: '100%'
+        width: '100%'
     },
     // quiz content shown when category is chosen
     quizContent: {
         display: 'flex',
         alignItems: 'center',
         width: '100%',
-        height: '100%',
         padding: 30
     },
     /* container of heading texts and the view 

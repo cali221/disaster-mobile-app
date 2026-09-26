@@ -1,9 +1,10 @@
 // to run: npm test -- ProfileScreen.test.js
 
-import { render, screen, userEvent, act } from '@testing-library/react-native';
+import { render, screen, userEvent, act, waitFor } from '@testing-library/react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { LanguageContext } from '../../contexts/LanguageContext';
 import { Navigation } from '../../App';
+import { ProfileScreen } from '../ProfileScreen';
 
 jest.useFakeTimers();
 
@@ -129,7 +130,7 @@ jest.mock('../../utils/users-utilities', () => {
             return [{user_id: testUserId, phone_num: '12345', contact_name: 'John Doe'}];
         })
     }
-})
+});
 
 // Note: test everything using Navigation, to avoid needing to mock useNavigation(), etc
 describe('Profile Screen', () => {
@@ -225,7 +226,7 @@ describe('Profile Screen', () => {
 
         // it should show (You) for the authenticated user's username link
         await expect(someusernameLeaderboardItemContainer).toContainElement(screen.getByText('@someusername (shared.you)'));
-    })
+    });
 });
 
 describe('Profile Screen Navigation Checks', () => {
