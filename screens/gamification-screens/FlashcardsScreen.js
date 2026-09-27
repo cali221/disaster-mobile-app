@@ -390,6 +390,7 @@ export function FlashcardsScreen({navigation}) {
                                                 return(
                                                     <TouchableOpacity style={styles.flashcardEaseValBtn}
                                                                       key={index}
+                                                                      accessibilityRole='button'
                                                                       onPress={()=>{handleEaseValButtonPress(deckArr[0].card_repetition, 
                                                                                                              deckArr[0].card_interval, 
                                                                                                              deckArr[0].card_ease_factor,
@@ -407,6 +408,7 @@ export function FlashcardsScreen({navigation}) {
                             (
                                 // if not showing answer, show the 'Show Answer' button
                                 <TouchableOpacity style={styles.showAnsBtn}
+                                                  accessibilityRole='button'
                                                   onPress={()=>{setIsShowingAns(true)}}>
                                     <Text style={styles.showAnsBtnTxt}>
                                         {t('flashcardScreen.showAnswer')}
