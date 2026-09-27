@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     backgroundColor: '#9ec110',
     position: 'absolute',
-    bottom: '3%',
+
     elevation: 3
   },
   // text inside panic button
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   /* label texts for bottom tab bar 
      buttons (except for the panic button) */
   bottomTabNavLabelTxts:{
-    color: '#E0E0E0',
+    color: '#FFFFFF',
     textAlign: 'center',
     fontSize: 10
   }

@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
 import { capitalizeFirstLetter } from '../utils/text-formatting';
@@ -175,10 +175,10 @@ export function HomeScreen({ navigation }) {
                   {
                     shouldShowMap == true ? 
                     (
-                      <ChevronUp color={'#2D3782'} size={30} />
+                      <ChevronUp color={'white'} size={30} />
                     ):
                     (
-                      <ChevronDown color={'#2D3782'} size={30} />
+                      <ChevronDown color={'white'} size={30} />
                     )
                   }
             </View>
@@ -188,18 +188,10 @@ export function HomeScreen({ navigation }) {
         {
           shouldShowMap == true && (
             <View style={styles.mapAndExperiecedDisasterBtnContainer}>
-              <TouchableOpacity style={styles.experiencedDisasterBtn}
-                                onPress={()=>{navigation.navigate('Report Menu')}}
-                                accessibilityRole='button'>
-                <Text style={styles.experiencedDisasterBtnTxt}>
-                  {t('homeScreen.experiencedDisasterBtnTxt')}
-                </Text>
-              </TouchableOpacity>
-
               {/* map placeholder */}
-              {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
+              <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
               
-              <Map style={styles.disasterMap} 
+              {/* <Map style={styles.disasterMap} 
                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
                     compassPosition={{top: 20, left: 20}}>
                 <Camera maxZoom={23} 
@@ -219,7 +211,7 @@ export function HomeScreen({ navigation }) {
                     </Marker>
                   )))
                 }
-            </Map>
+            </Map> */}
 
             {/* attribution text just in case it's needed */}
             <MapAttribution />
@@ -294,6 +286,14 @@ export function HomeScreen({ navigation }) {
                             accessibilityRole='button'
                             onPress={()=>{navigation.navigate('Watched Areas Settings')}}>
             <Text style={styles.editWatchlistBtnTxt}>{t('homeScreen.editWatchlistBtnTxt')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.experiencedDisasterBtn}
+                            onPress={()=>{navigation.navigate('Report Menu')}}
+                            accessibilityRole='button'>
+            <Text style={styles.experiencedDisasterBtnTxt}>
+              {t('homeScreen.experiencedDisasterBtnTxt')}
+            </Text>
           </TouchableOpacity>
 
           {/* section for quick access to important screens */}
@@ -569,23 +569,21 @@ const styles = StyleSheet.create({
   // button that says "Experienced a disaster (...)"
   experiencedDisasterBtn: {
     backgroundColor: '#2D3782',
-    width: '70%',
-    top: 15,
-    right: 20,
-    position: 'absolute',
-    borderRadius: 50,
-    zIndex: 15,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    paddingVertical: 5
+    borderRadius: 30,
+    elevation: 3
   },
   // text inside the button that says "Experienced a disaster (...)"
   experiencedDisasterBtnTxt: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '600'
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 17,
+    textAlign: 'center'
   },
   // explanation text about the disaster map
   mapExplanationTxt: {
@@ -785,7 +783,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       zIndex: 15,
       width: '100%',
-      backgroundColor: '#9EC110',
+      backgroundColor: '#AB5C82',
       height: 30,
       elevation: 5
   },
@@ -800,7 +798,7 @@ const styles = StyleSheet.create({
   // text inside button to show/hide map
   hideOrShowMapTxt: {
       fontSize: 17,
-      color: '#2D3782',
+      color: 'white',
       fontWeight: '600'
   },
   mapAndExperiecedDisasterBtnContainer: {

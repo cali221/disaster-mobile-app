@@ -14,7 +14,7 @@ import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-import { Map, Camera, Marker, OfflineManager, NetworkManager } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker, OfflineManager, NetworkManager } from "@maplibre/maplibre-react-native"; 
 import * as Location from "expo-location";
 import { MapAttribution } from '../../components/MapAttribution';
 
@@ -277,10 +277,10 @@ export function UsefulLocationScreen() {
             <MapAttribution />
             
             {/* map placeholder */}
-            {/* <View style={styles.map}></View> */}
+            <View style={styles.map}></View>
 
             {/* map showing the places */}
-            <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
+            {/* <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
                     compassPosition={{top: 20, left: 20}}
                     onStartShouldSetResponder={()=>{return true}}
                     style={styles.map}
@@ -333,7 +333,7 @@ export function UsefulLocationScreen() {
                         </Marker>
                     )
                 }
-            </Map>
+            </Map> */}
 
             <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom}]}>
                 <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}
@@ -349,10 +349,10 @@ export function UsefulLocationScreen() {
                     {
                         shouldShowMenu == true ? 
                         (
-                            <ChevronUp color={'#2D3782'} size={30} />
+                            <ChevronUp color={'white'} size={30} />
                         ):
                         (
-                           <ChevronDown color={'#2D3782'} size={30} />
+                           <ChevronDown color={'white'} size={30} />
                         )
                     }
                 </TouchableOpacity>
@@ -423,8 +423,8 @@ export function UsefulLocationScreen() {
 
                                 {/* switch for using current coordinates,
                                     can't be switch off but can be switched on */}
-                                <Switch trackColor={{false: '#767577', true: '#9ec110'}}
-                                        thumbColor={isUsingCurrentLoc == true ? '#809d0d' : '#f4f3f4'}
+                                <Switch trackColor={{false: '#969696', true: '#404b9f'}}
+                                        thumbColor={isUsingCurrentLoc == true ? '#2d3782' : '#595a65'}
                                         onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
                                         value={isUsingCurrentLoc}
                                         disabled={isUsingCurrentLoc == false ? false : true} />
@@ -630,7 +630,6 @@ const styles = StyleSheet.create({
        (i.e. hospitals/peaks/assembly points) */
     categoryBtnsContainer: {
         height: '100%',
-        backgroundColor: 'white',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -639,11 +638,15 @@ const styles = StyleSheet.create({
     },
     // button color for picked category
     pickedCategoryBtnColor: {
-        backgroundColor: '#AB5C82'
+        backgroundColor: '#AB5C82',
+        borderWidth: 1,
+        borderColor: '#AB5C82'
     },
     // button color for categories that aren't picked
     unpickedCategoryBtnColor: {
-        backgroundColor: '#2D3782'
+        backgroundColor: '#2D3782',
+        borderColor: '#2D3782',
+        borderWidth: 1
     },
     // the buttons for picking a category
     categoryBtn: {
@@ -651,7 +654,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 9
+        padding: 9,
+        elevation: 3
     },
     // text inside buttons for picking a category
     categoryBtnTxt: {
@@ -871,7 +875,7 @@ const styles = StyleSheet.create({
     },
     // button to show/hide the search menu
     hideShowMenuBtn: {
-        backgroundColor: '#9ec110',
+        backgroundColor: '#AB5C82',
         width: '100%',
         paddingVertical: 5,
         display: 'flex',
@@ -883,7 +887,7 @@ const styles = StyleSheet.create({
     },
     // text inside button to show/hide search menu
     hideShowMenuBtnTxt: {
-        color: '#2D3782',
+        color: 'white',
         fontSize: 16,
         fontWeight: '600'
     },
@@ -926,7 +930,8 @@ const styles = StyleSheet.create({
        flexGrow: 0,
        height: '100%',
        marginBottom: 20,
-       borderColor: '#2D3782'
+       borderColor: '#2D3782',
+       backgroundColor: 'white'
     },
     // container of the search menu
     searchMenuContainer: {

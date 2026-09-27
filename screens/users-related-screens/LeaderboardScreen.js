@@ -103,7 +103,8 @@ const styles = StyleSheet.create({
     // explanation text at the top of the screen
     explanationTxt: {
         textAlign: 'center',
-        color: '#535353',
-        marginBottom: 25
+        color: '#2D3782',
+        marginBottom: 25,
+        fontSize: 16
     }
 });

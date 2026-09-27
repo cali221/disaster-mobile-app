@@ -11,7 +11,7 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
@@ -265,10 +265,10 @@ export function DisasterDetailsScreen({route, navigation}) {
                             {
                             shouldShowMap == true ? 
                             (
-                                <ChevronUp color={'#2D3782'} size={30} />
+                                <ChevronUp color={'white'} size={30} />
                             ):
                             (
-                                <ChevronDown color={'#2D3782'} size={30} />
+                                <ChevronDown color={'white'} size={30} />
                             )
                             }
                     </View>
@@ -282,9 +282,9 @@ export function DisasterDetailsScreen({route, navigation}) {
                     shouldShowMap == true && (
                         <View style={[styles.mapAndExplanationContainer, {paddingBottom: insets.bottom}]}>
                             {/* crowdsourced reports map placeholder */}
-                            {/* <View style={styles.map}></View> */}
+                            <View style={styles.map}></View>
             
-                            <Map style={styles.map} 
+                            {/* <Map style={styles.map} 
                                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
                                     compassPosition={{top: 20, left: 20}}
                                     onStartShouldSetResponder={()=>{return true}}>
@@ -318,7 +318,7 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                 disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map>  
+                            </Map>   */}
 
                             {/* attribution text just in case it's needed */}
                             <MapAttribution />
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 15,
         width: '100%',
-        backgroundColor: '#9EC110',
+        backgroundColor: '#AB5C82',
         height: 30,
         elevation: 5
     },
@@ -878,7 +878,7 @@ const styles = StyleSheet.create({
     // text inside button to show/hide map
     hideOrShowMapTxt: {
         fontSize: 17,
-        color: '#2D3782',
+        color: 'white',
         fontWeight: '600'
     },
     // explanation text about map markings

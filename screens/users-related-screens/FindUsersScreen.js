@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        columnGap: 25
+        columnGap: 25,
+        width: '100%'
     },
     // search button
     searchBtn: {
@@ -113,6 +114,7 @@ const styles = StyleSheet.create({
     // search button text
     searchBtnTxt: {
         color: 'white',
-        fontWeight: '600'
+        fontWeight: '600',
+        fontSize: 16
     }
 });

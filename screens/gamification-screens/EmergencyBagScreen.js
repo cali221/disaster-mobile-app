@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
-import { showErrorToast } from '../../utils/show-toast';
+import { showErrorToast, showSuccessToast } from '../../utils/show-toast';
 import { Check } from 'lucide-react-native';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 
@@ -122,7 +122,9 @@ export function EmergencyBagScreen() {
                 {/* list of the emergency bag items */}
                 {
                     emergencyBagData?.map((item, index) => (
-                        <View key={index} style={styles.emergencyBagItemContainer}>
+                        <View key={index} 
+                              style={styles.emergencyBagItemContainer}
+                              testID={`item-${item?.item_id}-container`}>
                             {/* the 'checkbox' circle */}
                             <TouchableOpacity style={styles.checkboxCircle}
                                               onPress={()=>{handleCheckboxToggle(item?.item_id, user?.id)}}
@@ -132,7 +134,8 @@ export function EmergencyBagScreen() {
                                                                   t('emergencyBagScreen.untickCheckboxAccLabel')}>
                                 {
                                     item.is_checked == true && (
-                                        <Check color='#2D3782' strokeWidth={5} />
+                                        <Check color='#2D3782' 
+                                               strokeWidth={5}  />
                                     )
                                 }
                             </TouchableOpacity>

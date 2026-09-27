@@ -285,16 +285,10 @@ describe('Notification Screen Toasts Checks', () => {
         await renderWithToasts(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
-                    <Navigation />
+                    <NotificationsScreen />
                 </AuthContext>
             </LanguageContext.Provider>
         );
-
-        const user = userEvent.setup();
-
-        // go to the notifications screen
-        await user.press(screen.getByRole('button', { name: 'tabBarLabels.notifications' }));
-        await act(() => jest.runAllTimers());
     });
 
     it('should show success toast after follow back button is pressed and successful', async() => {

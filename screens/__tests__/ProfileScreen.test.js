@@ -1,10 +1,9 @@
 // to run: npm test -- ProfileScreen.test.js
 
-import { render, screen, userEvent, act, waitFor } from '@testing-library/react-native';
+import { render, screen, userEvent, act } from '@testing-library/react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { LanguageContext } from '../../contexts/LanguageContext';
 import { Navigation } from '../../App';
-import { ProfileScreen } from '../ProfileScreen';
 
 jest.useFakeTimers();
 
@@ -14,6 +13,7 @@ jest.mock('lucide-react-native', () => {
         ChevronRight: 'ChevronRight', 
         RotateCw: 'RotateCw',
         Trophy: 'Trophy',
+        UserPlus2: 'UserPlus2',
         // bottom tab bar icons:
         House: 'House', 
         UserRound: 'UserRound', 
@@ -40,7 +40,7 @@ jest.mock('lucide-react-native', () => {
         XCircle: 'XCircle',
         // chevrons (for show/hide toggles)
         ChevronUp: 'ChevronUp', 
-        ChevronDown: 'ChevronDown',
+        ChevronDown: 'ChevronDown'
     }
 });
 
@@ -274,5 +274,23 @@ describe('Profile Screen Navigation Checks', () => {
         await act(() => jest.runAllTimers());
 
         await expect(screen.getByRole('heading', {name: 'shared.following'})).toBeOnTheScreen();
+    });
+
+    it('should navigate to find users screen when the add user button is pressed', async () => {
+        const user = userEvent.setup();
+        
+        await user.press(screen.getByRole('button', { name: 'profileScreen.findUsersToFollow' }));
+        await act(() => jest.runAllTimers());
+
+        await expect(screen.getByRole('heading', {name: 'screenTitles.findUsersScreenTitle'})).toBeOnTheScreen();
+    });
+
+     it('should navigate to leaderboard screen when the view all button is pressed', async () => {
+        const user = userEvent.setup();
+        
+        await user.press(screen.getByRole('button', { name: 'profileScreen.viewAllLeaderboard' }));
+        await act(() => jest.runAllTimers());
+
+        await expect(screen.getByRole('heading', {name: 'Leaderboard'})).toBeOnTheScreen();
     });
 });

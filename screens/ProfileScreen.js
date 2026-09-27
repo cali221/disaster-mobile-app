@@ -14,7 +14,7 @@ import { showErrorToast } from '../utils/show-toast';
 import { getLeaderboard } from '../utils/users-utilities';
 import { useIsFocused } from '@react-navigation/native';
 import { UserProfilePicture } from '../components/UserProfilePicture';
-import { ChevronRight, RotateCw } from 'lucide-react-native';
+import { ChevronRight, RotateCw, UserPlus2 } from 'lucide-react-native';
 import { BottomModalBase } from '../components/modals-base/BottomModalBase';
 import { supabase } from '../lib/supabase';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -276,19 +276,19 @@ export function ProfileScreen({ navigation }) {
                                 @{userProfile?.username ?? 'Unknown User'}
                             </Text>
 
-                            {/* following and followers buttons with the following/followers count */}
-                            <View style={styles.followingFollowersBtnsContainer}>
+                            <View style={styles.friendBtnsContainer}>
+                                {/* following and followers buttons with the following/followers count */}
                                 {/* following button */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
-                                                  accessibilityRole='button'
-                                                  accessibilityLabel={t('shared.goToFollowingScreen')}
-                                                  onPress={()=>{
+                                                accessibilityRole='button'
+                                                accessibilityLabel={t('shared.goToFollowingScreen')}
+                                                onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
                                                                             screenTitle: t('shared.following'),
                                                                             userId: user.id
                                                                         })
-                                                  }}>
+                                                }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
                                         {userProfile?.following_count} {t('shared.following')}
                                     </Text>
@@ -296,18 +296,25 @@ export function ProfileScreen({ navigation }) {
 
                                 {/* followers count */}
                                 <TouchableOpacity style={styles.followingFollowersBtns}
-                                                  accessibilityRole='button'
-                                                  accessibilityLabel={t('shared.goToFollowersScreen')}
-                                                  onPress={()=>{
+                                                accessibilityRole='button'
+                                                accessibilityLabel={t('shared.goToFollowersScreen')}
+                                                onPress={()=>{
                                                     navigation.navigate('Following/Followers', 
                                                                         {
                                                                             screenTitle: t('shared.followers'),
                                                                             userId: user.id
                                                                         })
-                                                  }}>
+                                                }}>
                                     <Text style={styles.followingFollowersBtnsTxt}>
                                         {userProfile?.followers_count} {t('shared.followers')}
                                     </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.addFriendBtn}
+                                                  accessibilityRole='button'
+                                                  onPress={()=>{navigation.navigate('Find Users')}}
+                                                  accessibilityLabel={t('profileScreen.findUsersToFollow')}>
+                                    <UserPlus2 size={22} color={'white'} />
                                 </TouchableOpacity>
                             </View>
 
@@ -371,6 +378,7 @@ export function ProfileScreen({ navigation }) {
 
                                     <TouchableOpacity style={styles.viewAllBtn}
                                                       accessibilityRole='button'
+                                                      accessibilityLabel={t('profileScreen.viewAllLeaderboard')}
                                                       onPress={()=>{navigation.navigate('Leaderboard')}}>
                                         <Text style={styles.viewAllTxt}>
                                             {t('profileScreen.viewAll')} 
@@ -515,7 +523,7 @@ export function ProfileScreen({ navigation }) {
                         <View style={styles.addContactModalContentContainer}
                               testID='add-trusted-contact-modal-content-container'>
                             {/* phone number input area */}
-                            <View style={styles.addContactModaTextInputContainer}>
+                            <View style={styles.addContactModalTextInputContainer}>
                                 {/* input label */}
                                 <Text style={styles.addContactModalTextInputLabelTxt}>
                                     {t('profileScreen.phoneNumber')}
@@ -528,7 +536,7 @@ export function ProfileScreen({ navigation }) {
                             </View>
 
                             {/* contact name input area */}
-                            <View style={styles.addContactModaTextInputContainer}>
+                            <View style={styles.addContactModalTextInputContainer}>
                                 {/* input label */}
                                 <Text style={styles.addContactModalTextInputLabelTxt}>
                                     {t('profileScreen.contactName')}
@@ -615,24 +623,24 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        columnGap: 35,
-        width: '100%'
+        alignItems: 'center',
+        width: '70%'
     },
     // the following/followers buttons
     followingFollowersBtns: {
-        backgroundColor: '#9ec110',
-        width: '40%',
-        maxWidth: 250,
-        height: 30,
+        backgroundColor: '#AB5C82',
+        width: 110,
         borderRadius: 10,
+        paddingVertical: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     // the text inside the following/followers buttons
     followingFollowersBtnsTxt: {
         fontWeight: '600',
         fontSize: 16,
-        color: '#2D3782'
+        color: 'white',
+        textAlign: 'center'
     },
     /* container of the buttons at the bottom of the screen
        (sign out button, change language button and account settings button) */
@@ -647,7 +655,6 @@ const styles = StyleSheet.create({
        (sign out button, change language button and account settings button) */
     bottomButtonsBase: {
         width: '100%',
-        backgroundColor: '#9ec110',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -665,11 +672,11 @@ const styles = StyleSheet.create({
     },
     // color of the change language button
     changeLangButtonColor: {
-        backgroundColor: '#9ec110',
+        backgroundColor: '#2D3782'
     },
     // color of the text inside the change language button
     changeLangButtonTxtColor: {
-        color: '#2D3782'
+        color: 'white'
     },
     // color of the sign out button
     signOutBtnColor: {
@@ -756,7 +763,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         right: 0,
-        padding: 10
+        padding: 7
     },
     // the text showing the next level name at the end of progress
     nextLevelTxt: {
@@ -798,13 +805,15 @@ const styles = StyleSheet.create({
     viewAllTxt: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#2D3782'
+        color: '#2D3782',
+        textAlign: 'center'
     },
     /* view all button in leaderboard section 
        with view all text and chevron icon */
     viewAllBtn: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     // the trusted contact section container
     trustedContactSection: {
@@ -836,7 +845,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 50
+        borderRadius: 50,
+        elevation: 3
     },
     /* text inside the add button at 
        the bottom of trusted contact list */
@@ -878,7 +888,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#2D3782',
         paddingVertical: 12,
         paddingHorizontal: 30,
-        borderRadius: 50
+        borderRadius: 50,
+        elevation: 3
     },
     // text inside add button on modal for adding new trusted contact
     addContactModalAddBtnTxt: {
@@ -887,7 +898,7 @@ const styles = StyleSheet.create({
         fontWeight: '600'
     },
     // container of tex input and its label on add contact modal
-    addContactModaTextInputContainer: {
+    addContactModalTextInputContainer: {
         display: 'flex',
         flexDirection: 'column',
         rowGap: 5,
@@ -923,7 +934,7 @@ const styles = StyleSheet.create({
     },
     // button to remove trusted contact
     trustedContactRemoveBtn: {
-        backgroundColor: '#9ec110',
+        backgroundColor: '#AB5C82',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 50,
@@ -931,8 +942,24 @@ const styles = StyleSheet.create({
     },
     // text inside the button to remove trusted contact
     trustedContactRemoveBtnTxt: {
-        color: '#2D3782',
+        color: 'white',
         fontSize: 16,
         fontWeight: '600' 
+    },
+    addFriendBtn: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#2D3782',
+        borderRadius: 10,
+        padding: 10,
+        elevation: 3
+    },
+    friendBtnsContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%'
     }
 });
