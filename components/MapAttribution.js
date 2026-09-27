@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 25
     },
     // the attribution text
     text: {

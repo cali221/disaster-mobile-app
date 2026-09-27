@@ -158,8 +158,8 @@ export function NotificationsScreen({ navigation }) {
                         contentContainerStyle={styles.notificationScrollContentContainer}
                         refreshControl={ <RefreshControl refreshing={refreshing} 
                                                          onRefresh={onRefresh}
-                                                         colors={['#2D3782']}
-                                                         progressBackgroundColor='#9ec110' /> }>
+                                                         colors={['white']}
+                                                         progressBackgroundColor='#AB5C82' /> }>
                 <View style={styles.pullToRefreshTextContainer}
                       accessibilityLabel={t('notifScreen.pullDownToRefresh')}
                       accessibilityHint={t('notifScreen.pullDownToRefreshAccHint')}>

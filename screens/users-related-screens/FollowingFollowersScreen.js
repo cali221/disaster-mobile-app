@@ -23,7 +23,6 @@ export function FollowingFollowersScreen({ navigation, route }) {
             throw error;
         }
         else{
-            console.log(userToFindDataForId);
             return data;
         }
     };

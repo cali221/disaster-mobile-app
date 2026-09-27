@@ -187,9 +187,9 @@ export function HomeScreen({ navigation }) {
 
         {
           shouldShowMap == true && (
-            <View style={styles.mapAndExperiecedDisasterBtnContainer}>
+            <View style={styles.mapAndTextsContainerr}>
               {/* map placeholder */}
-              <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
+              {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
               
               <Map style={styles.disasterMap} 
                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
@@ -801,7 +801,7 @@ const styles = StyleSheet.create({
       color: 'white',
       fontWeight: '600'
   },
-  mapAndExperiecedDisasterBtnContainer: {
+  mapAndTextsContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',

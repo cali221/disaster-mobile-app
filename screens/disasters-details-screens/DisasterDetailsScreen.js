@@ -11,7 +11,7 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapDisasterLegend } from '../../components/MapDisasterLegend';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import { getDisasterTitle } from '../../utils/get-disaster-title';
 import { DataAttributionSection } from '../../components/DataAttributionSection';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';
@@ -280,11 +280,11 @@ export function DisasterDetailsScreen({route, navigation}) {
                     location can be pressed to show reports in that location */}
                 {
                     shouldShowMap == true && (
-                        <View style={[styles.mapAndExplanationContainer, {paddingBottom: insets.bottom}]}>
-                            {/* crowdsourced reports map placeholder */}
-                            <View style={styles.map}></View>
-            
-                            {/* <Map style={styles.map} 
+                        <View style={styles.mapAndTextsContainerr}>
+                            {/* map placeholder */}
+                            {/* <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View> */}
+                            
+                           <Map style={styles.map} 
                                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
                                     compassPosition={{top: 20, left: 20}}
                                     onStartShouldSetResponder={()=>{return true}}>
@@ -318,17 +318,18 @@ export function DisasterDetailsScreen({route, navigation}) {
                                                 disasterObj?.general?.latitude]}>
                                     <MapDisasterLegend disasterType={disasterObj?.general?.disaster_type} />
                                 </Marker>
-                            </Map>   */}
-
+                            </Map>  
+            
                             {/* attribution text just in case it's needed */}
                             <MapAttribution />
-                                
-
-                            {/* explanation text about map markers */}
-                            <Text style={styles.mapMarkingExplanationTxt}>
-                                {t('disasterDetailsScreen.mapMarkingExplanation')}
-                            </Text>
-                        </View>
+                
+                            <View style={styles.mapAndExplanationContainer}>
+                                {/* explanation text about the disaster map */}
+                                <Text style={styles.mapExplanationTxt}>
+                                    {t('disasterDetailsScreen.mapMarkingExplanation')}
+                                </Text>
+                            </View>
+                        </View>  
                     )
                 }
 
@@ -773,7 +774,8 @@ const styles = StyleSheet.create({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        rowGap: 10
+        rowGap: 10,
+        backgroundColor: 'white'
     },
     // the disaster details texts
     disasterDetailsTxt: {
@@ -885,24 +887,23 @@ const styles = StyleSheet.create({
     mapMarkingExplanationTxt: {
         color: '#2D3782',
         textAlign: 'center',
-        width: '90%',
         fontSize: 17
     },
     // container of map and explanation text
     mapAndExplanationContainer: {
-        width: '100%',
-        paddingBottom: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        elevation: 2,
-        borderColor: 'grey',
-        borderWidth: 2,
-        backgroundColor: 'white',
-        rowGap: 5
+      width: '100%',
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderBottomLeftRadius: 20,
+      borderBottomRightRadius: 20,
+      elevation: 2,
+      borderColor: 'grey',
+      borderWidth: 2,
+      backgroundColor: 'white'
     },
     // marker for locations with report(s)
     reportLocMarker: {
@@ -946,11 +947,17 @@ const styles = StyleSheet.create({
     },
     // text showing the time the report was created
     reportItemTimeText: {
-        color: '#2D3782'
+        color: '#2D3782',
+        fontSize: 16
     },
     // the map showing the disaster and user report locations
     map: {
         width: '100%',
         height: 200
+    },
+    mapExplanationTxt: {
+        fontSize: 16,
+        textAlign: 'center',
+        color: '#2D3782'
     }
 });

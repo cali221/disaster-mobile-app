@@ -14,7 +14,7 @@ import { getUserCurrentLocation } from '../../utils/users-utilities';
 import { showErrorToast, showInfoToast } from '../../utils/show-toast';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { LocationSearchAndPicker } from '../../components/modals/LocationSearchAndPickerModal';
-//import { Map, Camera, Marker, OfflineManager, NetworkManager } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker, OfflineManager, NetworkManager } from "@maplibre/maplibre-react-native"; 
 import * as Location from "expo-location";
 import { MapAttribution } from '../../components/MapAttribution';
 
@@ -277,10 +277,10 @@ export function UsefulLocationScreen() {
             <MapAttribution />
             
             {/* map placeholder */}
-            <View style={styles.map}></View>
+            {/* <View style={styles.map}></View> */}
 
             {/* map showing the places */}
-            {/* <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
+            <Map mapStyle='https://tiles.openfreemap.org/styles/liberty'
                     compassPosition={{top: 20, left: 20}}
                     onStartShouldSetResponder={()=>{return true}}
                     style={styles.map}
@@ -333,7 +333,7 @@ export function UsefulLocationScreen() {
                         </Marker>
                     )
                 }
-            </Map> */}
+            </Map>
 
             <View style={[styles.contentBelowMapContainer, {paddingBottom: insets.bottom}]}>
                 <TouchableOpacity onPress={()=>{setShouldShowMenu(!shouldShowMenu)}}
@@ -464,8 +464,8 @@ export function UsefulLocationScreen() {
                                     contentContainerStyle={styles.placeListContainer}
                                     refreshControl={<RefreshControl refreshing={refreshing} 
                                                                     onRefresh={onRefresh}
-                                                                    colors={['#2D3782']}
-                                                                    progressBackgroundColor='#9ec110'/>}>
+                                                                    colors={['white']}
+                                                                    progressBackgroundColor='#AB5C82'/>}>
                             {/* coordinates text */}
                             <Text style={styles.latLongTxt}>
                                 {t('usefulLocScreen.latitude')}: {currentLoc?.latitude ? currentLoc?.latitude : t('shared.unavailable')}
