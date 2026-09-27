@@ -8,7 +8,7 @@ jest.mock('lucide-react-native', () => {
     }
 });
 
-const testUser = {id: 'some-uid'}
+const testUser = {id: 'some-uid'};
 
 import { supabase } from '../../../lib/supabase';
 

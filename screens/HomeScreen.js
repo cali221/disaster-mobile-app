@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showErrorToast, showInfoToast } from '../utils/show-toast';
 import * as Notifications from 'expo-notifications';
 import { AuthContext } from '../contexts/AuthContext';
-//import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
+import { Map, Camera, Marker } from "@maplibre/maplibre-react-native"; 
 import { supabase } from '../lib/supabase';
 import { getYesterdaysISOTimeStr } from '../utils/get-time';
 import { capitalizeFirstLetter } from '../utils/text-formatting';
@@ -191,7 +191,7 @@ export function HomeScreen({ navigation }) {
               {/* map placeholder */}
               <View style={{width: '100%', height: 200, backgroundColor: 'plum'}}></View>
               
-              {/* <Map style={styles.disasterMap} 
+              <Map style={styles.disasterMap} 
                     mapStyle='https://tiles.openfreemap.org/styles/liberty'
                     compassPosition={{top: 20, left: 20}}>
                 <Camera maxZoom={23} 
@@ -211,7 +211,7 @@ export function HomeScreen({ navigation }) {
                     </Marker>
                   )))
                 }
-            </Map> */}
+            </Map> 
 
             {/* attribution text just in case it's needed */}
             <MapAttribution />

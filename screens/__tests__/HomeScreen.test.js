@@ -4,6 +4,44 @@ import { HomeScreen } from '../HomeScreen';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Navigation } from '../../App';
 import { LanguageContext } from '../../contexts/LanguageContext';
+import { supabase } from '../../lib/supabase';
+import { renderWithToasts } from '../../utils/render-with-toasts';
+
+// initial supabase mock
+jest.mock('../../lib/supabase', ()=>{
+    return {
+        supabase: {
+            channel: jest.fn().mockImplementation(()=>{
+                return {
+                    on: jest.fn(),
+                    subscribe: jest.fn().mockReturnThis(),
+                    unsubscribe: jest.fn()
+                }
+            }),
+            schema: jest.fn().mockImplementation((schemaName)=>{
+                if(schemaName == 'public'){
+                    return{
+                        from: jest.fn(),
+                        order: jest.fn(),
+                        select: jest.fn(),
+                        eq: jest.fn(),
+                        rpc: jest.fn()
+                    }
+                }
+                else if(schemaName == 'disasters_related_data'){
+                    return{
+                        from: jest.fn(),
+                        select: jest.fn(),
+                        gt: jest.fn()
+                    }
+                }
+            }),
+            auth: {
+                onAuthStateChange: jest.fn().mockReturnThis()
+            },
+        }
+    }
+});
 
 jest.useFakeTimers();
 
@@ -49,90 +87,74 @@ jest.mock('lucide-react-native', () => {
     }
 });
 
-// Notes: Couldn't figure out how to make splitting the tests with separate mocks work, 
-// for now testing them with the same mock.
-// jest.resetModules() caused useContext related error afterwards on the next test. 
-// Alternatives such as jest.clearAllMocks() etc. did not reset screen correctly
-
-// supabase mock with sample data
-jest.mock('@supabase/supabase-js', () => {
-    return {
-        createClient: jest.fn().mockImplementation(() => {
-            return {
-                channel: jest.fn().mockImplementation(()=>{
-                    return{
-                        on: jest.fn().mockReturnThis(),
-                        subscribe: jest.fn(),
-                        unsubscribe: jest.fn()
-                    }
-                }),
-                schema: jest.fn().mockImplementation((schemaName)=>{
-                    if(schemaName == 'public'){
-                        return{
-                            from: jest.fn().mockReturnThis(),
-                            order: jest.fn().mockReturnThis(),
-                            select: jest.fn().mockReturnThis(),
-                            eq: jest.fn().mockReturnThis(),
-                            rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
-                                if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
-                                    return {
-                                        data: [{ 
-                                                    disaster_type: 'hurricane', 
-                                                    dist_in_m_from_disaster: 1000, 
-                                                    adm2_name: 'Jakarta Pusat', 
-                                                    adm1_name: 'DKI Jakarta', 
-                                                    disaster_datetime: new Date ,
-                                                    disaster_id: 'someid'
-                                                },
-                                                { 
-                                                    disaster_type: 'flood', 
-                                                    dist_in_m_from_disaster: 20, 
-                                                    adm2_name: 'Denpasar', 
-                                                    adm1_name: 'Bali', 
-                                                    disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
-                                                    disaster_id: 'someid2'
-                                                }],
-                                        error: null
-                                    }
-                                }
-                                else{
-                                    return {
-                                        data: []
-                                    }
-                                }
-                            }),
-                        }
-                    }
-                    else if(schemaName == 'disasters_related_data'){
-                       return{
-                        from: jest.fn().mockReturnThis(),
-                        select: jest.fn().mockReturnThis(),
-                        gt: jest.fn().mockReturnValue({ data: [{
-                                                                    disaster_longitude: 10, 
-                                                                    disaster_latitude: 10, 
-                                                                    disaster_type: 'earthquake'
-                                                                },
-                                                                {
-                                                                    disaster_longitude: 5, 
-                                                                    disaster_latitude: 5, 
-                                                                    disaster_type: 'flood'
-                                                                }], 
-                                                error: null}),
-                       }
-                    }
-                }),
-                auth: {
-                    onAuthStateChange: jest.fn().mockReturnThis()
-                },
-            }
-        })
-    }
-});
-
 const testUser = { id: 'some-user-id' };
 
-describe('Home Screen', () => {
+describe('Home screen when initial data fetching was successful', () => {
     beforeEach(async()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+           if(schemaName == 'public'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    order: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    eq: jest.fn().mockReturnThis(),
+                    rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
+                        if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
+                            return {
+                                data: [{ 
+                                            disaster_type: 'hurricane', 
+                                            dist_in_m_from_disaster: 1000, 
+                                            adm2_name: 'Jakarta Pusat', 
+                                            adm1_name: 'DKI Jakarta', 
+                                            disaster_datetime: new Date ,
+                                            disaster_id: 'someid'
+                                        },
+                                        { 
+                                            disaster_type: 'flood', 
+                                            dist_in_m_from_disaster: 20, 
+                                            adm2_name: 'Denpasar', 
+                                            adm1_name: 'Bali', 
+                                            disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
+                                            disaster_id: 'someid2'
+                                        }],
+                                error: null
+                            }
+                        }
+                        else{
+                            return {
+                                data: []
+                            }
+                        }
+                    }),
+                }
+            }
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    gt: jest.fn().mockReturnValue({ data: [{
+                                                                disaster_longitude: 10, 
+                                                                disaster_latitude: 10, 
+                                                                disaster_type: 'earthquake'
+                                                            },
+                                                            {
+                                                                disaster_longitude: 5, 
+                                                                disaster_latitude: 5, 
+                                                                disaster_type: 'flood'
+                                                            }], 
+                                                    error: null}),
+                }
+            }
+        });
+
+        supabase.channel.mockImplementation(()=>{
+            return{
+                on: jest.fn().mockReturnThis(),
+                subscribe: jest.fn(),
+                unsubscribe: jest.fn()
+            }
+        });
+
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -171,7 +193,7 @@ describe('Home Screen', () => {
     });
 });
 
-describe('Home Screen Navigation Checks', () => {
+describe('Home screen navigation checks', () => {
     beforeEach(async ()=>{
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
@@ -446,5 +468,147 @@ describe('Home Screen Navigation Checks', () => {
                                       {name: 'screenTitles.volcanicEruptionsGuideScreenTitle'}))
                     .toBeOnTheScreen();
         
+    });
+});
+
+describe('Home screen when disaster data fetching disaster summary data failed', () => {
+    beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+           if(schemaName == 'public'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    order: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    eq: jest.fn().mockReturnThis(),
+                    rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
+                        if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
+                            return {
+                                data: null,
+                                error: {
+                                    message: 'some error message due to failing to fetch disaster data show on recents disaster summary'
+                                }
+                            }
+                        }
+                        else{
+                            return {
+                                data: []
+                            }
+                        }
+                    }),
+                }
+            }
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    gt: jest.fn().mockReturnValue({ data: [{
+                                                                disaster_longitude: 10, 
+                                                                disaster_latitude: 10, 
+                                                                disaster_type: 'earthquake'
+                                                            },
+                                                            {
+                                                                disaster_longitude: 5, 
+                                                                disaster_latitude: 5, 
+                                                                disaster_type: 'flood'
+                                                            }], 
+                                                    error: null}),
+                }
+            }
+        });
+
+        supabase.channel.mockImplementation(()=>{
+            return{
+                on: jest.fn().mockReturnThis(),
+                subscribe: jest.fn(),
+                unsubscribe: jest.fn()
+            }
+        });
+
+        await renderWithToasts(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen/>
+                </AuthContext>
+            </LanguageContext.Provider>
+        )
+    });
+
+    it('should show the right error toast when fetching recent disaster summary failed', async() => {
+        await expect(screen.getByTestId('toastAnimatedContainer')).toContainElement(screen.getByText('homeScreen.failedToFetchRecentDisastersNearWatchedAreas'));
+        await expect(screen.getByTestId('toastAnimatedContainer')).toContainElement(screen.getByText('some error message due to failing to fetch disaster data show on recents disaster summary'));
+    });
+});
+
+describe('Home screen when fetching disasters data to show on map failed', () => {
+    beforeEach(async()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+           if(schemaName == 'public'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    order: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    eq: jest.fn().mockReturnThis(),
+                    rpc: jest.fn().mockImplementation((rpcName, rpcInput)=>{
+                        if(rpcName == 'get_homescreen_summary_of_disasters_for_user'){
+                            return {
+                                data: [{ 
+                                            disaster_type: 'hurricane', 
+                                            dist_in_m_from_disaster: 1000, 
+                                            adm2_name: 'Jakarta Pusat', 
+                                            adm1_name: 'DKI Jakarta', 
+                                            disaster_datetime: new Date ,
+                                            disaster_id: 'someid'
+                                        },
+                                        { 
+                                            disaster_type: 'flood', 
+                                            dist_in_m_from_disaster: 20, 
+                                            adm2_name: 'Denpasar', 
+                                            adm1_name: 'Bali', 
+                                            disaster_datetime: new Date(new Date - (24 * 60 * 60 * 1000)) ,
+                                            disaster_id: 'someid2'
+                                        }],
+                                error: null
+                            }
+                        }
+                        else{
+                            return {
+                                data: []
+                            }
+                        }
+                    }),
+                }
+            }
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockReturnThis(),
+                    select: jest.fn().mockReturnThis(),
+                    gt: jest.fn().mockReturnValue({ data: null, 
+                                                    error: {
+                                                        message: 'some error message due to failing to fetch disaster data to show on map'
+                                                    }}),
+                }
+            }
+        });
+
+        supabase.channel.mockImplementation(()=>{
+            return{
+                on: jest.fn().mockReturnThis(),
+                subscribe: jest.fn(),
+                unsubscribe: jest.fn()
+            }
+        });
+
+        await renderWithToasts(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <HomeScreen/>
+                </AuthContext>
+            </LanguageContext.Provider>
+        )
+    });
+
+    it('should show the right error toast when fetching disasters data to show on map failed', async() => {
+        await expect(screen.getByTestId('toastAnimatedContainer')).toContainElement(screen.getByText('homeScreen.failedToFetchExistingDisastersToShowOnMap'));
+        await expect(screen.getByTestId('toastAnimatedContainer')).toContainElement(screen.getByText('some error message due to failing to fetch disaster data to show on map'));
     });
 });
