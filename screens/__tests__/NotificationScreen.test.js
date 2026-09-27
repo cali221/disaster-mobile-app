@@ -6,6 +6,95 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { LanguageContext } from '../../contexts/LanguageContext';
 import { Navigation } from '../../App';
 import { renderWithToasts } from '../../utils/render-with-toasts'; 
+import { supabase } from '../../lib/supabase';
+import { addFollow } from '../../utils/users-utilities';
+
+// initial supabase mock
+jest.mock('../../lib/supabase', () => {
+    return {
+        supabase: {
+            schema: jest.fn().mockImplementation((schemaName) => {
+                // mock fetching user's notifications
+                if(schemaName == 'users'){
+                    return {
+                        from: jest.fn().mockImplementation(() => {
+                            return {
+                                select: jest.fn().mockImplementation(() => {
+                                    return {
+                                        eq: jest.fn().mockImplementation(() => {
+                                            return {
+                                                eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                    return {
+                                                        order: jest.fn().mockImplementation(() => {
+                                                            if(notifTypeToFetch == 'disaster_notification'){
+                                                                return {
+                                                                    data: [],
+                                                                    error: null
+                                                                }
+                                                            }
+                                                            else if(notifTypeToFetch== 'follow_notification'){
+                                                                return {
+                                                                    data: [],
+                                                                    error: null
+                                                                }
+                                                            }
+                                                            else{
+                                                                return {
+                                                                    data: null,
+                                                                    error: {
+                                                                        message: 'Unsupported category'
+                                                                    }
+                                                                }
+                                                            } 
+                                                        })
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+                // mock fetching required data for homescreen
+                else if(schemaName == 'disasters_related_data'){
+                    return{
+                        from: jest.fn().mockImplementation(()=>{
+                            return {
+                                select: jest.fn().mockImplementation(()=>{
+                                    return {
+                                        gt: jest.fn().mockReturnValue({ 
+                                            data: [], 
+                                            error: null}),
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+                // mock rpc so they return empty data
+                else if(schemaName == 'public'){
+                    return{
+                        rpc: jest.fn().mockImplementation(()=>{
+                            return {
+                                    data: null
+                            }
+                        }),
+                    }
+                }
+            }),
+            // mock supabase channel for homescreen
+            channel: jest.fn().mockImplementation(()=>{
+                return{
+                    on: jest.fn().mockReturnThis(),
+                    subscribe: jest.fn(),
+                    unsubscribe: jest.fn()
+                }
+            }),
+        }
+    }
+});
 
 jest.useFakeTimers();
 
@@ -44,109 +133,109 @@ jest.mock('lucide-react-native', () => {
 });
 
 // supabase mock with sample data
-jest.mock('@supabase/supabase-js', () => {
-    return {
-        createClient: jest.fn().mockImplementation(() => {
-            return {
-                schema: jest.fn().mockImplementation((schemaName) => {
-                    // mock fetching user's notifications
-                    if(schemaName == 'users'){
-                        return {
-                            from: jest.fn().mockImplementation(() => {
-                                return {
-                                    select: jest.fn().mockImplementation(() => {
-                                        return {
-                                            eq: jest.fn().mockImplementation(() => {
-                                                return {
-                                                    eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
-                                                        return {
-                                                            order: jest.fn().mockImplementation(() => {
-                                                                if(notifTypeToFetch == 'disaster_notification'){
-                                                                    return {
-                                                                        data: [{body: 'this is as disaster notification body',
-                                                                                associated_disaster_id: 'some-disaster-id',
-                                                                                mentioned_user_user_id: null,
-                                                                                created_at: new Date()}],
-                                                                        error: null
-                                                                    }
-                                                                }
-                                                                else if(notifTypeToFetch== 'follow_notification'){
-                                                                    return {
-                                                                        data: [{
-                                                                                    body: 'this is a follow notification body 1',
-                                                                                    associated_disaster_id: null,
-                                                                                    mentioned_user_user_id: 'some other user id',
-                                                                                    created_at: new Date(),
-                                                                                    users_are_now_mutuals: false
-                                                                                },
-                                                                                {
-                                                                                    body: 'this is a follow notification body 2',
-                                                                                    associated_disaster_id: null,
-                                                                                    mentioned_user_user_id: 'some other user id',
-                                                                                    created_at: new Date(),
-                                                                                    users_are_now_mutuals: true
-                                                                                }],
-                                                                        error: null
-                                                                    }
-                                                                }
-                                                                else{
-                                                                    return {
-                                                                        data: null,
-                                                                        error: {
-                                                                            message: 'Unsupported category'
-                                                                        }
-                                                                    }
-                                                                } 
-                                                            })
-                                                        }
-                                                    })
-                                                }
-                                            })
-                                        }
-                                    })
-                                }
-                            })
-                        }
-                    }
-                    // mock fetching required data for homescreen
-                    else if(schemaName == 'disasters_related_data'){
-                        return{
-                            from: jest.fn().mockImplementation(()=>{
-                                return {
-                                    select: jest.fn().mockImplementation(()=>{
-                                        return {
-                                            gt: jest.fn().mockReturnValue({ 
-                                                data: [], 
-                                                error: null}),
-                                        }
-                                    })
-                                }
-                            })
-                        }
-                    }
-                    // mock rpc so they return empty data
-                    else if(schemaName == 'public'){
-                        return{
-                            rpc: jest.fn().mockImplementation(()=>{
-                                return {
-                                        data: null
-                                }
-                            }),
-                        }
-                    }
-                }),
-                // mock supabase channel for homescreen
-                channel: jest.fn().mockImplementation(()=>{
-                    return{
-                        on: jest.fn().mockReturnThis(),
-                        subscribe: jest.fn(),
-                        unsubscribe: jest.fn()
-                    }
-                }),
-            }
-        }
-    )}
-});
+// jest.mock('@supabase/supabase-js', () => {
+//     return {
+//         createClient: jest.fn().mockImplementation(() => {
+//             return {
+//                 schema: jest.fn().mockImplementation((schemaName) => {
+//                     // mock fetching user's notifications
+//                     if(schemaName == 'users'){
+//                         return {
+//                             from: jest.fn().mockImplementation(() => {
+//                                 return {
+//                                     select: jest.fn().mockImplementation(() => {
+//                                         return {
+//                                             eq: jest.fn().mockImplementation(() => {
+//                                                 return {
+//                                                     eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+//                                                         return {
+//                                                             order: jest.fn().mockImplementation(() => {
+//                                                                 if(notifTypeToFetch == 'disaster_notification'){
+//                                                                     return {
+//                                                                         data: [{body: 'this is as disaster notification body',
+//                                                                                 associated_disaster_id: 'some-disaster-id',
+//                                                                                 mentioned_user_user_id: null,
+//                                                                                 created_at: new Date()}],
+//                                                                         error: null
+//                                                                     }
+//                                                                 }
+//                                                                 else if(notifTypeToFetch== 'follow_notification'){
+//                                                                     return {
+//                                                                         data: [{
+//                                                                                     body: 'this is a follow notification body 1',
+//                                                                                     associated_disaster_id: null,
+//                                                                                     mentioned_user_user_id: 'some other user id',
+//                                                                                     created_at: new Date(),
+//                                                                                     users_are_now_mutuals: false
+//                                                                                 },
+//                                                                                 {
+//                                                                                     body: 'this is a follow notification body 2',
+//                                                                                     associated_disaster_id: null,
+//                                                                                     mentioned_user_user_id: 'some other user id',
+//                                                                                     created_at: new Date(),
+//                                                                                     users_are_now_mutuals: true
+//                                                                                 }],
+//                                                                         error: null
+//                                                                     }
+//                                                                 }
+//                                                                 else{
+//                                                                     return {
+//                                                                         data: null,
+//                                                                         error: {
+//                                                                             message: 'Unsupported category'
+//                                                                         }
+//                                                                     }
+//                                                                 } 
+//                                                             })
+//                                                         }
+//                                                     })
+//                                                 }
+//                                             })
+//                                         }
+//                                     })
+//                                 }
+//                             })
+//                         }
+//                     }
+//                     // mock fetching required data for homescreen
+//                     else if(schemaName == 'disasters_related_data'){
+//                         return{
+//                             from: jest.fn().mockImplementation(()=>{
+//                                 return {
+//                                     select: jest.fn().mockImplementation(()=>{
+//                                         return {
+//                                             gt: jest.fn().mockReturnValue({ 
+//                                                 data: [], 
+//                                                 error: null}),
+//                                         }
+//                                     })
+//                                 }
+//                             })
+//                         }
+//                     }
+//                     // mock rpc so they return empty data
+//                     else if(schemaName == 'public'){
+//                         return{
+//                             rpc: jest.fn().mockImplementation(()=>{
+//                                 return {
+//                                         data: null
+//                                 }
+//                             }),
+//                         }
+//                     }
+//                 }),
+//                 // mock supabase channel for homescreen
+//                 channel: jest.fn().mockImplementation(()=>{
+//                     return{
+//                         on: jest.fn().mockReturnThis(),
+//                         subscribe: jest.fn(),
+//                         unsubscribe: jest.fn()
+//                     }
+//                 }),
+//             }
+//         }
+//     )}
+// });
 
 jest.mock('../../utils/users-utilities', () => {
     return {
@@ -156,8 +245,96 @@ jest.mock('../../utils/users-utilities', () => {
 
 const testUser = { id: 'some-user-id' };
 
-describe('Notification Screen', () => {
+describe('Notification screen when fetching user notifications was successful', () => {
     beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+            // mock fetching user's notifications with test data
+            if(schemaName == 'users'){
+                return {
+                    from: jest.fn().mockImplementation(() => {
+                        return {
+                            select: jest.fn().mockImplementation(() => {
+                                return {
+                                    eq: jest.fn().mockImplementation(() => {
+                                        return {
+                                            eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                return {
+                                                    order: jest.fn().mockImplementation(() => {
+                                                        if(notifTypeToFetch == 'disaster_notification'){
+                                                            return {
+                                                                data: [{body: 'this is as disaster notification body',
+                                                                        associated_disaster_id: 'some-disaster-id',
+                                                                        mentioned_user_user_id: null,
+                                                                        created_at: new Date()}],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else if(notifTypeToFetch== 'follow_notification'){
+                                                            return {
+                                                                data: [{
+                                                                            body: 'this is a follow notification body 1',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: false
+                                                                        },
+                                                                        {
+                                                                            body: 'this is a follow notification body 2',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: true
+                                                                        }],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else{
+                                                            return {
+                                                                data: null,
+                                                                error: {
+                                                                    message: 'Unsupported category'
+                                                                }
+                                                            }
+                                                        } 
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock fetching required data for homescreen
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockImplementation(()=>{
+                        return {
+                            select: jest.fn().mockImplementation(()=>{
+                                return {
+                                    gt: jest.fn().mockReturnValue({ 
+                                        data: [], 
+                                        error: null}),
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock rpc so they return empty data
+            else if(schemaName == 'public'){
+                return{
+                    rpc: jest.fn().mockImplementation(()=>{
+                        return {
+                                data: null
+                        }
+                    }),
+                }
+            }
+        });
+
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -280,8 +457,96 @@ describe('Notification Screen', () => {
     });
 });
 
-describe('Notification Screen Toasts Checks', () => {
+describe('Notification screen toast checks when follow is successful', () => {
     beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+            // mock fetching user's notifications with test data
+            if(schemaName == 'users'){
+                return {
+                    from: jest.fn().mockImplementation(() => {
+                        return {
+                            select: jest.fn().mockImplementation(() => {
+                                return {
+                                    eq: jest.fn().mockImplementation(() => {
+                                        return {
+                                            eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                return {
+                                                    order: jest.fn().mockImplementation(() => {
+                                                        if(notifTypeToFetch == 'disaster_notification'){
+                                                            return {
+                                                                data: [{body: 'this is as disaster notification body',
+                                                                        associated_disaster_id: 'some-disaster-id',
+                                                                        mentioned_user_user_id: null,
+                                                                        created_at: new Date()}],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else if(notifTypeToFetch== 'follow_notification'){
+                                                            return {
+                                                                data: [{
+                                                                            body: 'this is a follow notification body 1',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: false
+                                                                        },
+                                                                        {
+                                                                            body: 'this is a follow notification body 2',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: true
+                                                                        }],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else{
+                                                            return {
+                                                                data: null,
+                                                                error: {
+                                                                    message: 'Unsupported category'
+                                                                }
+                                                            }
+                                                        } 
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock fetching required data for homescreen
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockImplementation(()=>{
+                        return {
+                            select: jest.fn().mockImplementation(()=>{
+                                return {
+                                    gt: jest.fn().mockReturnValue({ 
+                                        data: [], 
+                                        error: null}),
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock rpc so they return empty data
+            else if(schemaName == 'public'){
+                return{
+                    rpc: jest.fn().mockImplementation(()=>{
+                        return {
+                                data: null
+                        }
+                    }),
+                }
+            }
+        });
+
         await renderWithToasts(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
@@ -309,10 +574,315 @@ describe('Notification Screen Toasts Checks', () => {
         const toast = await screen.getByTestId('toastAnimatedContainer');
         expect(toast).toContainElement(screen.getByText('shared.followed'));
     });
-})
+});
+
+describe('Notification screen toast checks when follow is unsuccessful', () => {
+    beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+            // mock fetching user's notifications with test data
+            if(schemaName == 'users'){
+                return {
+                    from: jest.fn().mockImplementation(() => {
+                        return {
+                            select: jest.fn().mockImplementation(() => {
+                                return {
+                                    eq: jest.fn().mockImplementation(() => {
+                                        return {
+                                            eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                return {
+                                                    order: jest.fn().mockImplementation(() => {
+                                                        if(notifTypeToFetch == 'disaster_notification'){
+                                                            return {
+                                                                data: [{body: 'this is as disaster notification body',
+                                                                        associated_disaster_id: 'some-disaster-id',
+                                                                        mentioned_user_user_id: null,
+                                                                        created_at: new Date()}],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else if(notifTypeToFetch== 'follow_notification'){
+                                                            return {
+                                                                data: [{
+                                                                            body: 'this is a follow notification body 1',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: false
+                                                                        },
+                                                                        {
+                                                                            body: 'this is a follow notification body 2',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: true
+                                                                        }],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else{
+                                                            return {
+                                                                data: null,
+                                                                error: {
+                                                                    message: 'Unsupported category'
+                                                                }
+                                                            }
+                                                        } 
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock rpc so they return empty data
+            else if(schemaName == 'public'){
+                return{
+                    rpc: jest.fn().mockImplementation(()=>{
+                        return {
+                                data: null
+                        }
+                    }),
+                }
+            }
+        });
+
+        addFollow.mockImplementation(()=>{
+            throw new Error('There was an error when trying to follow')
+        })
+
+        await renderWithToasts(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <NotificationsScreen />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
+    });
+
+    it('should show error toast after follow back button is pressed and unsuccessful', async() => {
+        const user = userEvent.setup();
+
+        // make sure followers category is picked
+        await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
+        await act(() => jest.runAllTimers());
+
+        // get the folllow back button (there should be only 1)
+        const followBtn = await screen.getByRole('button', 
+                                                  { name: 'shared.followBack'});
+
+        await user.press(followBtn);
+        await act(() => jest.runAllTimers());
+    
+        // expect to see toast saying the follow was unsuccessful
+        const toast = await screen.getByTestId('toastAnimatedContainer');
+        expect(toast).toContainElement(screen.getByText('shared.failedToFollow'));
+        expect(toast).toContainElement(screen.getByText('There was an error when trying to follow'));
+    });
+});
+
+describe('Notification screen toast checks when follow back button is pressed when the other user was already followed', () => {
+    beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+            // mock fetching user's notifications with test data
+            if(schemaName == 'users'){
+                return {
+                    from: jest.fn().mockImplementation(() => {
+                        return {
+                            select: jest.fn().mockImplementation(() => {
+                                return {
+                                    eq: jest.fn().mockImplementation(() => {
+                                        return {
+                                            eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                return {
+                                                    order: jest.fn().mockImplementation(() => {
+                                                        if(notifTypeToFetch == 'disaster_notification'){
+                                                            return {
+                                                                data: [{body: 'this is as disaster notification body',
+                                                                        associated_disaster_id: 'some-disaster-id',
+                                                                        mentioned_user_user_id: null,
+                                                                        created_at: new Date()}],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else if(notifTypeToFetch== 'follow_notification'){
+                                                            return {
+                                                                data: [{
+                                                                            body: 'this is a follow notification body 1',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: false
+                                                                        },
+                                                                        {
+                                                                            body: 'this is a follow notification body 2',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: true
+                                                                        }],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else{
+                                                            return {
+                                                                data: null,
+                                                                error: {
+                                                                    message: 'Unsupported category'
+                                                                }
+                                                            }
+                                                        } 
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock rpc so they return empty data
+            else if(schemaName == 'public'){
+                return{
+                    rpc: jest.fn().mockImplementation(()=>{
+                        return {
+                            data: null
+                        }
+                    }),
+                }
+            }
+        });
+
+        addFollow.mockImplementation(()=>{
+            throw {
+                code: 23505
+            }
+        })
+
+        await renderWithToasts(
+            <LanguageContext.Provider value={{currentLang: 'en'}}>
+                <AuthContext value={{user: testUser}}>
+                    <NotificationsScreen />
+                </AuthContext>
+            </LanguageContext.Provider>
+        );
+    });
+
+    it('should show error toast after follow back button is pressed and unsuccessful', async() => {
+        const user = userEvent.setup();
+
+        // make sure followers category is picked
+        await user.press(screen.getByRole('button', { name: 'notifScreen.newFollowersCategoryBtn'}));
+        await act(() => jest.runAllTimers());
+
+        // get the folllow back button (there should be only 1)
+        const followBtn = await screen.getByRole('button', 
+                                                  { name: 'shared.followBack'});
+
+        await user.press(followBtn);
+        await act(() => jest.runAllTimers());
+    
+        // expect to see toast saying the follow was unsuccessful
+        const toast = await screen.getByTestId('toastAnimatedContainer');
+        expect(toast).toContainElement(screen.getByText('shared.alreadyFollowed'));
+    });
+});
 
 describe('Notification Screen Navigation Checks', () => {
     beforeEach(async ()=>{
+        supabase.schema.mockImplementation((schemaName)=>{
+            // mock fetching user's notifications with test data
+            if(schemaName == 'users'){
+                return {
+                    from: jest.fn().mockImplementation(() => {
+                        return {
+                            select: jest.fn().mockImplementation(() => {
+                                return {
+                                    eq: jest.fn().mockImplementation(() => {
+                                        return {
+                                            eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
+                                                return {
+                                                    order: jest.fn().mockImplementation(() => {
+                                                        if(notifTypeToFetch == 'disaster_notification'){
+                                                            return {
+                                                                data: [{body: 'this is as disaster notification body',
+                                                                        associated_disaster_id: 'some-disaster-id',
+                                                                        mentioned_user_user_id: null,
+                                                                        created_at: new Date()}],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else if(notifTypeToFetch== 'follow_notification'){
+                                                            return {
+                                                                data: [{
+                                                                            body: 'this is a follow notification body 1',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: false
+                                                                        },
+                                                                        {
+                                                                            body: 'this is a follow notification body 2',
+                                                                            associated_disaster_id: null,
+                                                                            mentioned_user_user_id: 'some other user id',
+                                                                            created_at: new Date(),
+                                                                            users_are_now_mutuals: true
+                                                                        }],
+                                                                error: null
+                                                            }
+                                                        }
+                                                        else{
+                                                            return {
+                                                                data: null,
+                                                                error: {
+                                                                    message: 'Unsupported category'
+                                                                }
+                                                            }
+                                                        } 
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock fetching required data for homescreen
+            else if(schemaName == 'disasters_related_data'){
+                return{
+                    from: jest.fn().mockImplementation(()=>{
+                        return {
+                            select: jest.fn().mockImplementation(()=>{
+                                return {
+                                    gt: jest.fn().mockReturnValue({ 
+                                        data: [], 
+                                        error: null}),
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            // mock rpc so they return empty data
+            else if(schemaName == 'public'){
+                return{
+                    rpc: jest.fn().mockImplementation(()=>{
+                        return {
+                                data: null
+                        }
+                    }),
+                }
+            }
+        });
+
         await render(
             <LanguageContext.Provider value={{currentLang: 'en'}}>
                 <AuthContext value={{user: testUser}}>
