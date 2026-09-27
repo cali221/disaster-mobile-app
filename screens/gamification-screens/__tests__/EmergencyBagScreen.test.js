@@ -16,16 +16,7 @@ import { supabase } from '../../../lib/supabase';
 jest.mock('../../../lib/supabase', ()=>{
     return {
         supabase: {
-            schema: jest.fn().mockImplementation(()=>{
-                return{
-                    rpc: jest.fn().mockImplementation(()=>{
-                        return {
-                            data: [],
-                            error: null
-                        }
-                    })
-                }
-            })
+            schema: jest.fn()
         }
     }
 });

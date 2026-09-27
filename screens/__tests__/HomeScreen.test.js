@@ -11,31 +11,8 @@ import { renderWithToasts } from '../../utils/render-with-toasts';
 jest.mock('../../lib/supabase', ()=>{
     return {
         supabase: {
-            channel: jest.fn().mockImplementation(()=>{
-                return {
-                    on: jest.fn(),
-                    subscribe: jest.fn().mockReturnThis(),
-                    unsubscribe: jest.fn()
-                }
-            }),
-            schema: jest.fn().mockImplementation((schemaName)=>{
-                if(schemaName == 'public'){
-                    return{
-                        from: jest.fn(),
-                        order: jest.fn(),
-                        select: jest.fn(),
-                        eq: jest.fn(),
-                        rpc: jest.fn()
-                    }
-                }
-                else if(schemaName == 'disasters_related_data'){
-                    return{
-                        from: jest.fn(),
-                        select: jest.fn(),
-                        gt: jest.fn()
-                    }
-                }
-            }),
+            channel: jest.fn(),
+            schema: jest.fn(),
             auth: {
                 onAuthStateChange: jest.fn().mockReturnThis()
             },

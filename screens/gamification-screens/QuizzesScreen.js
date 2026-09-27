@@ -183,7 +183,7 @@ export function QuizzesScreen() {
 
                 if(error){
                     showErrorToast(t('quizScreen.failedToUpdateProfile'), 
-                                    `${error.message ?? JSON.stringify(error)}`);
+                                   `${error.message ?? JSON.stringify(error)}`);
                 }
             }
         }
@@ -251,6 +251,7 @@ export function QuizzesScreen() {
                                             quizQuestionsAndAnswers[0].quiz_answers.map((item, index) => {
                                                 return(
                                                     <TouchableOpacity key={index}
+                                                                      accessibilityRole='button'
                                                                       onPress={()=>{handleAnsBtnPress(item.is_correct_ans)}}
                                                                       style={styles.answerBtn}>
                                                         <Text style={styles.answerBtnTxt}>
@@ -306,6 +307,7 @@ export function QuizzesScreen() {
                                         return(
                                             <TouchableOpacity style={styles.categoryBtn} 
                                                               key={index}
+                                                              accessibilityRole='button'
                                                               onPress={()=>{setChosenCategory(item.category_id)}}>
                                                 <Text style={styles.categoryBtnTxt}>
                                                     {currentLang  == 'id' ? 

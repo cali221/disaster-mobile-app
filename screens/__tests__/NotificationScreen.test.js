@@ -13,85 +13,9 @@ import { addFollow } from '../../utils/users-utilities';
 jest.mock('../../lib/supabase', () => {
     return {
         supabase: {
-            schema: jest.fn().mockImplementation((schemaName) => {
-                // mock fetching user's notifications
-                if(schemaName == 'users'){
-                    return {
-                        from: jest.fn().mockImplementation(() => {
-                            return {
-                                select: jest.fn().mockImplementation(() => {
-                                    return {
-                                        eq: jest.fn().mockImplementation(() => {
-                                            return {
-                                                eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
-                                                    return {
-                                                        order: jest.fn().mockImplementation(() => {
-                                                            if(notifTypeToFetch == 'disaster_notification'){
-                                                                return {
-                                                                    data: [],
-                                                                    error: null
-                                                                }
-                                                            }
-                                                            else if(notifTypeToFetch== 'follow_notification'){
-                                                                return {
-                                                                    data: [],
-                                                                    error: null
-                                                                }
-                                                            }
-                                                            else{
-                                                                return {
-                                                                    data: null,
-                                                                    error: {
-                                                                        message: 'Unsupported category'
-                                                                    }
-                                                                }
-                                                            } 
-                                                        })
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    }
-                                })
-                            }
-                        })
-                    }
-                }
-                // mock fetching required data for homescreen
-                else if(schemaName == 'disasters_related_data'){
-                    return{
-                        from: jest.fn().mockImplementation(()=>{
-                            return {
-                                select: jest.fn().mockImplementation(()=>{
-                                    return {
-                                        gt: jest.fn().mockReturnValue({ 
-                                            data: [], 
-                                            error: null}),
-                                    }
-                                })
-                            }
-                        })
-                    }
-                }
-                // mock rpc so they return empty data
-                else if(schemaName == 'public'){
-                    return{
-                        rpc: jest.fn().mockImplementation(()=>{
-                            return {
-                                    data: null
-                            }
-                        }),
-                    }
-                }
-            }),
+            schema: jest.fn(),
             // mock supabase channel for homescreen
-            channel: jest.fn().mockImplementation(()=>{
-                return{
-                    on: jest.fn().mockReturnThis(),
-                    subscribe: jest.fn(),
-                    unsubscribe: jest.fn()
-                }
-            }),
+            channel: jest.fn()
         }
     }
 });
@@ -131,111 +55,6 @@ jest.mock('lucide-react-native', () => {
         ChevronDown: 'ChevronDown',
     }
 });
-
-// supabase mock with sample data
-// jest.mock('@supabase/supabase-js', () => {
-//     return {
-//         createClient: jest.fn().mockImplementation(() => {
-//             return {
-//                 schema: jest.fn().mockImplementation((schemaName) => {
-//                     // mock fetching user's notifications
-//                     if(schemaName == 'users'){
-//                         return {
-//                             from: jest.fn().mockImplementation(() => {
-//                                 return {
-//                                     select: jest.fn().mockImplementation(() => {
-//                                         return {
-//                                             eq: jest.fn().mockImplementation(() => {
-//                                                 return {
-//                                                     eq: jest.fn().mockImplementation((key, notifTypeToFetch) => {
-//                                                         return {
-//                                                             order: jest.fn().mockImplementation(() => {
-//                                                                 if(notifTypeToFetch == 'disaster_notification'){
-//                                                                     return {
-//                                                                         data: [{body: 'this is as disaster notification body',
-//                                                                                 associated_disaster_id: 'some-disaster-id',
-//                                                                                 mentioned_user_user_id: null,
-//                                                                                 created_at: new Date()}],
-//                                                                         error: null
-//                                                                     }
-//                                                                 }
-//                                                                 else if(notifTypeToFetch== 'follow_notification'){
-//                                                                     return {
-//                                                                         data: [{
-//                                                                                     body: 'this is a follow notification body 1',
-//                                                                                     associated_disaster_id: null,
-//                                                                                     mentioned_user_user_id: 'some other user id',
-//                                                                                     created_at: new Date(),
-//                                                                                     users_are_now_mutuals: false
-//                                                                                 },
-//                                                                                 {
-//                                                                                     body: 'this is a follow notification body 2',
-//                                                                                     associated_disaster_id: null,
-//                                                                                     mentioned_user_user_id: 'some other user id',
-//                                                                                     created_at: new Date(),
-//                                                                                     users_are_now_mutuals: true
-//                                                                                 }],
-//                                                                         error: null
-//                                                                     }
-//                                                                 }
-//                                                                 else{
-//                                                                     return {
-//                                                                         data: null,
-//                                                                         error: {
-//                                                                             message: 'Unsupported category'
-//                                                                         }
-//                                                                     }
-//                                                                 } 
-//                                                             })
-//                                                         }
-//                                                     })
-//                                                 }
-//                                             })
-//                                         }
-//                                     })
-//                                 }
-//                             })
-//                         }
-//                     }
-//                     // mock fetching required data for homescreen
-//                     else if(schemaName == 'disasters_related_data'){
-//                         return{
-//                             from: jest.fn().mockImplementation(()=>{
-//                                 return {
-//                                     select: jest.fn().mockImplementation(()=>{
-//                                         return {
-//                                             gt: jest.fn().mockReturnValue({ 
-//                                                 data: [], 
-//                                                 error: null}),
-//                                         }
-//                                     })
-//                                 }
-//                             })
-//                         }
-//                     }
-//                     // mock rpc so they return empty data
-//                     else if(schemaName == 'public'){
-//                         return{
-//                             rpc: jest.fn().mockImplementation(()=>{
-//                                 return {
-//                                         data: null
-//                                 }
-//                             }),
-//                         }
-//                     }
-//                 }),
-//                 // mock supabase channel for homescreen
-//                 channel: jest.fn().mockImplementation(()=>{
-//                     return{
-//                         on: jest.fn().mockReturnThis(),
-//                         subscribe: jest.fn(),
-//                         unsubscribe: jest.fn()
-//                     }
-//                 }),
-//             }
-//         }
-//     )}
-// });
 
 jest.mock('../../utils/users-utilities', () => {
     return {
@@ -880,6 +699,14 @@ describe('Notification Screen Navigation Checks', () => {
                         }
                     }),
                 }
+            }
+        });
+
+        supabase.channel.mockImplementation(()=>{
+            return{
+                on: jest.fn().mockReturnThis(),
+                subscribe: jest.fn(),
+                unsubscribe: jest.fn()
             }
         });
 
