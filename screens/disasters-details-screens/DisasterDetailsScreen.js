@@ -930,20 +930,24 @@ const styles = StyleSheet.create({
         columnGap: 35,
         paddingVertical: 15,
         borderBottomWidth: 2,
-        borderBottomColor: '#2D3782'
+        borderBottomColor: '#2D3782',
+        paddingHorizontal: 12
     },
     /* container of texts (time and description) 
        of each report */
     reportItemTextsContainer: {
         display: 'flex',
         flexDirection: 'column',
-        rowGap: 10
+        rowGap: 10,
+        width: '70%',
+        flexWrap: 'wrap'
     },
     // description text of the report
     reportItemDescText: {
         fontSize: 16,
         color: '#2D3782',
-        fontWeight: '600'
+        fontWeight: '600',
+        width: '100%'
     },
     // text showing the time the report was created
     reportItemTimeText: {
