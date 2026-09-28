@@ -423,8 +423,8 @@ export function UsefulLocationScreen() {
 
                                 {/* switch for using current coordinates,
                                     can't be switch off but can be switched on */}
-                                <Switch trackColor={{false: '#969696', true: '#404b9f'}}
-                                        thumbColor={isUsingCurrentLoc == true ? '#2d3782' : '#595a65'}
+                                <Switch trackColor={{false: '#969696', true: '#821d4e'}}
+                                        thumbColor={isUsingCurrentLoc == true ? '#AB5C82' : '#595a65'}
                                         onValueChange={()=>{setIsUsingCurrentLoc(!isUsingCurrentLoc)}}
                                         value={isUsingCurrentLoc}
                                         disabled={isUsingCurrentLoc == false ? false : true} />
