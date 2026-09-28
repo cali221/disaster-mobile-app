@@ -19,13 +19,14 @@ The mobile application uses disaster data from BMKG (Badan Meteorologi, Klimatol
 - https://docs.petabencana.id/
 
 ### Indonesian Admin Boundaries Data Sources
-The mobile application uses Indonesian admin boundaries data from Badan Pusat Statistik Indonesia (propoer attribution texts are shown in the app).
+The mobile application uses Indonesian admin boundaries data from Badan Pusat Statistik Indonesia (proper attribution texts are shown in the app). Web page of the source:
+- https://data.humdata.org/dataset/cod-ab-idn
 
 ### Map
 This mobile application uses OpenFreeMap (https://openfreemap.org/) for the maps.
 
 ### AI-generated Visual Assets
-This mobile application uses some visual assets (avatars, badges, level badges) that are AI-generated using GPT-5.4 mini accessed through Duck.ai (https://duck.ai).
+This mobile application uses some visual assets (avatars, badges, level badges) that were generated using GPT-5.4 mini accessed through Duck.ai (https://duck.ai).
 
 ## Audio Assets
 This mobile application uses audio assets (sound effects and background music) from the https://freesound.org which were published by the following users:
