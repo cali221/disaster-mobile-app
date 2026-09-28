@@ -1,0 +1,2 @@
+## Source of the Map Style
+The file style.json in this directory is a map style obtained by exporting from http://tiles.versatiles.org/. As shown in the file, the map style is licensed under public domain (https://creativecommons.org/publicdomain/zero/1.0), with source attribution to OpenStreetMap. 

@@ -1,0 +1,48 @@
+import { Text, View, StyleSheet, Image } from 'react-native';
+import { CenterModalBase } from '../modals-base/CenterModalBase';
+import { useTranslation } from 'react-i18next';
+
+export function BadgeDetailsModal(props) {
+    const { t, i18n } = useTranslation();
+    const currentLang = i18n.resolvedLanguage;
+
+    return(
+       <CenterModalBase title={props.badgeModalData.name} 
+                        closeFunc={()=>{props.hideBadgeModalFunc()}}>
+            <View style={styles.badgeModalContentContainer}
+                  testID='badge-details-modal-content-container'>
+                {/* the badge's image */}
+                <Image source={{uri: props.badgeModalData.badgeImgUrl}} 
+                                style={[styles.badgeModalImg, 
+                                        props.badgeModalData.earned == false && {filter: 'grayscale(100%)'}]}
+                       testID={`badge-image-on-modal-${(props.badgeModalData.name).toLowerCase().replace(' ', '-')}`}/>
+                {/* the badge's description */}
+                <Text style={styles.badgeModalDescTxt}>
+                    {currentLang == 'id' ? props.badgeModalData.badgeDescIdn : props.badgeModalData.badgeDesc}
+                </Text>
+            </View>
+        </CenterModalBase>
+    )
+};
+
+const styles = StyleSheet.create({
+    // content/body container of badge modal
+    badgeModalContentContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        width: '100%'
+    },
+    // modal image shown on badge modal
+    badgeModalImg: {
+        width: 150,
+        height: 150
+    },
+    // description text shown on badge modal
+    badgeModalDescTxt: {
+        fontSize: 16,
+        color: '#2D3782',
+        textAlign: 'center'
+    }
+});

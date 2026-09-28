@@ -1,0 +1,66 @@
+{
+  "name": "final-project-code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFiles": [
+      "./jest/jestSetupFile.js"
+    ]
+  },
+  "dependencies": {
+    "@maplibre/maplibre-react-native": "^11.3.6",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-masked-view/masked-view": "0.3.2",
+    "@react-navigation/bottom-tabs": "^7.18.8",
+    "@react-navigation/native": "^7.3.3",
+    "@react-navigation/stack": "^7.10.5",
+    "@supabase/supabase-js": "^2.108.2",
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "29.5.14",
+    "@versatiles/style": "^6.0.1",
+    "expo": "~54.0.37",
+    "expo-asset": "~12.0.13",
+    "expo-audio": "~1.1.1",
+    "expo-constants": "~18.0.14",
+    "expo-dev-client": "~6.0.21",
+    "expo-location": "~19.0.8",
+    "expo-notifications": "~0.32.17",
+    "expo-sms": "~14.0.8",
+    "expo-sqlite": "~16.0.10",
+    "expo-status-bar": "~3.0.9",
+    "expo-task-manager": "~14.0.9",
+    "expo-updates": "~29.0.20",
+    "i18next": "^26.3.6",
+    "jest": "~29.7.0",
+    "jest-expo": "~54.0.18",
+    "lucide-react-native": "^1.24.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-i18next": "^17.0.9",
+    "react-native": "0.81.5",
+    "react-native-device-info": "^15.0.2",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-toast-message": "^2.4.0",
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "0.5.1"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/react": "~19.1.10",
+    "supabase": "^2.107.0",
+    "typescript": "~5.9.2"
+  }
+}
