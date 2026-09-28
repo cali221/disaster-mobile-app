@@ -5,6 +5,7 @@ This repository is for a project involving the development of a mobile applicati
 - Code that I did not write myself are marked accordingly. Otherwise, I wrote the code myself.
 - I intentionally removed translation files (languages/en and languages/id) from the commit history, because the previous version might have contained content that were not pharaphrased enough or not referenced/attributed.
 - I had some issues with git and previous GitHub repository, so I moved the project into this new GitHub repository
+- I used the generate-license-file npm package (https://www.npmjs.com/package/generate-license-file) to generate the THIRD-PARTY-LICENSES.txt file which contains the license texts of third-party dependencies used in this project.
 
 ## Tech Stack
 - This project uses Expo and React Native to develop the mobile application. 
