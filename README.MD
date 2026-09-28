@@ -2,8 +2,9 @@
 This repository is for a project involving the development of a mobile application for disaster preparedness and response in Indonesia.
 
 ## Notes
-### Code that I did not write myself are marked accordingly. Otherwise, I wrote the code myself.
-### I intentionally removed translation files (languages/en and languages/id) from the commit history, because the previous version might have contained content that were not pharaphrased enough or not referenced/attributed.
+- Code that I did not write myself are marked accordingly. Otherwise, I wrote the code myself.
+- I intentionally removed translation files (languages/en and languages/id) from the commit history, because the previous version might have contained content that were not pharaphrased enough or not referenced/attributed.
+- I had some issues with git and previous GitHub repository, so I moved the project into this new GitHub repository
 
 ## Tech Stack
 - This project uses Expo and React Native to develop the mobile application. 
